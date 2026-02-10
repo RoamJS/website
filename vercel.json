@@ -1,9 +1,8 @@
 {
-  "redirects": [
+  "rewrites": [
     {
       "source": "/releases/:path*",
-      "destination": "https://06ejmix49tpabghu.public.blob.vercel-storage.com/releases/:path*",
-      "permanent": false
+      "destination": "https://06ejmix49tpabghu.public.blob.vercel-storage.com/releases/:path*"
     }
   ]
 }
