@@ -4,6 +4,49 @@ import { useEffect } from "react";
 
 const TRUSTED_ORIGINS = ["https://roamjs.com", "https://roamresearch.com"];
 
+const getOrigin = (url: string) => {
+  try {
+    return new URL(url).origin;
+  } catch {
+    return "";
+  }
+};
+
+const isTrustedOrigin = (origin: string) => {
+  if (!origin) {
+    return false;
+  }
+  try {
+    const { protocol, hostname } = new URL(origin);
+    if (protocol === "https:" && hostname === "roamjs.com") {
+      return true;
+    }
+    if (
+      protocol === "https:" &&
+      (hostname === "roamresearch.com" ||
+        hostname.endsWith(".roamresearch.com"))
+    ) {
+      return true;
+    }
+    if (protocol === "app:" && hostname.endsWith("roamresearch.com")) {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+};
+
+const decodeStateOrigin = (state: string) => {
+  try {
+    const decoded = window.atob(state);
+    const parsed = JSON.parse(decoded) as { origin?: string };
+    return typeof parsed.origin === "string" ? parsed.origin : "";
+  } catch {
+    return "";
+  }
+};
+
 const OauthPage = () => {
   useEffect(() => {
     const params = Object.fromEntries(
@@ -12,7 +55,20 @@ const OauthPage = () => {
 
     if (window.opener) {
       const payload = JSON.stringify(params);
-      TRUSTED_ORIGINS.forEach((origin) => {
+      const origins = new Set(TRUSTED_ORIGINS);
+
+      const stateOrigin =
+        typeof params.state === "string" ? decodeStateOrigin(params.state) : "";
+      if (isTrustedOrigin(stateOrigin)) {
+        origins.add(stateOrigin);
+      }
+
+      const referrerOrigin = getOrigin(document.referrer);
+      if (isTrustedOrigin(referrerOrigin)) {
+        origins.add(referrerOrigin);
+      }
+
+      origins.forEach((origin) => {
         window.opener?.postMessage(payload, origin);
       });
       window.close();
