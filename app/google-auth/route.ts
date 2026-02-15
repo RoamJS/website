@@ -5,6 +5,7 @@ const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
+const GOOGLE_REDIRECT_URI = "https://roamjs.com/oauth?auth=true";
 
 type GoogleAuthRequest = {
   code?: string;
@@ -28,22 +29,9 @@ const parseRequest = async (
   }
 };
 
-const getClientId = () =>
-  process.env.GOOGLE_OAUTH_CLIENT_ID ||
-  process.env.GOOGLE_CLIENT_ID ||
-  process.env.OAUTH_CLIENT_ID ||
-  "";
+const getClientId = () => process.env.GOOGLE_OAUTH_CLIENT_ID || "";
 
-const getClientSecret = () =>
-  process.env.GOOGLE_OAUTH_CLIENT_SECRET ||
-  process.env.GOOGLE_CLIENT_SECRET ||
-  process.env.OAUTH_CLIENT_SECRET ||
-  "";
-
-const getRedirectUri = (request: NextRequest) =>
-  process.env.GOOGLE_OAUTH_REDIRECT_URI ||
-  process.env.OAUTH_REDIRECT_URI ||
-  `${request.nextUrl.origin}/oauth?auth=true`;
+const getClientSecret = () => process.env.GOOGLE_OAUTH_CLIENT_SECRET || "";
 
 const getLabel = async (accessToken: string): Promise<string | undefined> => {
   try {
@@ -89,7 +77,7 @@ export const POST = async (request: NextRequest) => {
     return jsonResponse(
       {
         error:
-          "Missing OAuth env vars. Set GOOGLE_OAUTH_CLIENT_ID/GOOGLE_OAUTH_CLIENT_SECRET or OAUTH_CLIENT_ID/OAUTH_CLIENT_SECRET.",
+          "Missing OAuth env vars. Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET.",
       },
       500
     );
@@ -105,7 +93,7 @@ export const POST = async (request: NextRequest) => {
       return jsonResponse({ error: "Missing code" }, 400);
     }
     formData.set("code", payload.code);
-    formData.set("redirect_uri", getRedirectUri(request));
+    formData.set("redirect_uri", GOOGLE_REDIRECT_URI);
   } else {
     if (!payload.refresh_token) {
       return jsonResponse({ error: "Missing refresh_token" }, 400);

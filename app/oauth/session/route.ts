@@ -8,7 +8,6 @@ type SessionRecord = {
   code?: string;
   state?: string;
   error?: string;
-  createdAt: number;
   updatedAt: number;
 };
 
@@ -22,13 +21,13 @@ const CORS_HEADERS: Record<string, string> = {
 };
 
 const globalStore = globalThis as typeof globalThis & {
-  __ROAMJS_OAUTH_DESKTOP_STORE__?: Map<string, SessionRecord>;
+  __ROAMJS_OAUTH_SESSION_STORE__?: Map<string, SessionRecord>;
 };
 
 const store =
-  globalStore.__ROAMJS_OAUTH_DESKTOP_STORE__ ||
+  globalStore.__ROAMJS_OAUTH_SESSION_STORE__ ||
   new Map<string, SessionRecord>();
-globalStore.__ROAMJS_OAUTH_DESKTOP_STORE__ = store;
+globalStore.__ROAMJS_OAUTH_SESSION_STORE__ = store;
 const SESSION_CACHE_PREFIX = "https://oauth-session.roamjs.internal/";
 
 const isValidSession = (session: string) =>
@@ -159,13 +158,11 @@ export const POST = async (request: NextRequest) => {
   }
 
   const now = Date.now();
-  const previous = await readSession(session);
   await writeSession(session, {
     status: "completed",
     code: payload.code || "",
     state: payload.state || "",
     error: payload.error || "",
-    createdAt: previous?.createdAt || now,
     updatedAt: now,
   });
 
