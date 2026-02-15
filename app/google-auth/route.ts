@@ -40,10 +40,10 @@ const getClientSecret = () =>
   process.env.OAUTH_CLIENT_SECRET ||
   "";
 
-const getRedirectUri = () =>
+const getRedirectUri = (request: NextRequest) =>
   process.env.GOOGLE_OAUTH_REDIRECT_URI ||
   process.env.OAUTH_REDIRECT_URI ||
-  "https://roamjs.com/oauth?auth=true";
+  `${request.nextUrl.origin}/oauth?auth=true`;
 
 const getLabel = async (accessToken: string): Promise<string | undefined> => {
   try {
@@ -105,7 +105,7 @@ export const POST = async (request: NextRequest) => {
       return jsonResponse({ error: "Missing code" }, 400);
     }
     formData.set("code", payload.code);
-    formData.set("redirect_uri", getRedirectUri());
+    formData.set("redirect_uri", getRedirectUri(request));
   } else {
     if (!payload.refresh_token) {
       return jsonResponse({ error: "Missing refresh_token" }, 400);

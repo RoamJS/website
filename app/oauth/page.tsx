@@ -48,39 +48,77 @@ const decodeStateOrigin = (state: string) => {
     const padded =
       normalized + "=".repeat((4 - (normalized.length % 4 || 4)) % 4);
     const decoded = window.atob(padded);
-    const parsed = JSON.parse(decoded) as { origin?: string };
-    return typeof parsed.origin === "string" ? parsed.origin : "";
+    const parsed = JSON.parse(decoded) as {
+      origin?: string;
+      session?: string;
+    };
+    return {
+      origin: typeof parsed.origin === "string" ? parsed.origin : "",
+      session: typeof parsed.session === "string" ? parsed.session : "",
+    };
   } catch {
-    return "";
+    return {
+      origin: "",
+      session: "",
+    };
   }
 };
 
 const OauthPage = () => {
   useEffect(() => {
-    const params = Object.fromEntries(
-      new URLSearchParams(window.location.search).entries(),
-    );
+    const completeOauth = async () => {
+      const params = Object.fromEntries(
+        new URLSearchParams(window.location.search).entries(),
+      );
+      const stateData =
+        typeof params.state === "string"
+          ? decodeStateOrigin(params.state)
+          : { origin: "", session: "" };
 
-    if (window.opener) {
-      const payload = JSON.stringify(params);
-      const origins = new Set(TRUSTED_ORIGINS);
-
-      const stateOrigin =
-        typeof params.state === "string" ? decodeStateOrigin(params.state) : "";
-      if (isTrustedOrigin(stateOrigin)) {
-        origins.add(stateOrigin);
+      if (stateData.session) {
+        try {
+          await fetch("/oauth/session", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              session: stateData.session,
+              code: typeof params.code === "string" ? params.code : "",
+              state: typeof params.state === "string" ? params.state : "",
+              error:
+                typeof params.error === "string"
+                  ? params.error
+                  : typeof params.error_description === "string"
+                    ? params.error_description
+                    : "",
+            }),
+          });
+        } catch {
+          // Browser callback still shows completion text if registration fails.
+        }
       }
 
-      const referrerOrigin = getOrigin(document.referrer);
-      if (isTrustedOrigin(referrerOrigin)) {
-        origins.add(referrerOrigin);
-      }
+      if (window.opener) {
+        const payload = JSON.stringify(params);
+        const origins = new Set(TRUSTED_ORIGINS);
 
-      origins.forEach((origin) => {
-        window.opener?.postMessage(payload, origin);
-      });
-      window.close();
-    }
+        if (isTrustedOrigin(stateData.origin)) {
+          origins.add(stateData.origin);
+        }
+
+        const referrerOrigin = getOrigin(document.referrer);
+        if (isTrustedOrigin(referrerOrigin)) {
+          origins.add(referrerOrigin);
+        }
+
+        origins.forEach((origin) => {
+          window.opener?.postMessage(payload, origin);
+        });
+        window.close();
+      }
+    };
+    void completeOauth();
   }, []);
 
   return (
@@ -100,3 +138,4 @@ const OauthPage = () => {
 };
 
 export default OauthPage;
+
