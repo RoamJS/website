@@ -2,7 +2,12 @@
 
 import { useEffect } from "react";
 
-const TRUSTED_ORIGINS = ["https://roamjs.com", "https://roamresearch.com"];
+const TRUSTED_ORIGINS = [
+  "https://roamjs.com",
+  "https://roamresearch.com",
+  "https://beta.roamresearch.com",
+  "https://app.roamresearch.com",
+];
 
 const getOrigin = (url: string) => {
   try {
@@ -39,7 +44,10 @@ const isTrustedOrigin = (origin: string) => {
 
 const decodeStateOrigin = (state: string) => {
   try {
-    const decoded = window.atob(state);
+    const normalized = state.replace(/-/g, "+").replace(/_/g, "/");
+    const padded =
+      normalized + "=".repeat((4 - (normalized.length % 4 || 4)) % 4);
+    const decoded = window.atob(padded);
     const parsed = JSON.parse(decoded) as { origin?: string };
     return typeof parsed.origin === "string" ? parsed.origin : "";
   } catch {
