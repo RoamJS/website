@@ -2,14 +2,19 @@
 
 import { useEffect } from "react";
 
+const TRUSTED_ORIGINS = ["https://roamjs.com", "https://roamresearch.com"];
+
 const OauthPage = () => {
   useEffect(() => {
     const params = Object.fromEntries(
-      new URLSearchParams(window.location.search).entries()
+      new URLSearchParams(window.location.search).entries(),
     );
 
     if (window.opener) {
-      window.opener.postMessage(JSON.stringify(params), "*");
+      const payload = JSON.stringify(params);
+      TRUSTED_ORIGINS.forEach((origin) => {
+        window.opener?.postMessage(payload, origin);
+      });
       window.close();
     }
   }, []);
