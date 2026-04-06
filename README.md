@@ -1,6 +1,6 @@
 # RoamJS Website
 
-This Next.js app hosts the OAuth callback and token exchange endpoints used by the RoamJS Google extension.
+This Next.js app hosts the OAuth callback and token exchange endpoints used by RoamJS OAuth integrations.
 
 ## Endpoints
 
@@ -14,6 +14,8 @@ This Next.js app hosts the OAuth callback and token exchange endpoints used by t
   - Callback registration endpoint for `{ session, code, state, error }`.
 - `POST /google-auth`
   - Exchanges Google auth code or refresh token for access token data.
+- `POST /dropbox-auth`
+  - Exchanges Dropbox auth code or refresh token for access token data.
 
 ## Development
 
@@ -24,6 +26,8 @@ This Next.js app hosts the OAuth callback and token exchange endpoints used by t
 3. Set required env vars in `.env.local`:
    - `GOOGLE_OAUTH_CLIENT_ID`
    - `GOOGLE_OAUTH_CLIENT_SECRET`
+   - `DROPBOX_OAUTH_CLIENT_SECRET`
+   - `DROPBOX_OAUTH_CLIENT_ID` (optional, defaults to `ghagecp4sgm6v99`)
 4. Run:
    - `npm run dev`
 
@@ -31,4 +35,5 @@ This Next.js app hosts the OAuth callback and token exchange endpoints used by t
 
 - `/oauth/session` uses edge cache storage when available, with in-memory fallback.
 - If polling misses under heavy scale, move session storage to dedicated shared KV/Redis.
-
+- Dropbox auth uses `https://roamjs.com/dropbox-auth` for token exchange.
+- The Dropbox app redirect URI must include `https://roamjs.com/oauth?auth=true`.
