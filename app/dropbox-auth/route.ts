@@ -121,7 +121,7 @@ export const POST = async (request: NextRequest) => {
   const tokenData = await parseResponse(tokenResponse, "Failed to exchange token");
 
   if (!tokenResponse.ok) {
-    return jsonResponse(tokenData, 500);
+    return jsonResponse(tokenData, tokenResponse.status);
   }
 
   if (grantType === "refresh_token") {
