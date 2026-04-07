@@ -135,45 +135,7 @@ export const POST = async (request: NextRequest) => {
       return jsonResponse(tokenData);
     }
 
-    if (
-      typeof tokenData.access_token !== "string" ||
-      typeof tokenData.account_id !== "string"
-    ) {
-      return jsonResponse(tokenData);
-    }
-
-    const userResponse = await fetch(
-      "https://api.dropboxapi.com/2/users/get_account",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${tokenData.access_token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ account_id: tokenData.account_id }),
-        cache: "no-store",
-      },
-    );
-
-    const userData = await parseResponse(
-      userResponse,
-      "Failed to fetch Dropbox account",
-    );
-
-    if (!userResponse.ok) {
-      return jsonResponse(userData, 500);
-    }
-
-    return jsonResponse({
-      ...tokenData,
-      label: (
-        userData as {
-          name?: {
-            display_name?: string;
-          };
-        }
-      ).name?.display_name,
-    });
+    return jsonResponse(tokenData);
   } catch (e) {
     return jsonResponse(
       {
