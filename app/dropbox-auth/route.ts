@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const ROUTE_VERSION = "dropbox-auth-2026-04-06-3";
+const ROUTE_VERSION = "dropbox-auth-2026-04-06-4";
 const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -91,12 +91,17 @@ export const POST = async (request: NextRequest) => {
       return jsonResponse({ error: "Invalid redirect_uri" }, 400);
     }
 
-    const requestData: DropboxAuthRequest = {
-      ...payload,
-      ...(grantType === "authorization_code"
-        ? { redirect_uri: DROPBOX_REDIRECT_URI }
-        : {}),
-    };
+    const requestData: DropboxAuthRequest =
+      grantType === "authorization_code"
+        ? {
+            code: payload.code,
+            grant_type: grantType,
+            redirect_uri: DROPBOX_REDIRECT_URI,
+          }
+        : {
+            refresh_token: payload.refresh_token,
+            grant_type: grantType,
+          };
 
     if (grantType === "authorization_code" && !requestData.code) {
       return jsonResponse({ error: "Missing code" }, 400);
@@ -136,6 +141,7 @@ export const POST = async (request: NextRequest) => {
       ok: tokenResponse.ok,
       status: tokenResponse.status,
       keys: Object.keys(tokenData),
+      body: tokenData,
     });
 
     if (!tokenResponse.ok) {
