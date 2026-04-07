@@ -55,116 +55,132 @@ export const OPTIONS = () =>
   });
 
 export const POST = async (request: NextRequest) => {
-  const payload = await parseRequest(request);
-  if (!payload) {
-    return jsonResponse({ error: "Invalid JSON body" }, 400);
-  }
+  try {
+    const payload = await parseRequest(request);
+    if (!payload) {
+      return jsonResponse({ error: "Invalid JSON body" }, 400);
+    }
 
-  const grantType = payload.grant_type;
-  if (grantType !== "authorization_code" && grantType !== "refresh_token") {
-    return jsonResponse({ error: "Unsupported grant_type" }, 400);
-  }
+    const grantType = payload.grant_type;
+    if (grantType !== "authorization_code" && grantType !== "refresh_token") {
+      return jsonResponse({ error: "Unsupported grant_type" }, 400);
+    }
 
-  const clientSecret = getClientSecret();
-  if (!clientSecret) {
+    const clientSecret = getClientSecret();
+    if (!clientSecret) {
+      return jsonResponse(
+        {
+          error:
+            "Missing OAuth env var. Set DROPBOX_OAUTH_CLIENT_SECRET. DROPBOX_OAUTH_CLIENT_ID is optional when using the default app.",
+        },
+        500,
+      );
+    }
+
+    const redirectUri = payload.redirect_uri || DROPBOX_REDIRECT_URI;
+    if (
+      grantType === "authorization_code" &&
+      redirectUri !== DROPBOX_REDIRECT_URI
+    ) {
+      return jsonResponse({ error: "Invalid redirect_uri" }, 400);
+    }
+
+    const requestData: DropboxAuthRequest = {
+      ...payload,
+      ...(grantType === "authorization_code"
+        ? { redirect_uri: DROPBOX_REDIRECT_URI }
+        : {}),
+    };
+
+    if (grantType === "authorization_code" && !requestData.code) {
+      return jsonResponse({ error: "Missing code" }, 400);
+    }
+
+    if (grantType === "refresh_token" && !requestData.refresh_token) {
+      return jsonResponse({ error: "Missing refresh_token" }, 400);
+    }
+
+    const formData = new URLSearchParams();
+    Object.entries(requestData).forEach(([key, value]) => {
+      if (typeof value === "string") {
+        formData.append(key, value);
+      }
+    });
+
+    const tokenResponse = await fetch(
+      "https://api.dropboxapi.com/oauth2/token",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${Buffer.from(
+            `${DROPBOX_CLIENT_ID}:${clientSecret}`,
+          ).toString("base64")}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
+        cache: "no-store",
+      },
+    );
+
+    const tokenData = await parseResponse(
+      tokenResponse,
+      "Failed to exchange token",
+    );
+
+    if (!tokenResponse.ok) {
+      return jsonResponse(tokenData, tokenResponse.status);
+    }
+
+    if (grantType === "refresh_token") {
+      return jsonResponse(tokenData);
+    }
+
+    if (
+      typeof tokenData.access_token !== "string" ||
+      typeof tokenData.account_id !== "string"
+    ) {
+      return jsonResponse(tokenData);
+    }
+
+    const userResponse = await fetch(
+      "https://api.dropboxapi.com/2/users/get_account",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${tokenData.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ account_id: tokenData.account_id }),
+        cache: "no-store",
+      },
+    );
+
+    const userData = await parseResponse(
+      userResponse,
+      "Failed to fetch Dropbox account",
+    );
+
+    if (!userResponse.ok) {
+      return jsonResponse(userData, 500);
+    }
+
+    return jsonResponse({
+      ...tokenData,
+      label: (
+        userData as {
+          name?: {
+            display_name?: string;
+          };
+        }
+      ).name?.display_name,
+    });
+  } catch (e) {
     return jsonResponse(
       {
         error:
-          "Missing OAuth env var. Set DROPBOX_OAUTH_CLIENT_SECRET. DROPBOX_OAUTH_CLIENT_ID is optional when using the default app.",
+          e instanceof Error ? e.message : "Unexpected Dropbox auth failure",
       },
       500,
     );
   }
-
-  const redirectUri = payload.redirect_uri || DROPBOX_REDIRECT_URI;
-  if (
-    grantType === "authorization_code" &&
-    redirectUri !== DROPBOX_REDIRECT_URI
-  ) {
-    return jsonResponse({ error: "Invalid redirect_uri" }, 400);
-  }
-
-  const requestData: DropboxAuthRequest = {
-    ...payload,
-    ...(grantType === "authorization_code"
-      ? { redirect_uri: DROPBOX_REDIRECT_URI }
-      : {}),
-  };
-
-  if (grantType === "authorization_code" && !requestData.code) {
-    return jsonResponse({ error: "Missing code" }, 400);
-  }
-
-  if (grantType === "refresh_token" && !requestData.refresh_token) {
-    return jsonResponse({ error: "Missing refresh_token" }, 400);
-  }
-
-  const formData = new URLSearchParams();
-  Object.entries(requestData).forEach(([key, value]) => {
-    if (typeof value === "string") {
-      formData.append(key, value);
-    }
-  });
-
-  const tokenResponse = await fetch("https://api.dropboxapi.com/oauth2/token", {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${Buffer.from(
-        `${DROPBOX_CLIENT_ID}:${clientSecret}`,
-      ).toString("base64")}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: formData.toString(),
-    cache: "no-store",
-  });
-
-  const tokenData = await parseResponse(tokenResponse, "Failed to exchange token");
-
-  if (!tokenResponse.ok) {
-    return jsonResponse(tokenData, tokenResponse.status);
-  }
-
-  if (grantType === "refresh_token") {
-    return jsonResponse(tokenData);
-  }
-
-  if (
-    typeof tokenData.access_token !== "string" ||
-    typeof tokenData.account_id !== "string"
-  ) {
-    return jsonResponse(tokenData);
-  }
-
-  const userResponse = await fetch(
-    "https://api.dropboxapi.com/2/users/get_account",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${tokenData.access_token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ account_id: tokenData.account_id }),
-      cache: "no-store",
-    },
-  );
-
-  const userData = await parseResponse(
-    userResponse,
-    "Failed to fetch Dropbox account",
-  );
-
-  if (!userResponse.ok) {
-    return jsonResponse(userData, 500);
-  }
-
-  return jsonResponse({
-    ...tokenData,
-    label: (
-      userData as {
-        name?: {
-          display_name?: string;
-        };
-      }
-    ).name?.display_name,
-  });
 };
