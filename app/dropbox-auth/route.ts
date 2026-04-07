@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const ROUTE_VERSION = "dropbox-auth-2026-04-06-3";
 const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "X-Dropbox-Auth-Version": ROUTE_VERSION,
 };
 const DROPBOX_CLIENT_ID =
   process.env.DROPBOX_OAUTH_CLIENT_ID || "ghagecp4sgm6v99";
@@ -56,6 +61,7 @@ export const OPTIONS = () =>
 
 export const POST = async (request: NextRequest) => {
   try {
+    console.log(`[${ROUTE_VERSION}] request:start`);
     const payload = await parseRequest(request);
     if (!payload) {
       return jsonResponse({ error: "Invalid JSON body" }, 400);
@@ -126,6 +132,11 @@ export const POST = async (request: NextRequest) => {
       tokenResponse,
       "Failed to exchange token",
     );
+    console.log(`[${ROUTE_VERSION}] token:response`, {
+      ok: tokenResponse.ok,
+      status: tokenResponse.status,
+      keys: Object.keys(tokenData),
+    });
 
     if (!tokenResponse.ok) {
       return jsonResponse(tokenData, tokenResponse.status);
@@ -135,8 +146,10 @@ export const POST = async (request: NextRequest) => {
       return jsonResponse(tokenData);
     }
 
+    console.log(`[${ROUTE_VERSION}] request:success`);
     return jsonResponse(tokenData);
   } catch (e) {
+    console.error(`[${ROUTE_VERSION}] request:error`, e);
     return jsonResponse(
       {
         error:
