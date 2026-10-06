@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 export const metadata: Metadata = {
   title: {
-    default: "RoamJS — Become a Roam Power User",
+    default: "RoamJS — A better way to work in Roam",
     template: "%s · RoamJS",
   },
   description:

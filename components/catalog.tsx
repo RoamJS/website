@@ -74,7 +74,7 @@ export const Catalog = ({
           id="home-heading"
           className="text-balance text-4xl font-bold leading-[1.12] tracking-[-.045em] sm:text-5xl lg:text-[56px]"
         >
-          Become a <span className="text-primary">Roam Power User</span>
+          A better way to work in <span className="text-primary">Roam.</span>
         </h1>
         <form
           role="search"

@@ -7,7 +7,7 @@ test("catalog search, filtering, sorting, guide and suggestion states", async ({
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: /Become a Roam Power User/ }),
+    page.getByRole("heading", { name: /A better way to work in Roam/ }),
   ).toBeVisible();
   await page.getByRole("textbox", { name: "Search plugins" }).fill("calendar");
   await expect(page.getByRole("status")).toHaveText(

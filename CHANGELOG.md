@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Update the homepage headline to “A better way to work in Roam.”
+
 - Refine the Graphite layout to match the approved mockup, with a larger wordmark, compact featured cards, illustrated SmartBlocks preview, and clearer catalog cards.
 
 - Introduce the Graphite design with the RoamJS logo, light and dark themes, prominent search, and title or download sorting in the plugin catalog.
