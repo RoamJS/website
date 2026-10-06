@@ -7,9 +7,6 @@ export const Footer = (): React.JSX.Element => (
         <Link href="/">
           <Brand />
         </Link>
-        <p className="mt-3 text-sm text-muted-foreground">
-          Little tools. More room to think.
-        </p>
       </div>
       <nav
         aria-label="Footer navigation"
