@@ -110,12 +110,6 @@ export const Featured = (): React.JSX.Element => (
                 View plugin <ArrowRight className="ml-2 size-4" />
               </Link>
             </Button>
-            <Link
-              href="/plugins/smartblocks#plugin-content"
-              className="text-sm text-primary hover:underline"
-            >
-              Learn more
-            </Link>
           </div>
         </div>
         <WorkflowPreview />

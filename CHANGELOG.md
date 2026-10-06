@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Remove the extra Learn more link from the featured SmartBlocks card.
+
 - Remove the extra labels above the Query Builder and Workbench featured cards.
 
 - Add the “More flow. Less friction.” subtitle and move search into the catalog toolbar with a minimal underline style.
