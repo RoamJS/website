@@ -1,35 +1,151 @@
-export default function Home() {
-  return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black px-6 text-white">
+import Link from "next/link";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BookOpen,
+  GitFork,
+  Sparkles,
+  Sprout,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Catalog } from "@/components/catalog";
+import { Featured } from "@/components/featured";
+const Home = (): React.JSX.Element => (
+  <main id="main" className="mx-auto max-w-6xl px-5 md:px-8">
+    <section className="grid items-center gap-8 py-16 md:grid-cols-[1.2fr_1fr] md:py-24">
+      <div>
+        <p className="eyebrow mb-6 flex items-center gap-2">
+          <span className="size-1.5 rounded-full bg-primary" /> INDEPENDENT
+          TOOLS FOR CONNECTED THINKING
+        </p>
+        <h1 className="text-5xl font-medium leading-[1.08] tracking-[-.055em] sm:text-6xl lg:text-[72px]">
+          Your notes.
+          <br />
+          More possibility<span className="text-primary">.</span>
+        </h1>
+        <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground">
+          Make Roam feel a little more like you. Thoughtful plugins for the way
+          you write, connect, and get things done.
+        </p>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Button asChild className="h-11 px-5">
+            <Link href="#plugins">
+              Explore the plugins <ArrowRight className="ml-1 size-4" />
+            </Link>
+          </Button>
+          <Button asChild variant="ghost" className="h-11">
+            <Link href="/getting-started">
+              New here? Start small <ArrowUpRight className="size-4" />
+            </Link>
+          </Button>
+        </div>
+        <p className="mt-7 flex items-center gap-2 text-xs text-muted-foreground">
+          <GitFork className="size-3.5" /> Open source. Built around your
+          workflow.
+        </p>
+      </div>
       <div
-        className="pointer-events-none absolute inset-0 opacity-35"
+        className="dot-paper relative mx-auto flex h-80 w-full max-w-md items-center justify-center rounded-full"
         aria-hidden="true"
       >
-        <div className="absolute left-1/2 top-1/2 h-[32rem] w-[32rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,_rgba(255,255,255,0.14)_0%,_rgba(255,255,255,0.03)_45%,_transparent_70%)] blur-xl" />
-      </div>
-      <section className="z-10 flex flex-col items-center text-center">
-        <h1 className="bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-5xl font-semibold tracking-tight text-transparent sm:text-7xl">
-          Coming Soon
-        </h1>
-        <div className="mt-10">
-          <a
-            className="group inline-flex items-center gap-3 rounded-full border border-zinc-700 bg-zinc-900/70 px-6 py-3 text-sm text-zinc-200 transition hover:border-zinc-500 hover:bg-zinc-800 hover:text-white"
-            href="https://github.com/RoamJS"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Visit the project on GitHub"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              className="h-4 w-4 fill-current transition group-hover:scale-110"
-              aria-hidden="true"
-            >
-              <path d="M12 .5A12 12 0 0 0 8.2 23.9c.6.1.8-.3.8-.6v-2.1c-3.3.7-4-1.4-4-1.4-.5-1.4-1.2-1.8-1.2-1.8-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 1.7 2.6 1.2 3.2.9.1-.7.4-1.2.7-1.4-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.2-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11 11 0 0 1 6 0c2.3-1.6 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.9 1.2 2 1.2 3.2 0 4.5-2.7 5.5-5.3 5.8.4.3.8 1 .8 2.1v3.1c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z" />
-            </svg>
-            github.com/RoamJS
-          </a>
+        <svg
+          className="absolute inset-0 h-full w-full text-border"
+          viewBox="0 0 400 320"
+          fill="none"
+        >
+          <path
+            d="M200 160L88 63M200 160L322 62M200 160L80 255M200 160L315 255"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeDasharray="5 5"
+          />
+          <circle
+            cx="200"
+            cy="160"
+            r="108"
+            stroke="currentColor"
+            strokeWidth="1"
+          />
+        </svg>
+        <div className="z-10 rotate-[-5deg] rounded-2xl border border-border bg-card px-8 py-7 shadow-sm">
+          <p className="font-mono text-[11px] text-primary">
+            [[your next idea]]
+          </p>
+          <div className="mt-3 h-1.5 w-28 rounded bg-muted" />
+          <div className="mt-2 h-1.5 w-20 rounded bg-muted" />
         </div>
-      </section>
-    </main>
-  );
-}
+        <span className="absolute left-3 top-10 -rotate-12 rounded-lg border bg-[var(--sage)] px-4 py-3 text-xs text-[var(--feature-ink)]">
+          ⌘ A better workflow
+        </span>
+        <span className="absolute right-0 top-8 rotate-6 rounded-lg border bg-[var(--lavender)] px-4 py-3 text-xs text-[var(--feature-ink)]">
+          ↗ A new connection
+        </span>
+        <span className="absolute bottom-8 left-2 rotate-6 rounded-lg border bg-[var(--peach)] px-4 py-3 text-xs text-[var(--feature-ink)]">
+          <Sparkles className="mr-1 inline size-3" /> A little less friction
+        </span>
+        <span className="absolute bottom-7 right-4 -rotate-6 rounded-lg border bg-card px-4 py-3 text-xs">
+          + Room to think
+        </span>
+      </div>
+    </section>
+    <Featured />
+    <Catalog />
+    <section className="grid gap-8 border-y py-10 md:grid-cols-3">
+      {[
+        {
+          Icon: BookOpen,
+          title: "Start with one small thing",
+          text: "Find a plugin that solves a real annoyance. You can always add more later.",
+          href: "/getting-started",
+          link: "How to get started",
+        },
+        {
+          Icon: Sparkles,
+          title: "Make it your own",
+          text: "Every plugin has its own guide. Explore the settings and find what works for you.",
+          href: "/#plugins",
+          link: "Explore the library",
+        },
+        {
+          Icon: Sprout,
+          title: "Help shape what comes next",
+          text: "The best ideas come from using the tools. Tell us what would make your day easier.",
+          href: "/ideas",
+          link: "Share an idea",
+        },
+      ].map(({ Icon, title, text, href, link }) => (
+        <div key={title}>
+          <Icon className="mb-4 size-5 text-primary" />
+          <h2 className="text-sm font-semibold">{title}</h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            {text}
+          </p>
+          <Link
+            href={href}
+            className="mt-4 inline-flex items-center gap-2 text-xs font-medium"
+          >
+            {link}
+            <ArrowRight className="size-3" />
+          </Link>
+        </div>
+      ))}
+    </section>
+    <section className="mt-16 flex flex-col justify-between gap-6 rounded-2xl bg-secondary px-7 py-9 sm:flex-row sm:items-center">
+      <div>
+        <p className="eyebrow mb-2">A NOTE, EVERY NOW AND THEN</p>
+        <h2 className="text-2xl font-medium tracking-tight">
+          Good things are growing.
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          New tools, useful updates, and a little inspiration for your graph.
+        </p>
+      </div>
+      <Button asChild variant="outline" className="h-11 shrink-0 bg-background">
+        <Link href="/updates">
+          Keep me in the loop <ArrowRight className="size-4" />
+        </Link>
+      </Button>
+    </section>
+  </main>
+);
+export default Home;
