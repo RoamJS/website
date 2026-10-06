@@ -169,9 +169,6 @@ export const Catalog = (): React.JSX.Element => {
           )}
         </div>
       </div>
-      <p className="mt-6 text-right text-[10px] text-muted-foreground">
-        Download ordering uses the October 4, 2026 Roam Depot snapshot.
-      </p>
     </section>
   );
 };
