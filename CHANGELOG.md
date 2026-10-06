@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add the GitHub icon to the header's GitHub button.
+
 - Simplify the theme control to a single sun or moon icon.
 
 - Simplify the featured SmartBlocks illustration to one annotation and move it lower.
