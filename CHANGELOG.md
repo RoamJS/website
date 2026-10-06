@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Simplify the theme control to a single sun or moon icon.
+
 - Simplify the featured SmartBlocks illustration to one annotation and move it lower.
 
 - Reduce the RoamJS logo and wordmark by approximately 10%.

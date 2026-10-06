@@ -83,6 +83,9 @@ test("theme persists; mobile layout and keyboard navigation work", async ({
   await page.setViewportSize({ width: 1440, height: 1080 });
   await page.goto("/");
   await expect(page.locator("html")).toHaveClass(/dark/);
+  const themeToggle = page.getByRole("button", { name: "Toggle dark mode" });
+  await expect(themeToggle.locator("svg:visible")).toHaveCount(1);
+  await expect(themeToggle.locator(".lucide-sun")).toBeVisible();
   await expect(page.locator("header img")).toHaveJSProperty(
     "naturalWidth",
     460,
@@ -95,6 +98,9 @@ test("theme persists; mobile layout and keyboard navigation work", async ({
   await expect(page.locator("html")).toHaveClass(/dark/);
   await page.screenshot({ path: "local/dark-desktop.png" });
   await page.getByRole("button", { name: "Toggle dark mode" }).click();
+  await expect(page.locator("html")).toHaveClass(/light/);
+  await expect(themeToggle.locator("svg:visible")).toHaveCount(1);
+  await expect(themeToggle.locator(".lucide-moon")).toBeVisible();
   await page.screenshot({ path: "local/light-desktop.png" });
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole("link", { name: "RoamJS home" })).toBeVisible();
