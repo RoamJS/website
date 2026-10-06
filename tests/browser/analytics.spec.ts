@@ -190,3 +190,60 @@ test("OAuth pages do not initialize analytics", async ({ page }) => {
   ).toHaveLength(0);
   expect(requests).toHaveLength(0);
 });
+
+test("analytics starts after a client navigation from a 404 without tracking the excluded route", async ({
+  page,
+}) => {
+  const events: CapturedEvent[] = [];
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "webdriver", { get: () => false });
+    Object.defineProperty(navigator, "userAgentData", { get: () => undefined });
+  });
+  await page.route(/https:\/\/[^/]*posthog\.com\//, async (route) => {
+    const body = route.request().postDataBuffer();
+    if (body) {
+      const text = (
+        body[0] === 31 && body[1] === 139 ? gunzipSync(body) : body
+      ).toString();
+      const payload = JSON.parse(text);
+      events.push(
+        ...(Array.isArray(payload) ? payload : (payload.batch ?? [payload])),
+      );
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: '{"status":1}',
+    });
+  });
+
+  await page.goto("/missing-entry?code=private-entry-canary");
+  await expect(
+    page.getByRole("heading", { name: "We couldn’t find that page." }),
+  ).toBeVisible();
+  expect(events).toHaveLength(0);
+  const timeOrigin = await page.evaluate(() => performance.timeOrigin);
+  await page.getByRole("link", { name: "Back to the plugin library" }).click();
+  await expect(
+    page.getByRole("heading", { name: "A better way to work in Roam." }),
+  ).toBeVisible();
+  expect(await page.evaluate(() => performance.timeOrigin)).toBe(timeOrigin);
+  await expect
+    .poll(() => events.filter((e) => e.event === "$pageview").length)
+    .toBe(1);
+  await page.getByRole("button", { name: "Next featured plugins" }).click();
+  await page
+    .getByRole("region", { name: "Featured plugins" })
+    .getByRole("link", { name: "View plugin", exact: true })
+    .click();
+  await expect
+    .poll(() => events.filter((e) => e.event === "$pageview").length)
+    .toBe(2);
+  expect(events.filter((e) => e.event === "carousel navigated")).toHaveLength(
+    1,
+  );
+  expect(events.filter((e) => e.event === "plugin clicked")).toHaveLength(1);
+  expect(JSON.stringify(events)).not.toMatch(
+    /missing-entry|private-entry-canary/,
+  );
+});

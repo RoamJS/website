@@ -17,12 +17,17 @@ test("catalog search, filtering, sorting, guide and suggestion states", async ({
     .locator("#plugins")
     .getByRole("textbox", { name: "Search plugins" });
   await expect(catalogSearch).toBeVisible();
-  const beforeSearch = await catalogSearch.boundingBox();
+  await page.evaluate(() => document.fonts.ready.then(() => undefined));
+  const documentTop = (): Promise<number> =>
+    catalogSearch.evaluate(
+      (element) => element.getBoundingClientRect().top + window.scrollY,
+    );
+  const beforeSearch = await documentTop();
   await catalogSearch.fill("calendar");
   await expect(
     page.getByRole("region", { name: "Featured plugins", exact: true }),
   ).toBeVisible();
-  expect((await catalogSearch.boundingBox())?.y).toBe(beforeSearch?.y);
+  expect(await documentTop()).toBe(beforeSearch);
   await expect(page.getByRole("status")).toHaveText(
     "1 plugin matching “calendar”",
   );

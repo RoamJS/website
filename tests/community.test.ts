@@ -71,6 +71,23 @@ describe("community API", () => {
     ).toBe(201);
     expect(state.sql.mock.calls[1][4]).toBeNull();
   });
+  it.each([{ title: "ab👍c" }, { body: "x".repeat(18) + "👍" }])(
+    "rejects short Unicode text before consuming rate limits: %j",
+    async (patch) => {
+      expect((await suggest(request({ ...valid, ...patch }))).status).toBe(400);
+      expect(state.sql).not.toHaveBeenCalled();
+    },
+  );
+  it("accepts Unicode text at the database minimum", async () => {
+    expect(
+      (
+        await suggest(
+          request({ ...valid, title: "ab👍cd", body: "x".repeat(19) + "👍" }),
+        )
+      ).status,
+    ).toBe(201);
+    expect(state.sql).toHaveBeenCalledTimes(2);
+  });
   it("uses server identity and never subscribes an idea author", async () => {
     expect((await suggest(request(valid))).status).toBe(201);
     expect(state.sql.mock.calls[1].slice(1)).toContain("verified@example.com");

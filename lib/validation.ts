@@ -6,13 +6,25 @@ export const suggestionSchema = z
     title: z
       .string()
       .trim()
-      .min(5, "Give your idea a title of at least 5 characters.")
-      .max(140),
+      .refine(
+        (value) => Array.from(value).length >= 5,
+        "Give your idea a title of at least 5 characters.",
+      )
+      .refine(
+        (value) => Array.from(value).length <= 140,
+        "Keep your title to 140 characters or fewer.",
+      ),
     body: z
       .string()
       .trim()
-      .min(20, "Add a little more detail (at least 20 characters).")
-      .max(5000),
+      .refine(
+        (value) => Array.from(value).length >= 20,
+        "Add a little more detail (at least 20 characters).",
+      )
+      .refine(
+        (value) => Array.from(value).length <= 5000,
+        "Keep your idea to 5000 characters or fewer.",
+      ),
     website: z.string().max(0).optional(),
   })
   .strict();

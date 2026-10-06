@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Start analytics when visitors reach the library from an excluded entry page.
+- Validate suggestion lengths consistently for emoji and other Unicode characters.
+
 - Reject empty plugin references in suggestions while preserving general suggestions.
 
 - Add PostHog page views, plugin and carousel interactions, and website click analytics with separate preview traffic.

@@ -31,6 +31,28 @@ describe("submission boundaries", () => {
         false,
       );
   });
+  it("counts Unicode code points like the database for title and body limits", () => {
+    for (const patch of [
+      { title: "ab👍c" },
+      { body: "x".repeat(18) + "👍" },
+      { title: "👍".repeat(141) },
+      { body: "👍".repeat(5001) },
+    ]) {
+      expect(suggestionSchema.safeParse({ ...valid, ...patch }).success).toBe(
+        false,
+      );
+    }
+    for (const patch of [
+      { title: "ab👍cd" },
+      { body: "x".repeat(19) + "👍" },
+      { title: "👍".repeat(140) },
+      { body: "👍".repeat(5000) },
+    ]) {
+      expect(suggestionSchema.safeParse({ ...valid, ...patch }).success).toBe(
+        true,
+      );
+    }
+  });
   it("requires an explicit subscription boolean", () => {
     expect(subscriptionSchema.safeParse({}).success).toBe(false);
     expect(subscriptionSchema.safeParse({ subscribed: "yes" }).success).toBe(

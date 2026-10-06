@@ -2,7 +2,7 @@
 
 PostHog project: [RoamJS / Default project (648202)](https://us.posthog.com/project/648202).
 
-The browser SDK initializes in `instrumentation-client.ts`. The checked-in token is a public, write-only project ingestion token, not a personal API credential. Analytics is enabled on RoamJS and Vercel hosts and disabled on localhost unless `NEXT_PUBLIC_POSTHOG_ENABLED=true` is set at build time. Set it to `false` to disable tracking. An optional `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` overrides the destination project for isolated testing.
+The browser SDK initializes in `instrumentation-client.ts`. A pathname listener retries initialization when a visitor follows a client-side link from an excluded entry page to a public page; initialization remains idempotent. The checked-in token is a public, write-only project ingestion token, not a personal API credential. Analytics is enabled on RoamJS and Vercel hosts and disabled on localhost unless `NEXT_PUBLIC_POSTHOG_ENABLED=true` is set at build time. Set it to `false` to disable tracking. An optional `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` overrides the destination project for isolated testing.
 
 Every event includes `site=roamjs-website`, `environment` (`preview`, `production`, or `development`), and `analytics_version=1`. Vercel's build-time environment takes precedence over hostname detection. Filter on `environment=production` for public-site reporting; use `preview` when testing this branch. Local automated tests intercept ingestion requests and do not send them to PostHog.
 
