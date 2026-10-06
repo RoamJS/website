@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add the “More flow. Less friction.” subtitle and move search into the catalog toolbar with a minimal underline style.
+
 - Shorten the installation guidance on plugin pages.
 
 - Simplify the Roam Depot installation step on the getting-started page.

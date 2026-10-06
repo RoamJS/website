@@ -9,7 +9,20 @@ test("catalog search, filtering, sorting, guide and suggestion states", async ({
   await expect(
     page.getByRole("heading", { name: /A better way to work in Roam/ }),
   ).toBeVisible();
-  await page.getByRole("textbox", { name: "Search plugins" }).fill("calendar");
+  await expect(page.getByText("More flow.", { exact: false })).toBeVisible();
+  await expect(page.getByText("Browse plugins", { exact: true })).toHaveCount(
+    0,
+  );
+  const catalogSearch = page
+    .locator("#plugins")
+    .getByRole("textbox", { name: "Search plugins" });
+  await expect(catalogSearch).toBeVisible();
+  const beforeSearch = await catalogSearch.boundingBox();
+  await catalogSearch.fill("calendar");
+  await expect(
+    page.getByRole("region", { name: "Featured plugins", exact: true }),
+  ).toBeVisible();
+  expect((await catalogSearch.boundingBox())?.y).toBe(beforeSearch?.y);
   await expect(page.getByRole("status")).toHaveText(
     "1 plugin matching “calendar”",
   );
@@ -51,7 +64,7 @@ test("catalog search, filtering, sorting, guide and suggestion states", async ({
   await page.getByRole("textbox", { name: "Search plugins" }).fill("calendar");
   await page.keyboard.press("Enter");
   await expect(
-    page.getByRole("heading", { name: "Plugin catalog" }),
+    page.getByRole("region", { name: "Plugin results", exact: true }),
   ).toBeFocused();
   await page.goto("/plugins/smartblocks");
   await expect(

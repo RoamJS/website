@@ -68,7 +68,7 @@ export const Catalog = ({
     <>
       <section
         aria-labelledby="home-heading"
-        className="pb-5 pt-6 text-center lg:pt-2"
+        className="pb-10 pt-6 text-center lg:pt-2"
       >
         <h1
           id="home-heading"
@@ -76,52 +76,28 @@ export const Catalog = ({
         >
           A better way to work in <span className="text-primary">Roam.</span>
         </h1>
-        <form
-          role="search"
-          className="relative mx-auto mt-5 max-w-[744px]"
-          onSubmit={(event) => {
-            event.preventDefault();
-            document.getElementById("catalog-heading")?.focus();
-          }}
-        >
-          <Search
-            aria-hidden="true"
-            className="pointer-events-none absolute left-5 top-4 size-5 text-foreground"
-          />
-          <Input
-            ref={searchRef}
-            aria-label="Search plugins"
-            aria-controls="catalog-results"
-            placeholder="Search plugins"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            className="h-13 rounded-xl bg-card pl-16 pr-14 text-lg! shadow-xs"
-          />
-          {query ? (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-2 size-9"
-              onClick={() => {
-                setQuery("");
-                searchRef.current?.focus();
-              }}
-              aria-label="Clear search"
-            >
-              <X className="size-4" />
-            </Button>
-          ) : (
-            <span
+        <p className="mt-4 text-xl leading-relaxed text-muted-foreground sm:text-[32px]">
+          More flow.{" "}
+          <span className="relative inline-block">
+            Less friction.
+            <svg
               aria-hidden="true"
-              className="pointer-events-none absolute right-4 top-4 rounded border px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+              className="absolute -bottom-1 left-0 h-2 w-full text-brand-orange"
+              viewBox="0 0 200 8"
+              preserveAspectRatio="none"
+              fill="none"
             >
-              ⌘ K
-            </span>
-          )}
-        </form>
+              <path
+                d="M2 5L193 2M10 7L198 4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          </span>
+        </p>
       </section>
-      {!query.trim() && featured}
+      {featured}
       <section
         id="plugins"
         aria-labelledby="catalog-heading"
@@ -132,7 +108,6 @@ export const Catalog = ({
             aria-label="Plugin categories"
             className="flex flex-wrap content-start gap-1 md:flex-col md:border-r md:pr-5"
           >
-            <p className="eyebrow mb-3 hidden md:block">Browse plugins</p>
             {categories.map((c) => {
               const Icon = categoryIcons[c];
               const active = category === c;
@@ -159,14 +134,47 @@ export const Catalog = ({
           </aside>
           <div className="min-w-0">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <h2
-                  id="catalog-heading"
-                  tabIndex={-1}
-                  className="scroll-mt-36 text-2xl font-semibold tracking-tight"
-                >
+              <div className="w-full min-w-0 xl:w-auto xl:flex-1">
+                <h2 id="catalog-heading" className="sr-only">
                   Plugin catalog
                 </h2>
+                <form
+                  role="search"
+                  className="relative"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    document.getElementById("catalog-results")?.focus();
+                  }}
+                >
+                  <Search
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-0 top-3 size-5 text-foreground"
+                  />
+                  <Input
+                    ref={searchRef}
+                    aria-label="Search plugins"
+                    aria-controls="catalog-results"
+                    placeholder="Search plugins"
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    className="h-11 rounded-none border-0 border-b border-input bg-transparent pl-12 pr-11 text-lg! shadow-none focus-visible:border-primary focus-visible:ring-0 dark:bg-transparent"
+                  />
+                  {query ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-1 size-9"
+                      onClick={() => {
+                        setQuery("");
+                        searchRef.current?.focus();
+                      }}
+                      aria-label="Clear search"
+                    >
+                      <X className="size-4" />
+                    </Button>
+                  ) : null}
+                </form>
                 <p role="status" className="mt-2 text-sm text-muted-foreground">
                   {results.length} {results.length === 1 ? "plugin" : "plugins"}
                   {query
@@ -209,7 +217,13 @@ export const Catalog = ({
                 </div>
               </div>
             </div>
-            <div id="catalog-results">
+            <div
+              id="catalog-results"
+              role="region"
+              aria-label="Plugin results"
+              tabIndex={-1}
+              className="scroll-mt-36"
+            >
               {results.length ? (
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                   {results.map((p) => (
