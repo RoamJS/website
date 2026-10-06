@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Simplify the featured SmartBlocks illustration to one annotation and move it lower.
+
 - Reduce the RoamJS logo and wordmark by approximately 10%.
 
 - Remove the visible result-count line beneath catalog search while retaining screen-reader announcements.

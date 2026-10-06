@@ -46,7 +46,7 @@ const WorkflowPreview = (): React.JSX.Element => (
         </div>
       ))}
     </div>
-    <div className="absolute right-0 top-3 hidden w-28 rotate-[-8deg] xl:block">
+    <div className="absolute right-0 top-24 hidden w-28 rotate-[-8deg] xl:block">
       <p className="handwritten text-xl leading-[1.05]">
         Turn ideas
         <br />
@@ -63,25 +63,6 @@ const WorkflowPreview = (): React.JSX.Element => (
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-        />
-      </svg>
-    </div>
-    <div className="absolute -right-1 bottom-3 hidden w-28 rotate-[-8deg] xl:block">
-      <p className="handwritten text-xl leading-[1.05]">
-        Less friction.
-        <br />
-        More thinking.
-      </p>
-      <svg
-        className="mt-1 h-3 w-24 text-brand-orange"
-        viewBox="0 0 96 12"
-        fill="none"
-      >
-        <path
-          d="M2 8L89 3M10 11L94 6"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
         />
       </svg>
     </div>
