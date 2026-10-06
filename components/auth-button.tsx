@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 const ConnectedAccount = (): React.JSX.Element => {
   const { isSignedIn, isLoaded } = useUser();
   return isSignedIn ? (
-    <UserButton />
+    <span data-ph-no-autocapture>
+      <UserButton />
+    </span>
   ) : (
     <SignInButton mode="modal">
       <Button variant="outline" size="sm" disabled={!isLoaded}>

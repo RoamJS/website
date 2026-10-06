@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { trackEvent } from "@/lib/analytics";
 import { PluginIcon } from "./plugin-icon";
 
 const categoryIcons: Record<Category, LucideIcon> = {
@@ -100,6 +101,7 @@ export const Catalog = ({
       {featured}
       <section
         id="plugins"
+        data-analytics-source="catalog"
         aria-labelledby="catalog-heading"
         className="scroll-mt-36 pb-12 pt-6"
       >
@@ -117,7 +119,11 @@ export const Catalog = ({
                   variant={active ? "secondary" : "ghost"}
                   className={`relative h-11 justify-start gap-4 px-4 text-sm font-normal md:w-full ${active ? "bg-accent text-primary before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-brand-orange" : "text-muted-foreground"}`}
                   aria-pressed={active}
-                  onClick={() => setCategory(c)}
+                  data-attr="catalog-category"
+                  onClick={() => {
+                    setCategory(c);
+                    trackEvent("catalog filtered", { category: c });
+                  }}
                 >
                   <Icon
                     className={`size-5 shrink-0 ${active ? "text-brand-orange" : ""}`}
@@ -143,6 +149,12 @@ export const Catalog = ({
                   className="relative"
                   onSubmit={(event) => {
                     event.preventDefault();
+                    trackEvent("catalog searched", {
+                      query_length: query.trim().length,
+                      result_count: results.length,
+                      category,
+                      sort,
+                    });
                     document.getElementById("catalog-results")?.focus();
                   }}
                 >
@@ -198,7 +210,13 @@ export const Catalog = ({
                   <Mail className="size-4" /> Get updates
                 </Link>
                 <div className="flex items-center gap-2">
-                  <Select value={sort} onValueChange={setSort}>
+                  <Select
+                    value={sort}
+                    onValueChange={(value) => {
+                      setSort(value);
+                      trackEvent("catalog sorted", { sort: value, category });
+                    }}
+                  >
                     <SelectTrigger
                       id="catalog-sort"
                       aria-label="Sort plugins"
@@ -230,6 +248,8 @@ export const Catalog = ({
                     <Link
                       key={p.slug}
                       href={`/plugins/${p.slug}`}
+                      data-plugin-slug={p.slug}
+                      data-attr="catalog-plugin"
                       className="group flex gap-4 rounded-lg border bg-card p-4 transition-colors hover:border-primary/60"
                     >
                       <PluginIcon

@@ -184,7 +184,12 @@ const FeaturedSlide = ({
         </p>
         <div className="mt-7 flex flex-wrap items-center gap-5 xl:gap-8">
           <Button asChild className="h-11 px-5">
-            <Link href={`/plugins/${lead.slug}`}>
+            <Link
+              href={`/plugins/${lead.slug}`}
+              data-plugin-slug={lead.slug}
+              data-plugin-placement="lead"
+              data-attr="featured-plugin"
+            >
               View plugin <ArrowRight className="ml-2 size-4" />
             </Link>
           </Button>
@@ -197,6 +202,9 @@ const FeaturedSlide = ({
         <Link
           key={slug}
           href={`/plugins/${slug}`}
+          data-plugin-slug={slug}
+          data-plugin-placement="secondary"
+          data-attr="featured-plugin"
           className="feature-panel group flex items-center justify-between gap-4 rounded-lg border bg-card px-6 py-4 transition-colors hover:border-primary/60"
         >
           <div>

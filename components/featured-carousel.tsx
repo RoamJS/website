@@ -2,6 +2,7 @@
 
 import { useId, useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 
 export const FeaturedCarousel = ({
@@ -11,10 +12,38 @@ export const FeaturedCarousel = ({
 }): React.JSX.Element => {
   const [active, setActive] = useState(0);
   const id = useId();
-  const move = (direction: number): void =>
-    setActive(
-      (current) => (current + direction + slides.length) % slides.length,
-    );
+  const navigate = ({
+    target,
+    control,
+    inputMethod,
+  }: {
+    target: number;
+    control: string;
+    inputMethod: string;
+  }): void => {
+    trackEvent("carousel navigated", {
+      from_slide: slides[active].label,
+      to_slide: slides[target].label,
+      from_position: active + 1,
+      to_position: target + 1,
+      control,
+      input_method: inputMethod,
+      changed: target !== active,
+    });
+    setActive(target);
+  };
+  const move = ({
+    direction,
+    inputMethod,
+  }: {
+    direction: number;
+    inputMethod: string;
+  }): void =>
+    navigate({
+      target: (active + direction + slides.length) % slides.length,
+      control: direction < 0 ? "previous" : "next",
+      inputMethod,
+    });
 
   return (
     <>
@@ -23,6 +52,9 @@ export const FeaturedCarousel = ({
           <div
             key={label}
             id={`${id}-${index}`}
+            data-carousel-slide={label}
+            data-carousel-position={index + 1}
+            data-analytics-source="featured"
             role="group"
             aria-roledescription="slide"
             aria-label={`${label}, ${index + 1} of ${slides.length}`}
@@ -41,7 +73,10 @@ export const FeaturedCarousel = ({
         onKeyDown={(event) => {
           if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
             event.preventDefault();
-            move(event.key === "ArrowLeft" ? -1 : 1);
+            move({
+              direction: event.key === "ArrowLeft" ? -1 : 1,
+              inputMethod: "keyboard",
+            });
           }
         }}
       >
@@ -49,7 +84,13 @@ export const FeaturedCarousel = ({
           variant="ghost"
           size="icon-sm"
           aria-label="Previous featured plugins"
-          onClick={() => move(-1)}
+          data-attr="carousel-previous"
+          onClick={(event) =>
+            move({
+              direction: -1,
+              inputMethod: event.detail === 0 ? "keyboard" : "pointer",
+            })
+          }
         >
           <ChevronLeft className="size-3.5" />
         </Button>
@@ -60,7 +101,14 @@ export const FeaturedCarousel = ({
             aria-label={`Show ${label.toLowerCase()}`}
             aria-pressed={active === index}
             aria-controls={`${id}-${index}`}
-            onClick={() => setActive(index)}
+            data-attr="carousel-indicator"
+            onClick={(event) =>
+              navigate({
+                target: index,
+                control: "indicator",
+                inputMethod: event.detail === 0 ? "keyboard" : "pointer",
+              })
+            }
             className="flex size-8 items-center justify-center rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <span
@@ -72,7 +120,13 @@ export const FeaturedCarousel = ({
           variant="ghost"
           size="icon-sm"
           aria-label="Next featured plugins"
-          onClick={() => move(1)}
+          data-attr="carousel-next"
+          onClick={(event) =>
+            move({
+              direction: 1,
+              inputMethod: event.detail === 0 ? "keyboard" : "pointer",
+            })
+          }
         >
           <ChevronRight className="size-3.5" />
         </Button>

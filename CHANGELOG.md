@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add PostHog page views, plugin and carousel interactions, and website click analytics with separate preview traffic.
+
 - Add Breadcrumbs, Stats, and Giphy as the second featured carousel page, before the popular plugins.
 
 - Replace the Query Builder and Workbench featured screenshots with the selected condition-builder and block-action illustrations.

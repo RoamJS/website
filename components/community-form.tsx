@@ -100,6 +100,7 @@ const ConnectedForm = ({
   };
   return (
     <form
+      data-ph-no-autocapture
       className="space-y-5 rounded-xl border bg-card p-6"
       onSubmit={(e) => {
         e.preventDefault();

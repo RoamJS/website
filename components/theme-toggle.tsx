@@ -10,6 +10,7 @@ export const ThemeToggle = (): React.JSX.Element => {
       size="icon"
       className="size-11 lg:size-9"
       aria-label="Toggle dark mode"
+      data-attr="theme-toggle"
       title="Switch theme"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
     >

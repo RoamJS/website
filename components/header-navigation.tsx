@@ -100,6 +100,7 @@ export const HeaderNavigation = ({
                   size="icon"
                   className="size-11 lg:hidden"
                   aria-label="Open navigation menu"
+                  data-attr="navigation-open"
                 >
                   <Menu className="size-5" />
                 </Button>
@@ -122,6 +123,7 @@ export const HeaderNavigation = ({
                         size="icon"
                         className="size-11"
                         aria-label="Close navigation menu"
+                        data-attr="navigation-close"
                       >
                         <X className="size-5" />
                       </Button>

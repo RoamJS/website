@@ -7,6 +7,16 @@ const Privacy = (): React.JSX.Element => (
       You can browse the plugin library and instructions without an account.
       Theme preference is saved in your browser.
     </p>
+    <h2>Website analytics</h2>
+    <p>
+      We use PostHog to understand page visits, plugin links, carousel use, and
+      other clicks on this website. A random identifier saved in your browser
+      helps us understand visits over time. Preview traffic is labeled
+      separately. We don’t connect analytics to your account or send your email,
+      suggestion text, search terms, or sign-in details. Session recordings are
+      disabled. We respect your browser’s Do Not Track and Global Privacy
+      Control signals.
+    </p>
     <h2>Accounts and suggestions</h2>
     <p>
       When website submissions are enabled, Clerk handles sign-in and email
