@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Shrink the header while scrolling and add compact mobile navigation with touch-friendly controls.
+
 - Promote Custom Dark Mode, Quick Switcher, and Sticky Notes in a subtle, manually controlled featured carousel, with popular plugins on its second page.
 
 - Preview Query Builder and Workbench interfaces in their featured cards.

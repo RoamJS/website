@@ -239,3 +239,88 @@ test("featured carousel promotes newer plugins and stays stable when paging", as
     fullPage: true,
   });
 });
+
+test("header shrinks without shifting content and mobile navigation stays accessible", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/");
+  const header = page.locator("header");
+  await expect(header).toHaveAttribute("data-compact", "false");
+  await expect.poll(async () => (await header.boundingBox())?.height).toBe(96);
+  await page.evaluate(() => window.scrollTo({ top: 260, behavior: "instant" }));
+  await expect(header).toHaveAttribute("data-compact", "true");
+  await expect.poll(async () => (await header.boundingBox())?.height).toBe(64);
+  expect(await page.evaluate(() => window.scrollY)).toBe(260);
+  expect((await header.boundingBox())?.y).toBe(0);
+  await page.screenshot({ path: "local/header-compact-desktop.png" });
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await expect.poll(async () => (await header.boundingBox())?.height).toBe(96);
+  for (const width of [320, 390, 768, 1024]) {
+    await page.setViewportSize({ width, height: 844 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  }
+  await page.setViewportSize({ width: 320, height: 844 });
+  await expect(
+    page.getByRole("navigation", { name: "Main navigation", exact: true }),
+  ).toBeHidden();
+  const trigger = page.getByRole("button", { name: "Open navigation menu" });
+  await expect(trigger).toBeVisible();
+  expect((await trigger.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+  await trigger.click();
+  const menu = page.getByRole("dialog", { name: "Navigation menu" });
+  await expect(menu).toBeVisible();
+  await expect(trigger).toHaveAttribute("aria-expanded", "true");
+  await expect(menu.getByRole("link")).toHaveCount(4);
+  for (const link of await menu.getByRole("link").all()) {
+    expect((await link.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+  }
+  await page.screenshot({ path: "local/header-mobile-menu.png" });
+  await page.keyboard.press("Escape");
+  await expect(menu).toBeHidden();
+  await expect(trigger).toBeFocused();
+  await trigger.press("Enter");
+  await menu.getByRole("link", { name: "Get started", exact: true }).click();
+  await expect(page).toHaveURL(/getting-started$/);
+  await expect(menu).toBeHidden();
+  await trigger.click();
+  await menu.getByRole("link", { name: "Plugins", exact: true }).click();
+  await expect(page).toHaveURL(/#plugins$/);
+  await expect(menu).toBeHidden();
+  await expect(header).toHaveAttribute("data-compact", "true");
+  await expect.poll(async () => (await header.boundingBox())?.height).toBe(56);
+  await trigger.click();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await expect(menu).toBeHidden();
+  await expect(
+    page.getByRole("navigation", { name: "Main navigation", exact: true }),
+  ).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.getByRole("button", { name: "Toggle dark mode" }).click();
+  await trigger.click();
+  await page.screenshot({ path: "local/header-mobile-menu-light.png" });
+  await menu.getByRole("button", { name: "Close navigation menu" }).click();
+  await expect(menu).toBeHidden();
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  expect(
+    await header.evaluate((element) =>
+      parseFloat(getComputedStyle(element).transitionDuration),
+    ),
+  ).toBeLessThanOrEqual(0.001);
+  await page.setViewportSize({ width: 844, height: 390 });
+  await trigger.click();
+  await expect
+    .poll(async () => (await menu.boundingBox())?.y ?? -1)
+    .toBeGreaterThanOrEqual(0);
+  await expect
+    .poll(async () => {
+      const box = await menu.boundingBox();
+      return box ? box.y + box.height : Infinity;
+    })
+    .toBeLessThanOrEqual(390);
+  await menu.getByRole("button", { name: "Close navigation menu" }).click();
+});
