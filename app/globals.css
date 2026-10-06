@@ -106,8 +106,18 @@
   }
 }
 @layer components {
+  .handwritten {
+    font-family: var(--font-handwriting), cursive;
+  }
+  .feature-panel {
+    background-image: radial-gradient(
+      ellipse at 65% 45%,
+      color-mix(in srgb, var(--primary) 3%, transparent),
+      transparent 70%
+    );
+  }
   .nav-link {
-    color: var(--muted-foreground);
+    color: var(--foreground);
     transition: color 0.15s;
   }
   .nav-link:hover {

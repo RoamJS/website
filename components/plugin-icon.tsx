@@ -1,7 +1,9 @@
 import {
   Blocks,
   Search,
-  Wrench,
+  Terminal,
+  List,
+  Share2,
   Link2,
   CheckCheck,
   CalendarDays,
@@ -12,7 +14,6 @@ import {
   MessageSquare,
   Highlighter,
   Smile,
-  Route,
   Activity,
   ChartNoAxesCombined,
   PenTool,
@@ -27,10 +28,27 @@ import {
   Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+export const QueryIcon = (
+  props: React.SVGProps<SVGSVGElement>,
+): React.JSX.Element => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M3 4h12M3 10h5M3 16h5" />
+    <circle cx="15" cy="14" r="4" />
+    <path d="m18 17 4 4" />
+  </svg>
+);
 const icons = {
-  smartblocks: Blocks,
-  "query-builder": Search,
-  workbench: Wrench,
+  smartblocks: List,
+  "query-builder": QueryIcon,
+  workbench: Terminal,
   autotag: Link2,
   "todo-trigger": CheckCheck,
   google: CalendarDays,
@@ -41,7 +59,7 @@ const icons = {
   slack: MessageSquare,
   hypothesis: Highlighter,
   giphy: Smile,
-  breadcrumbs: Route,
+  breadcrumbs: Share2,
   "oura-ring": Activity,
   stats: ChartNoAxesCombined,
   tldraw: PenTool,

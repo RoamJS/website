@@ -4,7 +4,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   Code2,
-  Download,
   Grid2X2,
   Lightbulb,
   Link2,
@@ -42,7 +41,6 @@ const categoryIcons: Record<Category, LucideIcon> = {
   Appearance: Palette,
   "Developer tools": Code2,
 };
-const downloadFormatter = new Intl.NumberFormat("en-US");
 
 export const Catalog = ({
   featured,
@@ -70,17 +68,17 @@ export const Catalog = ({
     <>
       <section
         aria-labelledby="home-heading"
-        className="py-10 text-center md:py-12"
+        className="pb-5 pt-6 text-center lg:pt-2"
       >
         <h1
           id="home-heading"
-          className="text-balance text-4xl font-semibold leading-[1.12] tracking-[-.045em] sm:text-5xl lg:text-6xl"
+          className="text-balance text-4xl font-bold leading-[1.12] tracking-[-.045em] sm:text-5xl lg:text-[56px]"
         >
           Become a <span className="text-primary">Roam Power User</span>
         </h1>
         <form
           role="search"
-          className="relative mx-auto mt-7 max-w-2xl"
+          className="relative mx-auto mt-5 max-w-[744px]"
           onSubmit={(event) => {
             event.preventDefault();
             document.getElementById("catalog-heading")?.focus();
@@ -97,7 +95,7 @@ export const Catalog = ({
             placeholder="Search plugins"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            className="h-13 rounded-xl bg-card pl-13 pr-14 text-base! shadow-xs"
+            className="h-13 rounded-xl bg-card pl-16 pr-14 text-lg! shadow-xs"
           />
           {query ? (
             <Button
@@ -129,12 +127,12 @@ export const Catalog = ({
         aria-labelledby="catalog-heading"
         className="scroll-mt-36 border-t pb-12 pt-6"
       >
-        <div className="grid gap-6 md:grid-cols-[200px_minmax(0,1fr)] xl:grid-cols-[235px_minmax(0,1fr)]">
+        <div className="grid gap-6 md:grid-cols-[215px_minmax(0,1fr)] xl:grid-cols-[284px_minmax(0,1fr)] xl:gap-8">
           <aside
             aria-label="Plugin categories"
             className="flex flex-wrap content-start gap-1 md:flex-col md:border-r md:pr-5"
           >
-            <p className="eyebrow mb-3 hidden pl-3 md:block">Browse plugins</p>
+            <p className="eyebrow mb-3 hidden md:block">Browse plugins</p>
             {categories.map((c) => {
               const Icon = categoryIcons[c];
               const active = category === c;
@@ -142,12 +140,12 @@ export const Catalog = ({
                 <Button
                   key={c}
                   variant={active ? "secondary" : "ghost"}
-                  className={`relative h-11 justify-start gap-3 px-3 text-xs font-normal md:w-full ${active ? "bg-accent text-primary before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-brand-orange" : "text-muted-foreground"}`}
+                  className={`relative h-11 justify-start gap-4 px-4 text-sm font-normal md:w-full ${active ? "bg-accent text-primary before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-brand-orange" : "text-muted-foreground"}`}
                   aria-pressed={active}
                   onClick={() => setCategory(c)}
                 >
                   <Icon
-                    className={`size-4 shrink-0 ${active ? "text-brand-orange" : ""}`}
+                    className={`size-5 shrink-0 ${active ? "text-brand-orange" : ""}`}
                   />
                   {c}
                   <span className="ml-auto tabular-nums text-muted-foreground">
@@ -160,7 +158,7 @@ export const Catalog = ({
             })}
           </aside>
           <div className="min-w-0">
-            <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
               <div>
                 <h2
                   id="catalog-heading"
@@ -169,7 +167,7 @@ export const Catalog = ({
                 >
                   Plugin catalog
                 </h2>
-                <p role="status" className="mt-2 text-xs text-muted-foreground">
+                <p role="status" className="mt-2 text-sm text-muted-foreground">
                   {results.length} {results.length === 1 ? "plugin" : "plugins"}
                   {query
                     ? ` matching “${query}”`
@@ -181,13 +179,13 @@ export const Catalog = ({
               <div className="flex w-full flex-wrap items-center gap-x-5 gap-y-3 xl:w-auto">
                 <Link
                   href="/ideas"
-                  className="inline-flex items-center gap-1.5 text-xs text-brand-orange"
+                  className="inline-flex items-center gap-2 text-sm text-brand-orange"
                 >
                   <Lightbulb className="size-4" /> Share an idea
                 </Link>
                 <Link
                   href="/updates"
-                  className="inline-flex items-center gap-1.5 text-xs text-primary"
+                  className="inline-flex items-center gap-2 text-sm text-primary"
                 >
                   <Mail className="size-4" /> Get updates
                 </Link>
@@ -202,7 +200,7 @@ export const Catalog = ({
                     <SelectTrigger
                       id="catalog-sort"
                       aria-label="Sort plugins"
-                      className="h-10! w-[205px] bg-card text-xs"
+                      className="h-9! w-[190px] bg-card text-xs"
                     >
                       <SelectValue />
                     </SelectTrigger>
@@ -223,39 +221,32 @@ export const Catalog = ({
                     <Link
                       key={p.slug}
                       href={`/plugins/${p.slug}`}
-                      className="group flex gap-3 rounded-lg border bg-card p-4 transition-colors hover:border-primary/60"
+                      className="group flex gap-4 rounded-lg border bg-card p-4 transition-colors hover:border-primary/60"
                     >
-                      <PluginIcon slug={p.slug} />
+                      <PluginIcon
+                        slug={p.slug}
+                        className="size-14 [&_svg]:size-7"
+                      />
                       <div className="flex min-w-0 flex-1 flex-col">
-                        <h3 className="text-sm font-semibold">{p.name}</h3>
-                        <p className="mt-1.5 grow text-xs leading-relaxed text-muted-foreground">
+                        <h3 className="text-base font-semibold leading-tight">
+                          {p.name}
+                        </h3>
+                        <p className="mt-1.5 grow text-[13px] leading-[1.45] text-muted-foreground">
                           {p.description}
                         </p>
-                        <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-                          <span className="rounded-full bg-secondary px-2 py-1 text-[10px] text-secondary-foreground">
-                            {p.category}
+                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                          <span className="rounded-full bg-secondary px-2 py-1 text-[11px] text-secondary-foreground">
+                            {p.slug === "static-site"
+                              ? "Deprecated"
+                              : p.category}
                           </span>
-                          <ArrowRight
-                            aria-hidden="true"
-                            className="size-4 text-primary transition-transform group-hover:translate-x-1"
-                          />
-                        </div>
-                        <div className="mt-3 flex items-center gap-1 text-[10px] text-muted-foreground">
-                          {p.downloads !== null ? (
-                            <>
-                              <Download aria-hidden="true" className="size-3" />
-                              <span>
-                                {downloadFormatter.format(p.downloads)}{" "}
-                                downloads
-                              </span>
-                            </>
-                          ) : (
-                            <span>
-                              {p.slug === "static-site"
-                                ? "Deprecated"
-                                : "View repository"}
-                            </span>
-                          )}
+                          <span className="inline-flex items-center gap-1 text-sm text-primary">
+                            View{" "}
+                            <ArrowRight
+                              aria-hidden="true"
+                              className="size-4 transition-transform group-hover:translate-x-1"
+                            />
+                          </span>
                         </div>
                       </div>
                     </Link>

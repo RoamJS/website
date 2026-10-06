@@ -12,16 +12,13 @@ export type Category = (typeof categories)[number];
 const descriptions: Record<string, [Category, string]> = {
   smartblocks: [
     "Productivity",
-    "Give your everyday workflows a head start with powerful, reusable templates.",
+    "Create dynamic blocks, templates, and automations to work faster in Roam.",
   ],
   "query-builder": [
     "Writing & thinking",
-    "Ask better questions of your graph. Build queries and explore the connections in your notes.",
+    "Build complex queries with a simple, visual interface.",
   ],
-  workbench: [
-    "Productivity",
-    "A whole toolkit of little improvements. Choose the modules that fit the way you work.",
-  ],
+  workbench: ["Productivity", "A toolkit for everyday Roam workflows."],
   autotag: [
     "Writing & thinking",
     "Turn page mentions into links automatically, and keep your thoughts connected.",
@@ -30,17 +27,14 @@ const descriptions: Record<string, [Category, string]> = {
     "Productivity",
     "Make checking a task off do more: add timestamps, update tags, or file completed work.",
   ],
-  google: [
-    "Integrations",
-    "Bring your Google Calendar events and Drive files into your Roam workflow.",
-  ],
+  google: ["Integrations", "Bring Google Calendar and Drive into Roam."],
   dropbox: [
     "Integrations",
     "Keep attachments in Dropbox and bring their shareable links into your graph.",
   ],
   presentation: [
     "Writing & thinking",
-    "Your outline is your slide deck. Present directly from the ideas already in your graph.",
+    "Turn your notes into clean, beautiful presentations.",
   ],
   otter: [
     "Integrations",
@@ -62,10 +56,7 @@ const descriptions: Record<string, [Category, string]> = {
     "Integrations",
     "Find just the right GIF and add a little personality to your notes.",
   ],
-  breadcrumbs: [
-    "Navigation",
-    "Follow a trail of recently visited pages and blocks. Find your way back instantly.",
-  ],
+  breadcrumbs: ["Navigation", "Find your way back to recent pages and blocks."],
   "oura-ring": [
     "Integrations",
     "Bring daily sleep, activity, and readiness summaries into your Daily Notes.",

@@ -2,64 +2,121 @@ import Link from "next/link";
 import {
   ArrowRight,
   CalendarDays,
-  ListTodo,
+  CircleCheck,
   Search,
   Terminal,
-  WandSparkles,
+  TextCursorInput,
 } from "lucide-react";
+import { QueryIcon } from "./plugin-icon";
 import { Button } from "@/components/ui/button";
 
 const WorkflowPreview = (): React.JSX.Element => (
   <div
     aria-hidden="true"
-    className="relative mx-auto hidden w-full max-w-80 self-center py-8 sm:block"
+    className="relative hidden h-[264px] w-full self-center sm:block"
   >
-    <div className="rounded-lg border bg-background p-5 pb-16 text-xs shadow-sm">
-      <p className="font-medium">• &nbsp; Meeting notes</p>
-      <p className="mt-3 pl-4 text-muted-foreground">
-        • &nbsp; Date: <span className="text-primary">[[Today]]</span>
+    <div className="absolute inset-y-2 left-0 right-0 rounded-lg border bg-background/60 p-5 text-xs xl:right-32">
+      <span className="absolute left-2 top-2 font-mono text-[10px] text-muted-foreground/50">
+        ⤒
+      </span>
+      <div className="mt-2 border-l border-border/70 pl-5">
+        <p className="font-medium">• &nbsp; Meeting notes</p>
+        <p className="mt-3 pl-3 text-muted-foreground">
+          • &nbsp; Date: <span className="text-primary">[[Today]]</span>
+        </p>
+        <p className="mt-3 pl-3 text-muted-foreground">• &nbsp; Attendees:</p>
+        <div className="ml-6 mt-3 h-28 border-l border-border/60" />
+      </div>
+    </div>
+    <div className="absolute bottom-0 right-0 w-[225px] rounded-lg border bg-popover p-1.5 text-[11px] shadow-lg xl:right-32">
+      {[
+        { Icon: TextCursorInput, text: "@template:Meeting Notes" },
+        { Icon: TextCursorInput, text: "@template:Project Update" },
+        { Icon: TextCursorInput, text: "@template:1:1" },
+        { Icon: CalendarDays, text: "@date:Today" },
+        { Icon: Search, text: "@query:Recent notes" },
+        { Icon: CircleCheck, text: "@shortcut:TODO" },
+      ].map(({ Icon, text }, index) => (
+        <div
+          key={text}
+          className={`flex items-center gap-2 rounded px-2 py-1.5 ${index === 0 ? "bg-accent text-primary" : "text-muted-foreground"}`}
+        >
+          <Icon className="size-3.5 shrink-0" />
+          {text}
+        </div>
+      ))}
+    </div>
+    <div className="absolute right-0 top-3 hidden w-28 rotate-[-8deg] xl:block">
+      <p className="handwritten text-xl leading-[1.05]">
+        Turn ideas
+        <br />
+        into templates.
       </p>
-      <p className="mt-3 pl-4 text-muted-foreground">• &nbsp; Attendees:</p>
-      <div className="ml-8 mt-3 h-1 w-20 rounded bg-border" />
+      <svg
+        className="ml-1 mt-3 h-16 w-20 text-brand-orange"
+        viewBox="0 0 80 64"
+        fill="none"
+      >
+        <path
+          d="M64 3C60 35 40 50 7 49M16 41L6 49L17 57"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
     </div>
-    <div className="relative -mt-12 ml-10 rounded-lg border bg-popover p-2 text-[11px] shadow-lg">
-      <div className="flex items-center gap-2 rounded bg-accent px-2 py-2 text-primary">
-        <WandSparkles className="size-3.5" /> Meeting notes
-      </div>
-      <div className="flex items-center gap-2 px-2 py-2 text-muted-foreground">
-        <ListTodo className="size-3.5" /> Project update
-      </div>
-      <div className="flex items-center gap-2 px-2 py-2 text-muted-foreground">
-        <CalendarDays className="size-3.5" /> Daily planning
-      </div>
+    <div className="absolute -right-1 bottom-3 hidden w-28 rotate-[-8deg] xl:block">
+      <p className="handwritten text-xl leading-[1.05]">
+        Less friction.
+        <br />
+        More thinking.
+      </p>
+      <svg
+        className="mt-1 h-3 w-24 text-brand-orange"
+        viewBox="0 0 96 12"
+        fill="none"
+      >
+        <path
+          d="M2 8L89 3M10 11L94 6"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+      </svg>
     </div>
-    <p className="mt-3 text-right font-mono text-[10px] text-brand-orange">
-      jj → your next workflow
-    </p>
   </div>
 );
 
 export const Featured = (): React.JSX.Element => (
-  <section aria-labelledby="featured-heading" className="pb-8">
+  <section aria-labelledby="featured-heading" className="pb-6">
     <h2 id="featured-heading" className="sr-only">
       Featured plugins
     </h2>
-    <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
-      <article className="grid gap-5 rounded-xl border bg-card px-6 py-7 sm:grid-cols-[1fr_1fr] xl:px-8">
-        <div className="flex flex-col items-start justify-center">
-          <p className="eyebrow mb-4">Featured plugin</p>
-          <h3 className="text-4xl font-semibold tracking-[-.045em] xl:text-5xl">
+    <div className="grid gap-4 lg:grid-cols-[2.12fr_1fr]">
+      <article className="feature-panel grid items-center gap-5 rounded-lg border bg-card px-6 py-6 sm:grid-cols-[0.95fr_1.05fr] xl:grid-cols-[0.85fr_1.15fr] xl:gap-8 xl:px-7">
+        <div className="flex flex-col items-start">
+          <p className="eyebrow mb-3">Featured plugin</p>
+          <h3 className="text-4xl font-semibold tracking-[-.045em] xl:text-[52px] xl:leading-none">
             SmartBlocks
           </h3>
-          <p className="mt-4 max-w-xs text-base leading-relaxed text-muted-foreground xl:text-lg">
+          <p className="mt-4 max-w-[340px] text-base leading-[1.4] text-muted-foreground xl:text-xl">
             Create dynamic blocks, templates, and automations to work faster in
             Roam.
           </p>
-          <Button asChild className="mt-7 h-11 px-5">
-            <Link href="/plugins/smartblocks">
-              View plugin <ArrowRight className="ml-2 size-4" />
+          <div className="mt-7 flex flex-wrap items-center gap-5 xl:gap-8">
+            <Button asChild className="h-11 px-5">
+              <Link href="/plugins/smartblocks">
+                View plugin <ArrowRight className="ml-2 size-4" />
+              </Link>
+            </Button>
+            <Link
+              href="/plugins/smartblocks#plugin-content"
+              className="text-sm text-primary hover:underline"
+            >
+              Learn more
             </Link>
-          </Button>
+          </div>
         </div>
         <WorkflowPreview />
       </article>
@@ -71,7 +128,7 @@ export const Featured = (): React.JSX.Element => (
             eyebrow: "Power up your notes",
             description:
               "Build complex queries with a simple, visual interface.",
-            Icon: Search,
+            Icon: QueryIcon,
           },
           {
             slug: "workbench",
@@ -84,23 +141,25 @@ export const Featured = (): React.JSX.Element => (
           <Link
             key={slug}
             href={`/plugins/${slug}`}
-            className="group flex items-center justify-between gap-5 rounded-xl border bg-card p-6 transition-colors hover:border-primary/60"
+            className="feature-panel group flex items-center justify-between gap-4 rounded-lg border bg-card px-6 py-4 transition-colors hover:border-primary/60"
           >
             <div>
-              <p className="eyebrow mb-2">{eyebrow}</p>
-              <h3 className="text-xl font-semibold tracking-tight">{name}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              <p className="eyebrow mb-1.5">{eyebrow}</p>
+              <h3 className="text-2xl font-semibold leading-tight tracking-tight">
+                {name}
+              </h3>
+              <p className="mt-1 text-sm leading-[1.4] text-muted-foreground">
                 {description}
               </p>
-              <span className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary">
+              <span className="mt-2 inline-flex items-center gap-3 text-sm font-medium text-primary">
                 View plugin{" "}
                 <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
               </span>
             </div>
             <span
-              className={`hidden size-16 shrink-0 items-center justify-center rounded-lg border bg-background/50 xl:flex ${slug === "workbench" ? "text-brand-orange" : "text-primary"}`}
+              className={`hidden size-20 shrink-0 items-center justify-center rounded-lg border bg-secondary/30 xl:flex ${slug === "workbench" ? "text-brand-orange" : "text-primary"}`}
             >
-              <Icon className="size-8" strokeWidth={1.8} />
+              <Icon className="size-11" strokeWidth={1.8} />
             </span>
           </Link>
         ))}

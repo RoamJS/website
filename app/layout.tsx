@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Caveat, Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { isAuthConfigured } from "@/lib/features";
 import "./globals.css";
+const handwriting = Caveat({
+  variable: "--font-handwriting",
+  subsets: ["latin"],
+  weight: "500",
+});
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -22,7 +27,9 @@ const RootLayout = ({
   children,
 }: Readonly<{ children: React.ReactNode }>): React.JSX.Element => (
   <html lang="en" suppressHydrationWarning>
-    <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <body
+      className={`${geistSans.variable} ${geistMono.variable} ${handwriting.variable} antialiased`}
+    >
       <Providers authEnabled={isAuthConfigured()}>
         <a className="skip-link" href="#main">
           Skip to content

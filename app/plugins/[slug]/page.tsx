@@ -67,7 +67,7 @@ const PluginPage = async ({
         )}
       </section>
       <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_260px]">
-        <div className="min-w-0">
+        <div id="plugin-content" className="min-w-0 scroll-mt-36">
           <PluginTabs
             slug={p.slug}
             name={p.name}
