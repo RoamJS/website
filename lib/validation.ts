@@ -2,7 +2,7 @@ import { z } from "zod";
 export const suggestionSchema = z
   .object({
     requestId: z.string().uuid(),
-    pluginSlug: z.string().max(100).nullable(),
+    pluginSlug: z.string().min(1).max(100).nullable(),
     title: z
       .string()
       .trim()

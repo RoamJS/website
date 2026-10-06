@@ -56,11 +56,20 @@ describe("community API", () => {
     });
     expect((await suggest(request(valid))).status).toBe(403);
   });
-  it("rejects unknown plugin IDs before writing", async () => {
+  it.each(["", "   ", "unknown"])(
+    "rejects invalid plugin slug %j before writing",
+    async (pluginSlug) => {
+      expect((await suggest(request({ ...valid, pluginSlug }))).status).toBe(
+        400,
+      );
+      expect(state.sql).not.toHaveBeenCalled();
+    },
+  );
+  it("stores general suggestions with a null plugin slug", async () => {
     expect(
-      (await suggest(request({ ...valid, pluginSlug: "unknown" }))).status,
-    ).toBe(400);
-    expect(state.sql).not.toHaveBeenCalled();
+      (await suggest(request({ ...valid, pluginSlug: null }))).status,
+    ).toBe(201);
+    expect(state.sql.mock.calls[1][4]).toBeNull();
   });
   it("uses server identity and never subscribes an idea author", async () => {
     expect((await suggest(request(valid))).status).toBe(201);

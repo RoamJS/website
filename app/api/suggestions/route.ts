@@ -26,7 +26,7 @@ export const POST = async (request: Request): Promise<Response> => {
         { status: 400 },
       );
     const input = parsed.data;
-    if (input.pluginSlug && !getPlugin(input.pluginSlug))
+    if (input.pluginSlug !== null && !getPlugin(input.pluginSlug))
       return Response.json(
         { error: "This plugin could not be found." },
         { status: 400 },

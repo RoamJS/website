@@ -22,6 +22,7 @@ describe("submission boundaries", () => {
   it("rejects empty, oversized, and bot-filled submissions", () => {
     for (const patch of [
       { title: "   " },
+      { pluginSlug: "" },
       { body: "x".repeat(5001) },
       { website: "spam" },
       { requestId: "bad" },
