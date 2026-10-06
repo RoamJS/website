@@ -1,5 +1,5 @@
 import { CommunityForm } from "@/components/community-form";
-import { isCommunityConfigured } from "@/lib/features";
+import { isNewsletterConfigured } from "@/lib/features";
 export const metadata = { title: "Keep in the loop" };
 const Updates = (): React.JSX.Element => (
   <main id="main" className="mx-auto max-w-3xl px-5 py-16">
@@ -12,7 +12,7 @@ const Updates = (): React.JSX.Element => (
       changed. Signing in or suggesting an idea never subscribes you
       automatically.
     </p>
-    <CommunityForm enabled={isCommunityConfigured()} kind="subscription" />
+    <CommunityForm enabled={isNewsletterConfigured()} kind="subscription" />
   </main>
 );
 export default Updates;

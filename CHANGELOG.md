@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Keep newsletter signup closed when suggestions are enabled, with separate readiness controls.
+
 - Replace the Clerk sign-in scaffold with Supabase email sign-in and verified account sessions. Keep suggestions and newsletter consent separate and disabled until persistence is connected.
 
 - Start analytics when visitors reach the library from an excluded entry page.

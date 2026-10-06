@@ -28,6 +28,7 @@ beforeEach(() => {
   vi.stubEnv("DATABASE_URL", "test");
   state.sql.mockReset().mockResolvedValue([{ id: 1, attempts: 1 }]);
   vi.stubEnv("COMMUNITY_SUBMISSIONS_ENABLED", "true");
+  vi.stubEnv("NEWSLETTER_SIGNUP_ENABLED", "true");
   state.getUser.mockReset().mockResolvedValue({
     data: {
       user: {
@@ -50,6 +51,29 @@ describe("community API", () => {
     expect((await suggest(request(valid))).status).toBe(503);
     expect(state.sql).not.toHaveBeenCalled();
   });
+  it.each([
+    ["true", undefined, 201, 503],
+    ["true", "false", 201, 503],
+    ["false", "true", 503, 200],
+    [undefined, undefined, 503, 503],
+  ])(
+    "keeps suggestion %s and newsletter %s writes independent",
+    async (suggestions, newsletter, suggestionStatus, newsletterStatus) => {
+      vi.stubEnv("COMMUNITY_SUBMISSIONS_ENABLED", suggestions);
+      vi.stubEnv("NEWSLETTER_SIGNUP_ENABLED", newsletter);
+      expect((await suggest(request(valid))).status).toBe(suggestionStatus);
+      if (suggestionStatus === 503) expect(state.sql).not.toHaveBeenCalled();
+      state.sql.mockClear();
+      expect((await subscribe(request({ subscribed: true }))).status).toBe(
+        newsletterStatus,
+      );
+      if (newsletterStatus === 503) expect(state.sql).not.toHaveBeenCalled();
+      else
+        expect(state.sql.mock.calls[1][0].join("")).toContain(
+          "INSERT INTO subscriptions",
+        );
+    },
+  );
   it("requires a session", async () => {
     state.getUser.mockResolvedValue({ data: { user: null }, error: null });
     expect((await suggest(request(valid))).status).toBe(401);

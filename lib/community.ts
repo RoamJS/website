@@ -1,13 +1,17 @@
 import "server-only";
 import { requireVerifiedIdentity } from "./auth";
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
-import { isCommunityConfigured } from "./features";
+import { isSuggestionsConfigured, isNewsletterConfigured } from "./features";
 import { isSameOrigin } from "./validation";
 export const database = (): NeonQueryFunction<false, false> =>
   neon(process.env.DATABASE_URL!);
-export const authorizeSubmission = async (
-  request: Request,
-): Promise<{ userId: string; email: string } | Response> => {
+export const authorizeSubmission = async ({
+  request,
+  kind,
+}: {
+  request: Request;
+  kind: "suggestion" | "newsletter";
+}): Promise<{ userId: string; email: string } | Response> => {
   if (!isSameOrigin(request))
     return Response.json(
       { error: "This request could not be verified. Please reload the page." },
@@ -15,9 +19,18 @@ export const authorizeSubmission = async (
     );
   const identity = await requireVerifiedIdentity();
   if (identity instanceof Response) return identity;
-  if (!isCommunityConfigured())
+  const enabled =
+    kind === "suggestion"
+      ? isSuggestionsConfigured()
+      : isNewsletterConfigured();
+  if (!enabled)
     return Response.json(
-      { error: "Community submissions are not open yet." },
+      {
+        error:
+          kind === "suggestion"
+            ? "Suggestions are not open yet."
+            : "Newsletter signup is not open yet.",
+      },
       { status: 503 },
     );
   return identity;

@@ -25,7 +25,7 @@ Identity is revalidated against Supabase on the server. Only `email_confirmed_at
 
 ### Suggestions and mailing list (RJS-02 onward)
 
-Authentication does not enable submissions. `COMMUNITY_SUBMISSIONS_ENABLED` defaults to false and must stay false until the persistence work is complete. The old Neon-specific driver, schema, and migration script remain as disabled scaffolding for that migration. **Do not provision Neon or apply the old schema to Supabase.** RJS-02 must replace that driver, use the existing RoamJS Supabase project, define private access policies, and verify actual persisted submissions before enabling the flag.
+Authentication does not enable submissions. `COMMUNITY_SUBMISSIONS_ENABLED` controls suggestions only and must stay false until RJS-02 persistence is complete. `NEWSLETTER_SIGNUP_ENABLED` independently controls the newsletter form and subscription endpoint; keep it false until the RJS-04/05 consent flow is ready. Both default to false, so enabling suggestions cannot open newsletter signup. The old Neon-specific driver, schema, and migration script remain as disabled scaffolding for that migration. **Do not provision Neon or apply the old schema to Supabase.** RJS-02 must replace that driver, use the existing RoamJS Supabase project, define private access policies, and verify actual persisted submissions before enabling the flag.
 
 Existing submission code enforces same-origin requests, bounded JSON, verified identity, and database-backed rate limits and deduplication. Those persistence behaviors currently have mocked test coverage only.
 
