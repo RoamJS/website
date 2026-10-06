@@ -101,12 +101,12 @@ export const Catalog = ({
       <section
         id="plugins"
         aria-labelledby="catalog-heading"
-        className="scroll-mt-36 border-t pb-12 pt-6"
+        className="scroll-mt-36 pb-12 pt-6"
       >
         <div className="grid gap-6 md:grid-cols-[215px_minmax(0,1fr)] xl:grid-cols-[284px_minmax(0,1fr)] xl:gap-8">
           <aside
             aria-label="Plugin categories"
-            className="flex flex-wrap content-start gap-1 md:flex-col md:border-r md:pr-5"
+            className="flex flex-wrap content-start gap-1 md:flex-col md:pr-5"
           >
             {categories.map((c) => {
               const Icon = categoryIcons[c];
