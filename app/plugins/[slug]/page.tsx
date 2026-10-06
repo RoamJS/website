@@ -145,7 +145,7 @@ const PluginPage = async ({
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               {p.depotId
-                ? `In Roam, open Settings → Roam Depot and search for “${p.name}”. Review the guide, then install.`
+                ? `In Roam, open Settings → Roam Depot and search for “${p.name}”.`
                 : "Check the repository for availability, installation details, and development status."}
             </p>
             <Button asChild className="mt-5 w-full" variant="outline">

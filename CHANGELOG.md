@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Shorten the installation guidance on plugin pages.
+
 - Simplify the Roam Depot installation step on the getting-started page.
 
 - Add Newest ordering to the plugin catalog and simplify the ordering control.
