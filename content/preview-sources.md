@@ -8,3 +8,5 @@ All featured visuals are simplified interface illustrations, not literal screens
 - SmartBlocks, Custom Dark Mode, Quick Switcher, and Sticky Notes illustrations live in `components/featured.tsx`.
 
 Feature references: [Query Builder](https://github.com/RoamJS/query-builder), [Workbench Command Palette+](https://github.com/RoamJS/workbench/blob/main/docs/command-palette-plus.md).
+
+Breadcrumbs, Stats, and Giphy illustrations live in `components/featured-explore-previews.tsx`. They show a recent-page trail, illustrative graph counts, and a static GIF picker concept; the numbers and thumbnail drawings are examples, not live data or GIPHY results.

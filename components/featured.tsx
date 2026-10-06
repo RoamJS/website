@@ -1,4 +1,9 @@
 import Link from "next/link";
+import {
+  BreadcrumbsPreview,
+  StatsPreview,
+  GiphyPreview,
+} from "./featured-explore-previews";
 import type { ReactNode } from "react";
 import { FeaturedCarousel } from "./featured-carousel";
 import { PluginIllustration } from "./plugin-illustrations";
@@ -208,6 +213,10 @@ const FeaturedSlide = ({
           </div>
           {slug === "query-builder" || slug === "workbench" ? (
             <PluginIllustration slug={slug} />
+          ) : slug === "stats" ? (
+            <StatsPreview />
+          ) : slug === "giphy" ? (
+            <GiphyPreview />
           ) : (
             <DiscoveryPreview slug={slug} />
           )}
@@ -253,6 +262,33 @@ export const Featured = (): React.JSX.Element => (
                 },
               ]}
               preview={<DarkModePreview />}
+            />
+          ),
+        },
+        {
+          label: "More to explore",
+          content: (
+            <FeaturedSlide
+              lead={{
+                slug: "breadcrumbs",
+                name: "Breadcrumbs",
+                description: "Find your way back to recent pages and blocks.",
+              }}
+              secondary={[
+                {
+                  slug: "stats",
+                  name: "Stats",
+                  description:
+                    "Get a clearer picture of your graph with page, block, and reference statistics.",
+                },
+                {
+                  slug: "giphy",
+                  name: "Giphy",
+                  description:
+                    "Find just the right GIF and add a little personality to your notes.",
+                },
+              ]}
+              preview={<BreadcrumbsPreview />}
             />
           ),
         },

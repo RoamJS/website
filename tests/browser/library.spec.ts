@@ -199,6 +199,23 @@ test("featured carousel promotes newer plugins and stays stable when paging", as
   const before = await search.boundingBox();
   const next = featured.getByRole("button", { name: "Next featured plugins" });
   await next.click();
+  await expect(headings).toHaveText(["Breadcrumbs", "Stats", "Giphy"]);
+  await expect(
+    featured.getByRole("group", { name: "More to explore, 2 of 3" }),
+  ).toBeVisible();
+  await expect(
+    featured.getByRole("link", { name: "View plugin", exact: true }),
+  ).toHaveAttribute("href", "/plugins/breadcrumbs");
+  await expect(featured.getByRole("link", { name: /^Stats / })).toHaveAttribute(
+    "href",
+    "/plugins/stats",
+  );
+  await expect(featured.getByRole("link", { name: /^Giphy / })).toHaveAttribute(
+    "href",
+    "/plugins/giphy",
+  );
+  expect((await search.boundingBox())?.y).toBe(before?.y);
+  await next.press("ArrowRight");
   await expect(headings).toHaveText([
     "SmartBlocks",
     "Query Builder",
@@ -221,6 +238,9 @@ test("featured carousel promotes newer plugins and stays stable when paging", as
   await page.setViewportSize({ width: 390, height: 844 });
   await newer.scrollIntoViewIfNeeded();
   const mobileBefore = await search.boundingBox();
+  await featured.getByRole("button", { name: "Show more to explore" }).click();
+  await expect(headings).toHaveText(["Breadcrumbs", "Stats", "Giphy"]);
+  expect((await search.boundingBox())?.y).toBe(mobileBefore?.y);
   await popular.click();
   expect((await search.boundingBox())?.y).toBe(mobileBefore?.y);
   expect(
