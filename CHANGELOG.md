@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Remove the visible result-count line beneath catalog search while retaining screen-reader announcements.
+
 - Remove the extra Learn more link from the featured SmartBlocks card.
 
 - Remove the extra labels above the Query Builder and Workbench featured cards.

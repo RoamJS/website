@@ -175,7 +175,7 @@ export const Catalog = ({
                     </Button>
                   ) : null}
                 </form>
-                <p role="status" className="mt-2 text-sm text-muted-foreground">
+                <p role="status" className="sr-only">
                   {results.length} {results.length === 1 ? "plugin" : "plugins"}
                   {query
                     ? ` matching “${query}”`
