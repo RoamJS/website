@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Replace the Query Builder and Workbench featured screenshots with the selected condition-builder and block-action illustrations.
+
 - Shrink the header while scrolling and add compact mobile navigation with touch-friendly controls.
 
 - Promote Custom Dark Mode, Quick Switcher, and Sticky Notes in a subtle, manually controlled featured carousel, with popular plugins on its second page.

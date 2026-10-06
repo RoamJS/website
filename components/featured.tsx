@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { FeaturedCarousel } from "./featured-carousel";
-import Image from "next/image";
+import { PluginIllustration } from "./plugin-illustrations";
 import {
   ArrowRight,
   CalendarDays,
@@ -68,23 +68,6 @@ const WorkflowPreview = (): React.JSX.Element => (
       </svg>
     </div>
   </div>
-);
-
-const PluginScreenshot = ({ slug }: { slug: string }): React.JSX.Element => (
-  <span
-    aria-hidden="true"
-    className="relative hidden h-28 w-36 shrink-0 overflow-hidden rounded-lg border border-border/70 bg-white shadow-sm xl:block"
-  >
-    <Image
-      src={`/previews/${slug}.png`}
-      alt=""
-      width={slug === "query-builder" ? 938 : 1080}
-      height={slug === "query-builder" ? 480 : 720}
-      sizes="540px"
-      className={`absolute max-w-none ${slug === "query-builder" ? "-top-[140px] left-0 w-[470px]" : "-left-[106px] -top-[38px] w-[540px]"}`}
-    />
-    <span className="absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-white/90 to-transparent" />
-  </span>
 );
 
 const DarkModePreview = (): React.JSX.Element => (
@@ -224,7 +207,7 @@ const FeaturedSlide = ({
             </span>
           </div>
           {slug === "query-builder" || slug === "workbench" ? (
-            <PluginScreenshot slug={slug} />
+            <PluginIllustration slug={slug} />
           ) : (
             <DiscoveryPreview slug={slug} />
           )}

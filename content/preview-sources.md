@@ -1,8 +1,10 @@
 # Featured plugin previews
 
-- `public/previews/query-builder.png`: original screenshot from the [Query Builder README](https://github.com/RoamJS/query-builder/blob/main/README.md), as recorded in `plugins-source.json`.
-- `public/previews/workbench.png`: still frame at 3 seconds from the [Workbench Command Palette+ demo](https://raw.githubusercontent.com/RoamJS/workbench/main/docs/media/short-demo-commandpaletteplus.gif).
+All featured visuals are simplified interface illustrations, not literal screenshots. They are based on the feature descriptions in `plugins-source.json` and adapt to the website theme. The Custom Dark Mode graph stays dark to demonstrate its purpose.
 
-These are documentation screenshots, not new captures of the latest plugin versions. Cropping is applied in `components/featured.tsx`; the source interfaces have not been redrawn or recolored.
+- Query Builder uses the selected QB1 concept, “Build a condition”: a compact query editor with an active filter.
+- Workbench uses the selected WB5 concept, “Put blocks to work”: moving a block into a page without losing your place.
+- These two SVG illustrations live in `components/plugin-illustrations.tsx` and replace the earlier documentation screenshot crops.
+- SmartBlocks, Custom Dark Mode, Quick Switcher, and Sticky Notes illustrations live in `components/featured.tsx`.
 
-The Custom Dark Mode, Quick Switcher, and Sticky Notes featured visuals are simplified interface illustrations based on the feature descriptions in `plugins-source.json`, not screenshots. They adapt to the website theme; the Custom Dark Mode graph stays dark to demonstrate its purpose.
+Feature references: [Query Builder](https://github.com/RoamJS/query-builder), [Workbench Command Palette+](https://github.com/RoamJS/workbench/blob/main/docs/command-palette-plus.md).
