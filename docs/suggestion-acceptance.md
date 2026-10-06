@@ -2,7 +2,7 @@
 
 Scope: general app ideas and plugin suggestions, private persistence, verified identity, validation, retries and shared limits. Owner review/replies and newsletter flows are RJS-03–05.
 
-The additive `suggestion_persistence` migration is applied to project `uxihswugvmdwbbtgxtfl` in organization `jevettuehuhgoesqqhxc`. Existing tables/data are preserved. Private tables have RLS and no anonymous/authenticated table grants; only the authenticated RPC is callable. Anonymous execution, cross-account reading, and direct inserts are forbidden. The website uses its existing public key and user session, never an admin key.
+The additive `suggestion_persistence`, `pin_community_rate_limit_timezone`, and `align_suggestion_whitespace_validation` migrations are applied to project `uxihswugvmdwbbtgxtfl` in organization `jevettuehuhgoesqqhxc`. Existing tables/data are preserved. Private tables have RLS and no anonymous/authenticated table grants; only the authenticated RPC is callable. Anonymous execution, cross-account reading, and direct inserts are forbidden. The website uses its existing public key and user session, never an admin key.
 
 Local validation: 59 unit/API/rendered-page tests, production build, lint, TypeScript, 14 default browser checks and one enabled-form Unicode/retry check pass. Browser sessions in local regression tests are fixtures.
 
@@ -20,6 +20,8 @@ Both went through the deployed website's `/api/suggestions` with genuine Supabas
 Database grants were queried directly: anonymous/signed-in SELECT and signed-in INSERT on `private.suggestions` are false; anonymous RPC EXECUTE is false; authenticated RPC EXECUTE is true. Attempts to retrieve private records through the Data API failed. Service-outage and missing-receipt behavior are covered by API/browser regression tests; no artificial production outage was introduced.
 
 After retrieval, all three synthetic records and their rate-limit rows were removed. Both sessions were globally revoked (204); both disposable Auth users were removed; follow-up SQL confirmed zero remaining test users and suggestion rows. The ignored session file was deleted. Nonsensitive run evidence remains in `local/suggestion-hosted-evidence.json`.
+
+The final hosted SQL regression `supabase/tests/suggestion-security.sql` passes quota reset, Unicode boundaries and trimmed-whitespace parity, duplicate receipts without quota consumption, conflicting payloads, plugin/unverified validation and private grants. It also tests half-hour and quarter-hour caller timezones. The rate-limit function pins UTC because [PostgREST permits a caller-selected timezone](https://docs.postgrest.org/en/stable/references/api/preferences.html#timezone); changing timezone cannot shift or reset the shared budget. SQL test identities and data are transactionally rolled back.
 
 ## Repeat safely
 
