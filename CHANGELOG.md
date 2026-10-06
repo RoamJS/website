@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Promote Custom Dark Mode, Quick Switcher, and Sticky Notes in a subtle, manually controlled featured carousel, with popular plugins on its second page.
+
 - Preview Query Builder and Workbench interfaces in their featured cards.
 
 - Remove the deprecated Static Site extension from the website.

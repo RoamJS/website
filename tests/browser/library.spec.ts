@@ -171,3 +171,71 @@ test("all public plugin guides hydrate without errors", async ({ page }) => {
   }
   expect(errors).toEqual([]);
 });
+
+test("featured carousel promotes newer plugins and stays stable when paging", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1404, height: 940 });
+  await page.goto("/");
+  const featured = page.getByRole("region", {
+    name: "Featured plugins",
+    exact: true,
+  });
+  const newer = featured.getByRole("button", { name: "Show newer plugins" });
+  const popular = featured.getByRole("button", {
+    name: "Show popular plugins",
+  });
+  const headings = featured.getByRole("heading", { level: 3 });
+  const search = page.getByRole("textbox", { name: "Search plugins" });
+  await expect(headings).toHaveText([
+    "Custom Dark Mode",
+    "Quick Switcher",
+    "Sticky Notes",
+  ]);
+  await expect(newer).toHaveAttribute("aria-pressed", "true");
+  await expect(
+    featured.getByRole("link", { name: "View plugin", exact: true }),
+  ).toHaveAttribute("href", "/plugins/custom-dark-mode");
+  const before = await search.boundingBox();
+  const next = featured.getByRole("button", { name: "Next featured plugins" });
+  await next.click();
+  await expect(headings).toHaveText([
+    "SmartBlocks",
+    "Query Builder",
+    "Workbench",
+  ]);
+  await expect(popular).toHaveAttribute("aria-pressed", "true");
+  await expect(next).toBeFocused();
+  expect((await search.boundingBox())?.y).toBe(before?.y);
+  await next.press("ArrowRight");
+  await expect(newer).toHaveAttribute("aria-pressed", "true");
+  await featured
+    .getByRole("button", { name: "Previous featured plugins" })
+    .click();
+  await expect(popular).toHaveAttribute("aria-pressed", "true");
+  await newer.click();
+  await page.getByRole("button", { name: "Toggle dark mode" }).click();
+  await page.screenshot({ path: "local/featured-carousel-light.png" });
+  await page.getByRole("button", { name: "Toggle dark mode" }).click();
+  await page.screenshot({ path: "local/featured-carousel-dark.png" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await newer.scrollIntoViewIfNeeded();
+  const mobileBefore = await search.boundingBox();
+  await popular.click();
+  expect((await search.boundingBox())?.y).toBe(mobileBefore?.y);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await expect(headings).toHaveText([
+    "SmartBlocks",
+    "Query Builder",
+    "Workbench",
+  ]);
+  await newer.click();
+  await page.screenshot({
+    path: "local/featured-carousel-mobile.png",
+    fullPage: true,
+  });
+});
