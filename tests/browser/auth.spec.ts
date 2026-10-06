@@ -22,7 +22,7 @@ test("email sign-in stays separate from consent and handles failed verification"
   await page
     .getByLabel("Email address", { exact: true })
     .fill("test@example.com");
-  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+  await page.getByRole("button", { name: "Email me a sign-in code" }).click();
   await expect(page.getByRole("status")).toContainText("Check your email");
   await page.getByLabel("Verification code", { exact: false }).fill("123456");
   await page.getByRole("button", { name: "Verify code", exact: true }).click();
@@ -97,7 +97,7 @@ test("a verified browser session survives reload and signs out without subscribi
   );
   await page.goto("/account");
   await page.getByLabel("Email address", { exact: true }).fill(user.email);
-  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+  await page.getByRole("button", { name: "Email me a sign-in code" }).click();
   await page.getByLabel("Verification code", { exact: false }).fill("123456");
   await page.getByRole("button", { name: "Verify code", exact: true }).click();
   await expect(
@@ -133,7 +133,7 @@ test("email delivery errors preserve the address and allow another attempt", asy
   await page
     .getByLabel("Email address", { exact: true })
     .fill("test@example.com");
-  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+  await page.getByRole("button", { name: "Email me a sign-in code" }).click();
   await expect(page.locator("main").getByRole("alert")).toContainText(
     "couldn’t send",
   );
@@ -145,6 +145,6 @@ test("email delivery errors preserve the address and allow another attempt", asy
     page.getByLabel("Verification code", { exact: false }),
   ).toHaveCount(0);
   await page.route(`${authUrl}/otp**`, (route) => route.fulfill({ json: {} }));
-  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+  await page.getByRole("button", { name: "Email me a sign-in code" }).click();
   await expect(page.getByRole("status")).toContainText("Check your email");
 });

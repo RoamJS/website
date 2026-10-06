@@ -6,9 +6,10 @@ Checked October 6, 2026. Implementation is in [website PR #5](https://github.com
 
 - Existing organization `jevettuehuhgoesqqhxc`, project `uxihswugvmdwbbtgxtfl` (RoamJS). Project was healthy when checked.
 - Supabase Email provider and Confirm email are enabled; anonymous sign-in is disabled.
+- Confirmation and returning sign-in emails include a one-time code and a same-browser link.
 - Added exact redirect URLs `http://localhost:3215/auth/callback` and `https://roamjs-website-git-codex-supabase-auth-michael-gartner-projects.vercel.app/auth/callback`.
 - Vercel project `roamjs-website`, branch `codex/supabase-auth`: public Supabase URL/key configured for this preview branch only. `COMMUNITY_SUBMISSIONS_ENABLED=false`.
-- [Hosted account preview](https://roamjs-website-git-codex-supabase-auth-michael-gartner-projects.vercel.app/account) renders its email form. Vercel preview protection still applies.
+- [Hosted account preview](https://roamjs-website-git-codex-supabase-auth-michael-gartner-projects.vercel.app/account) renders its email form. Vercel preview protection still applies. An authenticated Vercel CLI request to `/api/auth/session` returned 401 with the expected sign-in message.
 - Production environment values, Supabase Site URL, existing extension OAuth credentials, database tables, and newsletter delivery were not changed.
 
 ## Verified locally

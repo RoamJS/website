@@ -44,7 +44,7 @@ export const AccountForm = (): React.JSX.Element => {
     setSent(true);
     setResendAt(Date.now() + 60_000);
     setMessage(
-      "Check your email for a sign-in link or verification code. Open links in this browser.",
+      "Check your email for a verification code. You can also open the sign-in link in this browser.",
     );
   };
   const verify = async (): Promise<void> => {
@@ -134,7 +134,7 @@ export const AccountForm = (): React.JSX.Element => {
                 ? "Please wait…"
                 : sent
                   ? "Resend sign-in email"
-                  : "Email me a sign-in link"}
+                  : "Email me a sign-in code"}
             </Button>
           </form>
           {sent && (
@@ -146,9 +146,7 @@ export const AccountForm = (): React.JSX.Element => {
                 }}
                 className="space-y-3"
               >
-                <Label htmlFor="account-code">
-                  Verification code (if included in your email)
-                </Label>
+                <Label htmlFor="account-code">Verification code</Label>
                 <Input
                   id="account-code"
                   inputMode="numeric"
