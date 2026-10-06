@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Remove the deprecated Static Site extension from the website.
+
 - Remove the divider lines above the plugin catalog and beside its categories.
 
 - Add the GitHub icon to the header's GitHub button.

@@ -141,10 +141,7 @@ test("support pages and unavailable APIs stay honest", async ({
     await expect(page.locator("h1")).toBeVisible();
   }
   expect((await page.goto("/plugins/attribute-select"))?.status()).toBe(404);
-  await page.goto("/plugins/static-site");
-  await expect(
-    page.getByText("This repository is marked deprecated.", { exact: false }),
-  ).toBeVisible();
+  expect((await page.goto("/plugins/static-site"))?.status()).toBe(404);
   expect((await page.goto("/plugins/not-a-plugin"))?.status()).toBe(404);
   const response = await request.post("/api/suggestions", {
     headers: { Origin: "http://localhost:3215" },

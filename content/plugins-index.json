@@ -236,14 +236,6 @@
       "downloads": null,
       "depotId": null,
       "updated": null
-    },
-    {
-      "slug": "static-site",
-      "name": "Static Site",
-      "repository": "https://github.com/RoamJS/static-site",
-      "downloads": null,
-      "depotId": null,
-      "updated": null
     }
   ]
 }

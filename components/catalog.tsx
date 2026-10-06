@@ -245,9 +245,7 @@ export const Catalog = ({
                         </p>
                         <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                           <span className="rounded-full bg-secondary px-2 py-1 text-[11px] text-secondary-foreground">
-                            {p.slug === "static-site"
-                              ? "Deprecated"
-                              : p.category}
+                            {p.category}
                           </span>
                           <span className="inline-flex items-center gap-1 text-sm text-primary">
                             View{" "}

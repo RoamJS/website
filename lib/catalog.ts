@@ -109,10 +109,6 @@ const descriptions: Record<string, [Category, string]> = {
     "Developer tools",
     "Build and run your own extensions from inside Roam.",
   ],
-  "static-site": [
-    "Developer tools",
-    "Publish pages from your Roam graph as a website.",
-  ],
 };
 export const plugins = source.plugins.map((p) => ({
   ...p,

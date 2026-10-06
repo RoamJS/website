@@ -11,7 +11,6 @@ import {
   BookOpen,
   Download,
   GitFork,
-  Info,
 } from "lucide-react";
 import { getPlugin, plugins } from "@/lib/catalog";
 import { isCommunityConfigured } from "@/lib/features";
@@ -58,13 +57,6 @@ const PluginPage = async ({
         <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
           {p.description}
         </p>
-        {p.slug === "static-site" && (
-          <p className="mt-4 rounded-lg bg-secondary p-4 text-sm">
-            <Info className="mr-2 inline size-4" />
-            This repository is marked deprecated. Read the source notice before
-            using it.
-          </p>
-        )}
       </section>
       <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_260px]">
         <div id="plugin-content" className="min-w-0 scroll-mt-36">

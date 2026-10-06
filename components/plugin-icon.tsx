@@ -25,7 +25,6 @@ import {
   Pin,
   History,
   Code2,
-  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 export const QueryIcon = (
@@ -72,7 +71,6 @@ const icons = {
   "recent-changes": History,
   "ranked-search": Search,
   developer: Code2,
-  "static-site": Globe,
 };
 export const PluginIcon = ({
   slug,

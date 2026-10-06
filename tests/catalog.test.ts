@@ -41,10 +41,9 @@ describe("plugin discovery", () => {
       "custom-dark-mode",
       "tldraw",
     ]);
-    expect(result.slice(-3).map((p) => p.slug)).toEqual([
+    expect(result.slice(-2).map((p) => p.slug)).toEqual([
       "developer",
       "pinned-blocks",
-      "static-site",
     ]);
     const dated = result.filter((p) => p.created);
     expect(
@@ -68,6 +67,16 @@ describe("plugin discovery", () => {
       "ranked-search",
     ])
       expect(getPlugin(slug)).toBeUndefined();
+  });
+  it("excludes the deprecated Static Site extension", () => {
+    expect(getPlugin("static-site")).toBeUndefined();
+    expect(
+      filterPlugins({
+        query: "static site",
+        category: "All plugins",
+        sort: "name",
+      }),
+    ).toEqual([]);
   });
   it("has unique routes and source documentation for every catalog item", () => {
     expect(new Set(plugins.map((p) => p.slug)).size).toBe(plugins.length);
