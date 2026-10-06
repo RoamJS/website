@@ -167,10 +167,6 @@ const PluginPage = async ({
                 <Download className="size-4 text-muted-foreground" />
                 {p.downloads.toLocaleString("en-US")} Depot downloads
               </p>
-              <p className="mt-2 text-[11px] text-muted-foreground">
-                Snapshot: October 4, 2026. This is a download count, not active
-                users.
-              </p>
             </div>
           )}
           <div className="flex items-center gap-2 border-t pt-5 text-xs text-muted-foreground">

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { plugins } from "../../content/plugins-index.json";
-test("catalog search, filtering, sorting, guide, reviews and suggestion states", async ({
+test("catalog search, filtering, sorting, guide and suggestion states", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -27,10 +27,6 @@ test("catalog search, filtering, sorting, guide, reviews and suggestion states",
     page.getByRole("heading", { name: "SmartBlocks", exact: true }),
   ).toBeVisible();
   await expect(page.getByText("From the plugin’s public README")).toBeVisible();
-  await page.getByRole("tab", { name: "Reviews", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "Room for your experience" }),
-  ).toBeVisible();
   await page.getByRole("tab", { name: "Suggest a change" }).click();
   await expect(
     page.getByRole("link", { name: "Share an idea on GitHub" }),
@@ -67,7 +63,7 @@ test("theme persists; mobile layout and keyboard navigation work", async ({
   await page.getByRole("tab", { name: "Instructions", exact: true }).focus();
   await page.keyboard.press("ArrowRight");
   await expect(
-    page.getByRole("tab", { name: "Reviews", exact: true }),
+    page.getByRole("tab", { name: "Suggest a change", exact: true }),
   ).toBeFocused();
 });
 test("support pages and unavailable APIs stay honest", async ({
@@ -103,9 +99,11 @@ test("all public plugin guides hydrate without errors", async ({ page }) => {
     await expect(
       page.getByRole("heading", { level: 1, name: plugin.name, exact: true }),
     ).toBeVisible();
-    await page.getByRole("tab", { name: "Reviews", exact: true }).click();
+    await page
+      .getByRole("tab", { name: "Suggest a change", exact: true })
+      .click();
     await expect(
-      page.getByRole("heading", { name: "Room for your experience" }),
+      page.getByRole("link", { name: "Share an idea on GitHub" }),
     ).toBeVisible();
   }
   expect(errors).toEqual([]);

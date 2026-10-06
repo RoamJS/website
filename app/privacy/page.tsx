@@ -12,9 +12,8 @@ const Privacy = (): React.JSX.Element => (
       When website submissions are enabled, Clerk handles sign-in and email
       verification. RoamJS stores your account ID, verified primary email,
       suggestion text, and submission time so we can review and follow up on
-      your idea. Suggestions are private to RoamJS; they are not published as
-      reviews. Please don’t submit sensitive information or private graph
-      content.
+      your idea. Suggestions are private to RoamJS. Please don’t submit
+      sensitive information or private graph content.
     </p>
     <h2>Announcements are optional</h2>
     <p>
