@@ -1,13 +1,12 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   CalendarDays,
   CircleCheck,
   Search,
-  Terminal,
   TextCursorInput,
 } from "lucide-react";
-import { QueryIcon } from "./plugin-icon";
 import { Button } from "@/components/ui/button";
 
 const WorkflowPreview = (): React.JSX.Element => (
@@ -69,6 +68,23 @@ const WorkflowPreview = (): React.JSX.Element => (
   </div>
 );
 
+const PluginScreenshot = ({ slug }: { slug: string }): React.JSX.Element => (
+  <span
+    aria-hidden="true"
+    className="relative hidden h-28 w-36 shrink-0 overflow-hidden rounded-lg border border-border/70 bg-white shadow-sm xl:block"
+  >
+    <Image
+      src={`/previews/${slug}.png`}
+      alt=""
+      width={slug === "query-builder" ? 938 : 1080}
+      height={slug === "query-builder" ? 480 : 720}
+      sizes="540px"
+      className={`absolute max-w-none ${slug === "query-builder" ? "-top-[140px] left-0 w-[470px]" : "-left-[106px] -top-[38px] w-[540px]"}`}
+    />
+    <span className="absolute inset-y-0 right-0 w-4 bg-gradient-to-l from-white/90 to-transparent" />
+  </span>
+);
+
 export const Featured = (): React.JSX.Element => (
   <section aria-labelledby="featured-heading" className="pb-6">
     <h2 id="featured-heading" className="sr-only">
@@ -102,15 +118,13 @@ export const Featured = (): React.JSX.Element => (
             name: "Query Builder",
             description:
               "Build complex queries with a simple, visual interface.",
-            Icon: QueryIcon,
           },
           {
             slug: "workbench",
             name: "Workbench",
             description: "A toolkit for everyday Roam workflows.",
-            Icon: Terminal,
           },
-        ].map(({ slug, name, description, Icon }) => (
+        ].map(({ slug, name, description }) => (
           <Link
             key={slug}
             href={`/plugins/${slug}`}
@@ -128,11 +142,7 @@ export const Featured = (): React.JSX.Element => (
                 <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
               </span>
             </div>
-            <span
-              className={`hidden size-20 shrink-0 items-center justify-center rounded-lg border bg-secondary/30 xl:flex ${slug === "workbench" ? "text-brand-orange" : "text-primary"}`}
-            >
-              <Icon className="size-11" strokeWidth={1.8} />
-            </span>
+            <PluginScreenshot slug={slug} />
           </Link>
         ))}
       </div>
