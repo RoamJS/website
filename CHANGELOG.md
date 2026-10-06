@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Introduce the Graphite design with the RoamJS logo, light and dark themes, prominent search, and title or download sorting in the plugin catalog.
+
 - Replace the coming-soon page with a searchable RoamJS plugin library, featured tools, plugin guides, and getting-started help.
 - Add light and dark themes, responsive layouts, and keyboard-accessible browsing.
 - Add per-plugin suggestion sections, with clear availability notices where content or services are not ready.

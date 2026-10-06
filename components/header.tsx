@@ -5,7 +5,7 @@ import { AuthButton } from "./auth-button";
 import { isAuthConfigured } from "@/lib/features";
 export const Header = (): React.JSX.Element => (
   <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur">
-    <div className="mx-auto flex min-h-20 max-w-6xl flex-wrap items-center justify-between gap-3 px-5 py-3 md:px-8">
+    <div className="mx-auto flex min-h-24 max-w-[1440px] flex-wrap items-center justify-between gap-3 px-5 py-4 md:px-8">
       <Link href="/" aria-label="RoamJS home">
         <Brand />
       </Link>

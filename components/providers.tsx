@@ -12,7 +12,7 @@ export const Providers = ({
     <ThemeProvider
       attribute="class"
       disableTransitionOnChange
-      defaultTheme="system"
+      defaultTheme="dark"
       enableSystem
     >
       {children}

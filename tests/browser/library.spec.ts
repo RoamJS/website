@@ -6,7 +6,9 @@ test("catalog search, filtering, sorting, guide and suggestion states", async ({
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Your notes/ })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: /Become a Roam Power User/ }),
+  ).toBeVisible();
   await page.getByRole("textbox", { name: "Search plugins" }).fill("calendar");
   await expect(page.getByRole("status")).toHaveText(
     "1 plugin matching “calendar”",
@@ -21,7 +23,29 @@ test("catalog search, filtering, sorting, guide and suggestion states", async ({
   await page.getByRole("button", { name: /Navigation/ }).click();
   await expect(page.getByRole("status")).toContainText("navigation");
   await page.getByRole("combobox", { name: "Sort plugins" }).click();
-  await page.getByRole("option", { name: "Name: A–Z" }).click();
+  await page.getByRole("option", { name: "Title (A–Z)" }).click();
+  const titles = page.locator("#catalog-results h3");
+  await expect(titles).toHaveText(["Breadcrumbs", "Quick Switcher"]);
+  await page.getByRole("button", { name: /All plugins/ }).click();
+  await expect(titles).toHaveText(
+    plugins.map((p) => p.name).sort((a, b) => a.localeCompare(b)),
+  );
+  await page.getByRole("combobox", { name: "Sort plugins" }).click();
+  await page.getByRole("option", { name: "Downloads (high to low)" }).click();
+  await expect(titles).toHaveText(
+    [...plugins]
+      .sort((a, b) => (b.downloads ?? -1) - (a.downloads ?? -1))
+      .map((p) => p.name),
+  );
+  await page.keyboard.press("Control+k");
+  await expect(
+    page.getByRole("textbox", { name: "Search plugins" }),
+  ).toBeFocused();
+  await page.getByRole("textbox", { name: "Search plugins" }).fill("calendar");
+  await page.keyboard.press("Enter");
+  await expect(
+    page.getByRole("heading", { name: "Plugin catalog" }),
+  ).toBeFocused();
   await page.goto("/plugins/smartblocks");
   await expect(
     page.getByRole("heading", { name: "SmartBlocks", exact: true }),
@@ -36,7 +60,13 @@ test("catalog search, filtering, sorting, guide and suggestion states", async ({
 test("theme persists; mobile layout and keyboard navigation work", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1440, height: 1080 });
   await page.goto("/");
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await expect(page.locator("header img")).toHaveJSProperty(
+    "naturalWidth",
+    460,
+  );
   await page.evaluate(() => localStorage.setItem("theme", "light"));
   await page.reload();
   await page.getByRole("button", { name: "Toggle dark mode" }).click();
@@ -53,7 +83,17 @@ test("theme persists; mobile layout and keyboard navigation work", async ({
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+  await page.getByRole("combobox", { name: "Sort plugins" }).click();
+  await page.getByRole("option", { name: "Title (A–Z)" }).click();
+  await expect(page.locator("#catalog-results h3").first()).toHaveText(
+    "Auto Tag Mode",
+  );
+  await page
+    .getByRole("textbox", { name: "Search plugins" })
+    .scrollIntoViewIfNeeded();
   await page.screenshot({ path: "local/mobile.png" });
+  await page.getByRole("button", { name: "Toggle dark mode" }).click();
+  await page.screenshot({ path: "local/mobile-dark.png" });
   await page.goto("/plugins/query-builder");
   expect(
     await page.evaluate(

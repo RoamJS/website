@@ -1,8 +1,27 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Search, X } from "lucide-react";
-import { categories, filterPlugins, plugins } from "@/lib/catalog";
+import {
+  ArrowRight,
+  Code2,
+  Download,
+  Grid2X2,
+  Lightbulb,
+  Link2,
+  Mail,
+  Palette,
+  Route,
+  Search,
+  X,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+import {
+  categories,
+  filterPlugins,
+  plugins,
+  type Category,
+} from "@/lib/catalog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,162 +32,259 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PluginIcon } from "./plugin-icon";
-export const Catalog = (): React.JSX.Element => {
+
+const categoryIcons: Record<Category, LucideIcon> = {
+  "All plugins": Grid2X2,
+  "Writing & thinking": Lightbulb,
+  Productivity: Zap,
+  Navigation: Route,
+  Integrations: Link2,
+  Appearance: Palette,
+  "Developer tools": Code2,
+};
+const downloadFormatter = new Intl.NumberFormat("en-US");
+
+export const Catalog = ({
+  featured,
+}: {
+  featured: ReactNode;
+}): React.JSX.Element => {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All plugins");
   const [sort, setSort] = useState("popular");
+  const searchRef = useRef<HTMLInputElement>(null);
   const results = filterPlugins({ query, category, sort });
+
+  useEffect(() => {
+    const focusSearch = (event: KeyboardEvent): void => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", focusSearch);
+    return () => window.removeEventListener("keydown", focusSearch);
+  }, []);
+
   return (
-    <section
-      id="plugins"
-      aria-labelledby="catalog-heading"
-      className="scroll-mt-28 pb-20"
-    >
-      <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
-        <div>
-          <p className="eyebrow mb-2">MAKE ROAM YOUR OWN</p>
-          <h2
-            id="catalog-heading"
-            className="text-3xl font-medium tracking-tight"
-          >
-            Find your next favorite tool<span className="text-primary">.</span>
-          </h2>
-          <p className="mt-3 text-sm text-muted-foreground">
-            A library of possibilities, one plugin at a time.
-          </p>
-        </div>
-        <span className="text-xs text-muted-foreground">
-          {plugins.length} plugins to explore
-        </span>
-      </div>
-      <div className="mb-8 mt-7 flex flex-col gap-3 sm:flex-row">
-        <div className="relative grow">
-          <Search className="pointer-events-none absolute left-4 top-3.5 size-4 text-muted-foreground" />
-          <Input
-            aria-label="Search plugins"
-            placeholder="Search plugins, ideas, or things you want to do…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="h-11 bg-card pl-11 pr-10"
+    <>
+      <section
+        aria-labelledby="home-heading"
+        className="py-10 text-center md:py-12"
+      >
+        <h1
+          id="home-heading"
+          className="text-balance text-4xl font-semibold leading-[1.12] tracking-[-.045em] sm:text-5xl lg:text-6xl"
+        >
+          Become a <span className="text-primary">Roam Power User</span>
+        </h1>
+        <form
+          role="search"
+          className="relative mx-auto mt-7 max-w-2xl"
+          onSubmit={(event) => {
+            event.preventDefault();
+            document.getElementById("catalog-heading")?.focus();
+          }}
+        >
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute left-5 top-4 size-5 text-foreground"
           />
-          {query && (
+          <Input
+            ref={searchRef}
+            aria-label="Search plugins"
+            aria-controls="catalog-results"
+            placeholder="Search plugins"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            className="h-13 rounded-xl bg-card pl-13 pr-14 text-base! shadow-xs"
+          />
+          {query ? (
             <Button
+              type="button"
               variant="ghost"
               size="icon"
-              className="absolute right-1 top-1 size-9"
-              onClick={() => setQuery("")}
+              className="absolute right-2 top-2 size-9"
+              onClick={() => {
+                setQuery("");
+                searchRef.current?.focus();
+              }}
               aria-label="Clear search"
             >
               <X className="size-4" />
             </Button>
-          )}
-        </div>
-        <Select value={sort} onValueChange={setSort}>
-          <SelectTrigger
-            aria-label="Sort plugins"
-            className="h-11! w-full bg-card sm:w-44"
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="popular">Most downloaded</SelectItem>
-            <SelectItem value="name">Name: A–Z</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="grid gap-7 md:grid-cols-[190px_1fr]">
-        <aside
-          aria-label="Plugin categories"
-          className="flex flex-wrap content-start gap-1 md:flex-col"
-        >
-          <p className="eyebrow mb-3 hidden pl-3 md:block">Browse by purpose</p>
-          {categories.map((c) => (
-            <Button
-              key={c}
-              variant={category === c ? "secondary" : "ghost"}
-              className="justify-between gap-3 px-3 text-xs font-normal md:w-full"
-              aria-pressed={category === c}
-              onClick={() => setCategory(c)}
-            >
-              {c}
-              <span className="text-[10px] text-muted-foreground">
-                {c === "All plugins"
-                  ? plugins.length
-                  : plugins.filter((p) => p.category === c).length}
-              </span>
-            </Button>
-          ))}
-          <div className="mt-7 hidden border-t px-3 pt-5 md:block">
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              Something missing?
-            </p>
-            <Link
-              className="mt-2 inline-flex items-center gap-2 text-xs font-medium text-primary"
-              href="/ideas"
-            >
-              Plant an idea <ArrowUpRight className="size-3" />
-            </Link>
-          </div>
-        </aside>
-        <div>
-          <p role="status" className="mb-4 text-xs text-muted-foreground">
-            {results.length} {results.length === 1 ? "plugin" : "plugins"}
-            {query
-              ? ` matching “${query}”`
-              : category !== "All plugins"
-                ? ` in ${category.toLowerCase()}`
-                : " · made for your graph"}
-          </p>
-          {results.length ? (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {results.map((p) => (
-                <Link
-                  key={p.slug}
-                  href={`/plugins/${p.slug}`}
-                  className="group flex min-h-52 flex-col rounded-xl border bg-card p-5 transition hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <PluginIcon slug={p.slug} />
-                    <ArrowUpRight className="size-4 text-muted-foreground opacity-50 group-hover:text-primary group-hover:opacity-100" />
-                  </div>
-                  <h3 className="mt-4 text-base font-semibold">{p.name}</h3>
-                  <p className="mt-2 grow text-[13px] leading-relaxed text-muted-foreground">
-                    {p.description}
-                  </p>
-                  <div className="mt-5 flex flex-wrap justify-between gap-2 text-[10px] text-muted-foreground">
-                    <span>{p.category}</span>
-                    <span>
-                      {p.slug === "static-site"
-                        ? "Deprecated"
-                        : p.depotId
-                          ? "In Roam Depot"
-                          : "View repository"}
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
           ) : (
-            <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
-              <Search className="mb-4 size-7 text-muted-foreground" />
-              <h3 className="font-medium">No plugins found</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Try a different phrase or explore another category.
-              </p>
-              <Button
-                className="mt-5"
-                variant="outline"
-                onClick={() => {
-                  setQuery("");
-                  setCategory("All plugins");
-                }}
-              >
-                Clear all filters
-              </Button>
-            </div>
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute right-4 top-4 rounded border px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+            >
+              ⌘ K
+            </span>
           )}
+        </form>
+      </section>
+      {!query.trim() && featured}
+      <section
+        id="plugins"
+        aria-labelledby="catalog-heading"
+        className="scroll-mt-36 border-t pb-12 pt-6"
+      >
+        <div className="grid gap-6 md:grid-cols-[200px_minmax(0,1fr)] xl:grid-cols-[235px_minmax(0,1fr)]">
+          <aside
+            aria-label="Plugin categories"
+            className="flex flex-wrap content-start gap-1 md:flex-col md:border-r md:pr-5"
+          >
+            <p className="eyebrow mb-3 hidden pl-3 md:block">Browse plugins</p>
+            {categories.map((c) => {
+              const Icon = categoryIcons[c];
+              const active = category === c;
+              return (
+                <Button
+                  key={c}
+                  variant={active ? "secondary" : "ghost"}
+                  className={`relative h-11 justify-start gap-3 px-3 text-xs font-normal md:w-full ${active ? "bg-accent text-primary before:absolute before:inset-y-2 before:left-0 before:w-0.5 before:rounded-full before:bg-brand-orange" : "text-muted-foreground"}`}
+                  aria-pressed={active}
+                  onClick={() => setCategory(c)}
+                >
+                  <Icon
+                    className={`size-4 shrink-0 ${active ? "text-brand-orange" : ""}`}
+                  />
+                  {c}
+                  <span className="ml-auto tabular-nums text-muted-foreground">
+                    {c === "All plugins"
+                      ? plugins.length
+                      : plugins.filter((p) => p.category === c).length}
+                  </span>
+                </Button>
+              );
+            })}
+          </aside>
+          <div className="min-w-0">
+            <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <h2
+                  id="catalog-heading"
+                  tabIndex={-1}
+                  className="scroll-mt-36 text-2xl font-semibold tracking-tight"
+                >
+                  Plugin catalog
+                </h2>
+                <p role="status" className="mt-2 text-xs text-muted-foreground">
+                  {results.length} {results.length === 1 ? "plugin" : "plugins"}
+                  {query
+                    ? ` matching “${query}”`
+                    : category !== "All plugins"
+                      ? ` in ${category.toLowerCase()}`
+                      : ""}
+                </p>
+              </div>
+              <div className="flex w-full flex-wrap items-center gap-x-5 gap-y-3 xl:w-auto">
+                <Link
+                  href="/ideas"
+                  className="inline-flex items-center gap-1.5 text-xs text-brand-orange"
+                >
+                  <Lightbulb className="size-4" /> Share an idea
+                </Link>
+                <Link
+                  href="/updates"
+                  className="inline-flex items-center gap-1.5 text-xs text-primary"
+                >
+                  <Mail className="size-4" /> Get updates
+                </Link>
+                <div className="flex items-center gap-2">
+                  <label
+                    htmlFor="catalog-sort"
+                    className="text-xs text-muted-foreground"
+                  >
+                    Sort by
+                  </label>
+                  <Select value={sort} onValueChange={setSort}>
+                    <SelectTrigger
+                      id="catalog-sort"
+                      aria-label="Sort plugins"
+                      className="h-10! w-[205px] bg-card text-xs"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent position="popper" align="end">
+                      <SelectItem value="name">Title (A–Z)</SelectItem>
+                      <SelectItem value="popular">
+                        Downloads (high to low)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+            <div id="catalog-results">
+              {results.length ? (
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {results.map((p) => (
+                    <Link
+                      key={p.slug}
+                      href={`/plugins/${p.slug}`}
+                      className="group flex gap-3 rounded-lg border bg-card p-4 transition-colors hover:border-primary/60"
+                    >
+                      <PluginIcon slug={p.slug} />
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <h3 className="text-sm font-semibold">{p.name}</h3>
+                        <p className="mt-1.5 grow text-xs leading-relaxed text-muted-foreground">
+                          {p.description}
+                        </p>
+                        <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+                          <span className="rounded-full bg-secondary px-2 py-1 text-[10px] text-secondary-foreground">
+                            {p.category}
+                          </span>
+                          <ArrowRight
+                            aria-hidden="true"
+                            className="size-4 text-primary transition-transform group-hover:translate-x-1"
+                          />
+                        </div>
+                        <div className="mt-3 flex items-center gap-1 text-[10px] text-muted-foreground">
+                          {p.downloads !== null ? (
+                            <>
+                              <Download aria-hidden="true" className="size-3" />
+                              <span>
+                                {downloadFormatter.format(p.downloads)}{" "}
+                                downloads
+                              </span>
+                            </>
+                          ) : (
+                            <span>
+                              {p.slug === "static-site"
+                                ? "Deprecated"
+                                : "View repository"}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center">
+                  <Search className="mb-4 size-7 text-muted-foreground" />
+                  <h3 className="font-medium">No plugins found</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Try a different phrase or explore another category.
+                  </p>
+                  <Button
+                    className="mt-5"
+                    variant="outline"
+                    onClick={() => {
+                      setQuery("");
+                      setCategory("All plugins");
+                      searchRef.current?.focus();
+                    }}
+                  >
+                    Clear all filters
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };

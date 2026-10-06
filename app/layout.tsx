@@ -11,7 +11,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 export const metadata: Metadata = {
-  title: { default: "RoamJS — More room to think", template: "%s · RoamJS" },
+  title: {
+    default: "RoamJS — Become a Roam Power User",
+    template: "%s · RoamJS",
+  },
   description:
     "Discover the RoamJS plugin library. Tools, guides, and ideas for a more personal Roam Research workflow.",
 };

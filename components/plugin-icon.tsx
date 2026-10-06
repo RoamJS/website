@@ -67,7 +67,7 @@ export const PluginIcon = ({
   return (
     <span
       className={cn(
-        "inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-secondary text-secondary-foreground",
+        "inline-flex size-11 shrink-0 items-center justify-center rounded-lg border bg-secondary/50 text-primary",
         className,
       )}
     >

@@ -1,55 +1,50 @@
 @import "tailwindcss";
 @custom-variant dark (&:is(.dark *));
 :root {
-  --background: #faf9f6;
-  --foreground: #242520;
-  --card: #fff;
-  --card-foreground: #242520;
-  --popover: #fff;
-  --popover-foreground: #242520;
-  --primary: #ac4c2f;
-  --primary-foreground: #fffaf5;
-  --secondary: #efeee8;
-  --secondary-foreground: #45463e;
-  --muted: #efeee8;
-  --muted-foreground: #6c6f63;
-  --accent: #ece9e0;
-  --accent-foreground: #242520;
-  --destructive: #bc3333;
-  --border: #e2e1d9;
-  --input: #dddcd3;
-  --ring: #ac4c2f;
+  --background: #f6f8fa;
+  --foreground: #12202c;
+  --card: #ffffff;
+  --card-foreground: #12202c;
+  --popover: #ffffff;
+  --popover-foreground: #12202c;
+  --primary: #0079ae;
+  --primary-foreground: #ffffff;
+  --secondary: #eaf1f6;
+  --secondary-foreground: #334d62;
+  --muted: #edf2f6;
+  --muted-foreground: #52677d;
+  --accent: #e3f1fa;
+  --accent-foreground: #005f8c;
+  --destructive: #b83232;
+  --border: #d9e3ec;
+  --input: #c5d5e2;
+  --ring: #0079ae;
   --radius: 0.65rem;
-  --sage: #e9eddf;
-  --lavender: #eee9f4;
-  --peach: #f4e9db;
-  --feature-ink: #3d4439;
+  --brand-orange: #b95600;
 }
 .dark {
-  --background: #171a18;
-  --foreground: #ebede6;
-  --card: #202521;
-  --card-foreground: #ebede6;
-  --popover: #202521;
-  --popover-foreground: #ebede6;
-  --primary: #eea082;
-  --primary-foreground: #241b16;
-  --secondary: #2b312c;
-  --secondary-foreground: #d9dfd5;
-  --muted: #272d28;
-  --muted-foreground: #a9b2a5;
-  --accent: #30372f;
-  --accent-foreground: #ebede6;
+  --background: #0e171c;
+  --foreground: #f0f5f8;
+  --card: #142129;
+  --card-foreground: #f0f5f8;
+  --popover: #192a34;
+  --popover-foreground: #f0f5f8;
+  --primary: #28b5ed;
+  --primary-foreground: #071820;
+  --secondary: #1d303b;
+  --secondary-foreground: #d0e5f2;
+  --muted: #1a2a34;
+  --muted-foreground: #aec5d5;
+  --accent: #1c3645;
+  --accent-foreground: #70d4ff;
   --destructive: #ff9999;
-  --border: #343c34;
-  --input: #414940;
-  --ring: #eea082;
-  --sage: #2c382c;
-  --lavender: #342f40;
-  --peach: #3a3028;
-  --feature-ink: #d6e0ce;
+  --border: #2b414e;
+  --input: #405a69;
+  --ring: #28b5ed;
+  --brand-orange: #ffa42b;
 }
 @theme inline {
+  --color-brand-orange: var(--brand-orange);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -72,8 +67,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
 }
 @layer base {
   * {

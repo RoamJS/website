@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Brand } from "./brand";
 export const Footer = (): React.JSX.Element => (
-  <footer className="mx-auto max-w-6xl px-5 pb-8 pt-16 md:px-8">
+  <footer className="mx-auto max-w-[1440px] px-5 pb-8 pt-8 md:px-8">
     <div className="flex flex-col justify-between gap-8 border-t border-border pt-9 md:flex-row">
       <div>
         <Link href="/">
