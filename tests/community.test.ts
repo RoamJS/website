@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-const state = vi.hoisted(() => ({ currentUser: vi.fn(), sql: vi.fn() }));
-vi.mock("@clerk/nextjs/server", () => ({ currentUser: state.currentUser }));
+const state = vi.hoisted(() => ({ getUser: vi.fn(), sql: vi.fn() }));
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: () => ({ auth: { getUser: state.getUser } }),
+}));
 vi.mock("@neondatabase/serverless", () => ({ neon: () => state.sql }));
 import { POST as suggest } from "@/app/api/suggestions/route";
 import { POST as subscribe } from "@/app/api/subscriptions/route";
@@ -21,20 +23,20 @@ const request = (data: unknown): Request =>
     body: JSON.stringify(data),
   });
 beforeEach(() => {
-  vi.stubEnv("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", "test");
-  vi.stubEnv("CLERK_SECRET_KEY", "test");
+  vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "test");
+  vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "test");
   vi.stubEnv("DATABASE_URL", "test");
   state.sql.mockReset().mockResolvedValue([{ id: 1, attempts: 1 }]);
-  state.currentUser.mockReset().mockResolvedValue({
-    id: "user_1",
-    primaryEmailAddressId: "email_1",
-    emailAddresses: [
-      {
-        id: "email_1",
-        emailAddress: "verified@example.com",
-        verification: { status: "verified" },
+  vi.stubEnv("COMMUNITY_SUBMISSIONS_ENABLED", "true");
+  state.getUser.mockReset().mockResolvedValue({
+    data: {
+      user: {
+        id: "user_1",
+        email: "verified@example.com",
+        email_confirmed_at: "2026-10-06T00:00:00Z",
       },
-    ],
+    },
+    error: null,
   });
 });
 describe("community API", () => {
@@ -43,16 +45,26 @@ describe("community API", () => {
     expect((await suggest(request(valid))).status).toBe(503);
     expect(state.sql).not.toHaveBeenCalled();
   });
+  it("keeps persistence disabled until explicitly enabled", async () => {
+    vi.stubEnv("COMMUNITY_SUBMISSIONS_ENABLED", "false");
+    expect((await suggest(request(valid))).status).toBe(503);
+    expect(state.sql).not.toHaveBeenCalled();
+  });
   it("requires a session", async () => {
-    state.currentUser.mockResolvedValue(null);
+    state.getUser.mockResolvedValue({ data: { user: null }, error: null });
     expect((await suggest(request(valid))).status).toBe(401);
     expect(state.sql).not.toHaveBeenCalled();
   });
   it("requires a verified primary email", async () => {
-    state.currentUser.mockResolvedValue({
-      id: "user_1",
-      primaryEmailAddressId: null,
-      emailAddresses: [],
+    state.getUser.mockResolvedValue({
+      data: {
+        user: {
+          id: "user_1",
+          email: "unverified@example.com",
+          user_metadata: { email_verified: true },
+        },
+      },
+      error: null,
     });
     expect((await suggest(request(valid))).status).toBe(403);
   });

@@ -9,24 +9,27 @@ npm ci
 npm run dev -- --port 3215
 ```
 
-Browse `http://localhost:3215`. The catalog, documentation, theme toggle, and public pages work without secrets. Community forms show an explicit unavailable state until Clerk and persistence are configured. They never fake a successful submission or save contact details in local storage.
+Browse `http://localhost:3215`. The catalog, documentation, theme toggle, and public pages work without secrets. Community forms show an explicit unavailable state until authentication and persistence are configured. They never fake a successful submission or save contact details in local storage.
 
-## Enable Clerk and community submissions
+## Supabase Auth (RJS-01)
 
-1. Create a Clerk development application. Enable email sign-in and verification; configure its origins for localhost and your Vercel preview.
-2. Copy `.env.example` to `.env.local` and set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`. Use your deployment platform's secret settings for hosted values.
-3. Create a Neon Postgres database and set `DATABASE_URL`. This uses Neon's HTTP driver; an arbitrary non-Neon PostgreSQL host is not interchangeable without changing the driver.
-4. Apply the schema: `node --env-file=.env.local scripts/migrate.mjs`. This is explicit and is never run at build time.
-5. Restart/rebuild. Sign in, verify the primary email, submit an idea, and inspect the `suggestions` table. Test a separate opt-in and opt-out on `/updates`.
-6. Before public launch, use Clerk production keys and configure the production domain. Test an actual signed-in submission and persisted record on the deployed domain.
+Use the existing [RoamJS/Cybrarian organization](https://supabase.com/dashboard/org/jevettuehuhgoesqqhxc) and [RoamJS project](https://supabase.com/dashboard/project/uxihswugvmdwbbtgxtfl). Do not create a replacement project. Cybrarian shares the organization, not this project ID.
 
-The server reads identity and email from Clerk, never from client-provided fields. Writes enforce same-origin requests, bounded JSON bodies, validated fields, verified primary email, and a shared database rate limit of ten attempts per user per hour. Suggestion retries reuse a request ID and deduplicate by user/request ID. Rate limiting is basic spam mitigation, not a guarantee against abuse. Clerk bot protection can also be enabled in the dashboard. No public endpoint exposes suggestions or email addresses. OAuth routes are excluded from the new Clerk proxy matcher.
+1. Copy `.env.example` to `.env.local`. Set `NEXT_PUBLIC_SUPABASE_URL` to `https://uxihswugvmdwbbtgxtfl.supabase.co` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to the project's publishable key. No service-role key is needed for sign-in. Set the same public values in the branch's Vercel preview environment and rebuild.
+2. In Supabase Authentication, keep Email enabled, Confirm email enabled, and anonymous sign-in disabled. Configure an authenticated SMTP sender before opening sign-in to the public. Supabase's built-in sender is restricted to project-team addresses and has very low limits.
+3. Add exact callback URLs to Authentication → URL Configuration: `http://localhost:3215/auth/callback` and the branch preview's `https://…/auth/callback`. Avoid a wildcard for all Vercel previews. Keep the production site URL and redirect changes separate until launch approval.
+4. Open `/account`. Request an email, then open its link in the same browser that requested it. The SSR client uses PKCE and the callback exchanges the single-use code. If the email template includes `{{ .Token }}`, the optional code field also works. Default Supabase confirmation/magic-link templates using `{{ .ConfirmationURL }}` are supported; a custom token-hash URL requires its own handler and is not interchangeable.
+5. Test a new signup, returning sign-in, expired link/code, reload, and sign-out. `/api/auth/session` returns only `{ "verified": true }` for a server-verified email; absent sessions return 401 and signed-in unverified/anonymous identities return 403. Responses cannot be cached.
 
-### Mailing list
+Identity is revalidated against Supabase on the server. Only `email_confirmed_at` from the returned user is accepted; editable user metadata is not verification. Account controls are excluded from analytics, and public catalog pages remain cacheable. Existing extension OAuth routes keep their original behavior.
 
-Clerk provides identity, not an email campaign service. The `subscriptions` table stores explicit consent separately from suggestions, including opt-outs and consent timestamps. `/updates` supports subscribing and unsubscribing; opt-out is not rate limited. Account creation and suggestions never opt people in.
+### Suggestions and mailing list (RJS-02 onward)
 
-**No campaign provider is connected and no emails are sent by this implementation.** Before sending any announcements, connect an email provider, synchronize consent and suppressions, add email-native unsubscribe links, and test delivery. The sender must query current subscribed users at send time, deduplicate email addresses, and respect later opt-outs. Do not use an old export as a send list. Account deletion and changed primary email synchronization also need to be implemented before mail delivery is enabled. Suggestions may be reviewed in the database; an owner dashboard and follow-up sender are future work.
+Authentication does not enable submissions. `COMMUNITY_SUBMISSIONS_ENABLED` defaults to false and must stay false until the persistence work is complete. The old Neon-specific driver, schema, and migration script remain as disabled scaffolding for that migration. **Do not provision Neon or apply the old schema to Supabase.** RJS-02 must replace that driver, use the existing RoamJS Supabase project, define private access policies, and verify actual persisted submissions before enabling the flag.
+
+Existing submission code enforces same-origin requests, bounded JSON, verified identity, and database-backed rate limits and deduplication. Those persistence behaviors currently have mocked test coverage only.
+
+Account creation and suggestions never subscribe someone to announcements. Newsletter consent stays separate. No campaign sender is connected. RJS-04/05 cover email-only signup, delivery, unsubscribe links, consent synchronization, changed emails, and account deletion. Auth emails are transactional sign-in messages, not newsletter consent.
 
 ## Content and provenance
 
@@ -43,7 +46,7 @@ Refresh public README snapshots with `node scripts/refresh-documentation.mjs` (r
 
 ```sh
 npm test
-npm run build
+NEXT_PUBLIC_POSTHOG_ENABLED=true npm run build
 npm run typecheck
 npm run lint
 npm run start -- --port 3215
@@ -51,7 +54,7 @@ npm run start -- --port 3215
 npm run test:browser
 ```
 
-Tests cover search/category composition, provenance, safe relative documentation links, email verification, request boundaries, service failures, rate limits, consent separation, and mobile/browser flows. API tests use mocked Clerk and database calls; they do not prove live Clerk or Neon connectivity. Browser tests assume community services are unconfigured and run against `http://localhost:3215`.
+Tests cover search/category composition, provenance, safe relative documentation links, email verification, request boundaries, service failures, rate limits, consent separation, and mobile/browser flows. API tests mock Supabase Auth and the legacy database calls; they do not prove hosted email delivery or persistence. Browser auth tests mock Supabase responses and do not send email. The auth browser suite also needs the public Supabase URL/key in `.env.local`; requests that would send email are mocked. Set `NEXT_PUBLIC_POSTHOG_ENABLED=true` when building for the analytics suite, whose ingestion requests are intercepted. Browser tests assume community persistence is disabled and run against `http://localhost:3215`.
 
 ## Deployment
 

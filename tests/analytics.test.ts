@@ -15,6 +15,8 @@ describe("analytics privacy boundary", () => {
       "/google-auth",
       "/api/suggestions",
       "/sign-in",
+      "/account",
+      "/auth/callback",
       "/unknown",
     ])
       expect(isPublicAnalyticsPath(path)).toBe(false);

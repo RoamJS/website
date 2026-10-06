@@ -32,7 +32,7 @@ Useful starting analyses:
 
 ## Collection boundaries
 
-No Clerk identity, email, suggestion content, or search terms are attached. Element text is masked; input fields, editable content, community forms, and Clerk UI are excluded from click capture. OAuth/API/unknown routes are excluded, including their credentials. URL query strings and fragments are removed before sending; campaign parameters and referrer persistence are disabled. Analytics uses a random browser identifier in local storage and respects Do Not Track and Global Privacy Control. IP-based enrichment is disabled in the SDK. Session replay, console recording, surveys, exception capture, heatmaps, and remote feature flags are explicitly disabled, even if project defaults enable them.
+No Supabase identity, email, suggestion content, or search terms are attached. Element text is masked; input fields, editable content, community forms, and account UI are excluded from click capture. OAuth/API/unknown routes are excluded, including their credentials. URL query strings and fragments are removed before sending; campaign parameters and referrer persistence are disabled. Analytics uses a random browser identifier in local storage and respects Do Not Track and Global Privacy Control. IP-based enrichment is disabled in the SDK. Session replay, console recording, surveys, exception capture, heatmaps, and remote feature flags are explicitly disabled, even if project defaults enable them.
 
 The Privacy page describes collection. No researcher accounts or sharing permissions are created by this integration. Browser privacy settings, blockers, or disabled JavaScript can prevent collection.
 

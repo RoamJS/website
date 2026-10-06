@@ -1,8 +1,8 @@
 import "server-only";
-import { currentUser } from "@clerk/nextjs/server";
+import { requireVerifiedIdentity } from "./auth";
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 import { isCommunityConfigured } from "./features";
-import { isSameOrigin, verifiedPrimaryEmail } from "./validation";
+import { isSameOrigin } from "./validation";
 export const database = (): NeonQueryFunction<false, false> =>
   neon(process.env.DATABASE_URL!);
 export const authorizeSubmission = async (
@@ -13,27 +13,14 @@ export const authorizeSubmission = async (
       { error: "This request could not be verified. Please reload the page." },
       { status: 403 },
     );
+  const identity = await requireVerifiedIdentity();
+  if (identity instanceof Response) return identity;
   if (!isCommunityConfigured())
     return Response.json(
       { error: "Community submissions are not open yet." },
       { status: 503 },
     );
-  const user = await currentUser();
-  if (!user)
-    return Response.json(
-      { error: "Please sign in to continue." },
-      { status: 401 },
-    );
-  const email = verifiedPrimaryEmail(user);
-  if (!email)
-    return Response.json(
-      {
-        error:
-          "Verify your primary email address in your account before continuing.",
-      },
-      { status: 403 },
-    );
-  return { userId: user.id, email };
+  return identity;
 };
 export const consumeRateLimit = async (userId: string): Promise<boolean> => {
   const sql = database();

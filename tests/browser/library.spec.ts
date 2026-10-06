@@ -152,7 +152,7 @@ test("support pages and unavailable APIs stay honest", async ({
     headers: { Origin: "http://localhost:3215" },
     data: {},
   });
-  expect(response.status()).toBe(503);
+  expect([401, 503]).toContain(response.status());
 });
 
 test("all public plugin guides hydrate without errors", async ({ page }) => {
@@ -300,7 +300,11 @@ test("header shrinks without shifting content and mobile navigation stays access
   const menu = page.getByRole("dialog", { name: "Navigation menu" });
   await expect(menu).toBeVisible();
   await expect(trigger).toHaveAttribute("aria-expanded", "true");
-  await expect(menu.getByRole("link")).toHaveCount(4);
+  await expect(menu.getByRole("link")).toHaveCount(
+    (await menu.getByRole("link", { name: "Sign in", exact: true }).count())
+      ? 5
+      : 4,
+  );
   for (const link of await menu.getByRole("link").all()) {
     expect((await link.boundingBox())?.height).toBeGreaterThanOrEqual(44);
   }
