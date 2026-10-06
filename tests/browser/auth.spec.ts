@@ -116,3 +116,35 @@ test("a verified browser session survives reload and signs out without subscribi
   await page.reload();
   await expect(page.getByLabel("Email address", { exact: true })).toBeVisible();
 });
+
+test("email delivery errors preserve the address and allow another attempt", async ({
+  page,
+}) => {
+  await page.route(`${authUrl}/otp**`, (route) =>
+    route.fulfill({
+      status: 429,
+      json: {
+        code: "over_email_send_rate_limit",
+        msg: "Email rate limit exceeded",
+      },
+    }),
+  );
+  await page.goto("/account");
+  await page
+    .getByLabel("Email address", { exact: true })
+    .fill("test@example.com");
+  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+  await expect(page.locator("main").getByRole("alert")).toContainText(
+    "couldn’t send",
+  );
+  await expect(page.getByLabel("Email address", { exact: true })).toHaveValue(
+    "test@example.com",
+  );
+  await expect(page.getByLabel("Email address", { exact: true })).toBeEnabled();
+  await expect(
+    page.getByLabel("Verification code", { exact: false }),
+  ).toHaveCount(0);
+  await page.route(`${authUrl}/otp**`, (route) => route.fulfill({ json: {} }));
+  await page.getByRole("button", { name: "Email me a sign-in link" }).click();
+  await expect(page.getByRole("status")).toContainText("Check your email");
+});
