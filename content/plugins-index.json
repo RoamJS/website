@@ -1,0 +1,241 @@
+{
+  "snapshotDate": "2026-10-04T10:02:35.870Z",
+  "plugins": [
+    {
+      "name": "SmartBlocks",
+      "creator": "RoamJS",
+      "downloads": 11694,
+      "depotId": "dvargas92495+smartblocks",
+      "created": "2022-07-22T22:35:35Z",
+      "updated": "2026-02-18T16:48:05Z",
+      "version": "48",
+      "repository": "https://github.com/RoamJS/smartblocks",
+      "slug": "smartblocks"
+    },
+    {
+      "name": "Query Builder",
+      "creator": "RoamJS",
+      "downloads": 7520,
+      "depotId": "dvargas92495+query-builder",
+      "created": "2022-06-25T01:32:16Z",
+      "updated": "2026-06-04T18:52:29Z",
+      "version": "60",
+      "repository": "https://github.com/RoamJS/query-builder",
+      "slug": "query-builder"
+    },
+    {
+      "name": "Workbench",
+      "creator": "RoamJS",
+      "downloads": 7152,
+      "depotId": "dvargas92495+workbench",
+      "created": "2022-09-21T23:09:17Z",
+      "updated": "2026-08-05T14:28:43Z",
+      "version": "42",
+      "repository": "https://github.com/RoamJS/workbench",
+      "slug": "workbench"
+    },
+    {
+      "name": "Auto Tag Mode",
+      "creator": "RoamJS",
+      "downloads": 5871,
+      "depotId": "abhayprasanna+autotag",
+      "created": "2022-07-13T20:49:32Z",
+      "updated": "2026-02-06T19:12:10Z",
+      "version": "18",
+      "repository": "https://github.com/RoamJS/autotag",
+      "slug": "autotag"
+    },
+    {
+      "name": "Todo Trigger",
+      "creator": "RoamJS",
+      "downloads": 3241,
+      "depotId": "dvargas92495+todo-trigger",
+      "created": "2022-07-22T16:48:30Z",
+      "updated": "2026-02-07T17:29:30Z",
+      "version": "7",
+      "repository": "https://github.com/RoamJS/todo-trigger",
+      "slug": "todo-trigger"
+    },
+    {
+      "name": "Google",
+      "creator": "RoamJS",
+      "downloads": 1988,
+      "depotId": "dvargas92495+google",
+      "created": "2022-11-16T21:51:53Z",
+      "updated": "2026-02-18T16:47:25Z",
+      "version": "17",
+      "repository": "https://github.com/RoamJS/google",
+      "slug": "google"
+    },
+    {
+      "name": "Dropbox",
+      "creator": "RoamJS",
+      "downloads": 569,
+      "depotId": "dvargas92495+dropbox",
+      "created": "2022-10-26T21:35:05Z",
+      "updated": "2026-06-30T18:46:18Z",
+      "version": "7",
+      "repository": "https://github.com/RoamJS/dropbox",
+      "slug": "dropbox"
+    },
+    {
+      "name": "Presentation",
+      "creator": "RoamJS",
+      "downloads": 547,
+      "depotId": "dvargas92495+presentation",
+      "created": "2023-01-10T20:36:06Z",
+      "updated": "2026-09-15T14:49:12Z",
+      "version": "9",
+      "repository": "https://github.com/RoamJS/presentation",
+      "slug": "presentation"
+    },
+    {
+      "name": "Otter",
+      "creator": "RoamJS",
+      "downloads": 338,
+      "depotId": "dvargas92495+otter",
+      "created": "2022-11-09T00:39:11Z",
+      "updated": "2026-02-06T19:44:35Z",
+      "version": "8",
+      "repository": "https://github.com/RoamJS/otter",
+      "slug": "otter"
+    },
+    {
+      "name": "Mapbox",
+      "creator": "RoamJS",
+      "downloads": 291,
+      "depotId": "dvargas92495+mapbox",
+      "created": "2022-12-01T01:25:30Z",
+      "updated": "2026-02-06T19:16:49Z",
+      "version": "6",
+      "repository": "https://github.com/RoamJS/mapbox",
+      "slug": "mapbox"
+    },
+    {
+      "name": "Slack",
+      "creator": "RoamJS",
+      "downloads": 189,
+      "depotId": "dvargas92495+slack",
+      "created": "2022-10-24T23:56:25Z",
+      "updated": "2026-02-06T20:00:49Z",
+      "version": "7",
+      "repository": "https://github.com/RoamJS/slack",
+      "slug": "slack"
+    },
+    {
+      "name": "Hypothesis",
+      "creator": "RoamJS",
+      "downloads": 180,
+      "depotId": "dvargas92495+hypothesis",
+      "created": "2022-11-14T21:07:15Z",
+      "updated": "2026-02-06T20:01:13Z",
+      "version": "6",
+      "repository": "https://github.com/RoamJS/hypothesis",
+      "slug": "hypothesis"
+    },
+    {
+      "name": "Giphy",
+      "creator": "RoamJS",
+      "downloads": 158,
+      "depotId": "dvargas92495+giphy",
+      "created": "2023-01-11T21:09:39Z",
+      "updated": "2026-08-24T16:50:44Z",
+      "version": "7",
+      "repository": "https://github.com/RoamJS/giphy",
+      "slug": "giphy"
+    },
+    {
+      "name": "Breadcrumbs",
+      "creator": "RoamJS",
+      "downloads": 137,
+      "depotId": "RoamJS+breadcrumbs",
+      "created": "2026-02-10T05:26:36Z",
+      "updated": "2026-02-25T16:58:22Z",
+      "version": "3",
+      "repository": "https://github.com/RoamJS/breadcrumbs",
+      "slug": "breadcrumbs"
+    },
+    {
+      "name": "Oura Ring",
+      "creator": "RoamJS",
+      "downloads": 109,
+      "depotId": "dvargas92495+oura-ring",
+      "created": "2022-11-29T22:12:15Z",
+      "updated": "2026-02-06T19:54:06Z",
+      "version": "8",
+      "repository": "https://github.com/RoamJS/oura-ring",
+      "slug": "oura-ring"
+    },
+    {
+      "name": "Stats",
+      "creator": "RoamJS",
+      "downloads": 88,
+      "depotId": "RoamJS+stats",
+      "created": "2026-02-10T05:07:53Z",
+      "updated": "2026-02-18T16:45:43Z",
+      "version": "2",
+      "repository": "https://github.com/RoamJS/stats",
+      "slug": "stats"
+    },
+    {
+      "name": "tldraw",
+      "creator": "RoamJS",
+      "downloads": 76,
+      "depotId": "RoamJS+tldraw",
+      "created": "2026-02-18T17:21:00Z",
+      "updated": "2026-02-18T17:21:00Z",
+      "version": "1",
+      "repository": "https://github.com/RoamJS/tldraw",
+      "slug": "tldraw"
+    },
+    {
+      "name": "Sticky Notes",
+      "creator": "RoamJS",
+      "downloads": 68,
+      "depotId": "RoamJS+sticky-notes",
+      "created": "2026-02-10T18:46:02Z",
+      "updated": "2026-02-18T16:44:42Z",
+      "version": "2",
+      "repository": "https://github.com/RoamJS/sticky-notes",
+      "slug": "sticky-notes"
+    },
+    {
+      "name": "Custom Dark Mode",
+      "creator": "RoamJS",
+      "downloads": 45,
+      "depotId": "RoamJS+custom-dark-mode",
+      "created": "2026-08-22T18:52:03Z",
+      "updated": "2026-09-09T20:33:13Z",
+      "version": "2",
+      "repository": "https://github.com/RoamJS/custom-dark-mode",
+      "slug": "custom-dark-mode"
+    },
+    {
+      "name": "Quick Switcher",
+      "creator": "RoamJS",
+      "downloads": 13,
+      "depotId": "RoamJS+quick-switcher",
+      "created": "2026-08-22T19:00:41Z",
+      "updated": "2026-08-22T19:00:41Z",
+      "version": "1",
+      "repository": "https://github.com/RoamJS/quick-switcher",
+      "slug": "quick-switcher"
+    },
+    {
+      "slug": "pinned-blocks",
+      "name": "Pinned Blocks",
+      "repository": "https://github.com/RoamJS/pinned-blocks",
+      "downloads": null,
+      "depotId": null,
+      "updated": null
+    },
+    {
+      "slug": "developer",
+      "name": "Developer",
+      "repository": "https://github.com/RoamJS/developer",
+      "downloads": null,
+      "depotId": null,
+      "updated": null
+    }
+  ]
+}
