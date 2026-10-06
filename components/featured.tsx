@@ -125,7 +125,6 @@ export const Featured = (): React.JSX.Element => (
           {
             slug: "query-builder",
             name: "Query Builder",
-            eyebrow: "Power up your notes",
             description:
               "Build complex queries with a simple, visual interface.",
             Icon: QueryIcon,
@@ -133,18 +132,16 @@ export const Featured = (): React.JSX.Element => (
           {
             slug: "workbench",
             name: "Workbench",
-            eyebrow: "Make it yours",
             description: "A toolkit for everyday Roam workflows.",
             Icon: Terminal,
           },
-        ].map(({ slug, name, eyebrow, description, Icon }) => (
+        ].map(({ slug, name, description, Icon }) => (
           <Link
             key={slug}
             href={`/plugins/${slug}`}
             className="feature-panel group flex items-center justify-between gap-4 rounded-lg border bg-card px-6 py-4 transition-colors hover:border-primary/60"
           >
             <div>
-              <p className="eyebrow mb-1.5">{eyebrow}</p>
               <h3 className="text-2xl font-semibold leading-tight tracking-tight">
                 {name}
               </h3>
