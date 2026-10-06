@@ -20,7 +20,7 @@ const GettingStarted = (): React.JSX.Element => (
         ],
         [
           "Open Roam Depot",
-          "Inside your Roam graph, open Settings, then Roam Depot. Search for the plugin by name. Plugins marked “View repository” may have separate installation or development instructions.",
+          "Inside your Roam graph, open Settings, then Roam Depot. Search for the plugin by name.",
         ],
         [
           "Read, install, and make it yours",

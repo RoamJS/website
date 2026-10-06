@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Simplify the Roam Depot installation step on the getting-started page.
+
 - Add Newest ordering to the plugin catalog and simplify the ordering control.
 
 - Update the homepage headline to “A better way to work in Roam.”
