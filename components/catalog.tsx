@@ -190,12 +190,6 @@ export const Catalog = ({
                   <Mail className="size-4" /> Get updates
                 </Link>
                 <div className="flex items-center gap-2">
-                  <label
-                    htmlFor="catalog-sort"
-                    className="text-xs text-muted-foreground"
-                  >
-                    Sort by
-                  </label>
                   <Select value={sort} onValueChange={setSort}>
                     <SelectTrigger
                       id="catalog-sort"
@@ -206,6 +200,7 @@ export const Catalog = ({
                     </SelectTrigger>
                     <SelectContent position="popper" align="end">
                       <SelectItem value="name">Title (A–Z)</SelectItem>
+                      <SelectItem value="newest">Newest</SelectItem>
                       <SelectItem value="popular">
                         Downloads (high to low)
                       </SelectItem>

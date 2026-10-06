@@ -30,6 +30,36 @@ describe("plugin discovery", () => {
     expect(result[0].slug).toBe("smartblocks");
     expect(result[result.length - 1].downloads).toBeNull();
   });
+  it("orders newest additions first and leaves undated plugins last", () => {
+    const result = filterPlugins({
+      query: "",
+      category: "All plugins",
+      sort: "newest",
+    });
+    expect(result.slice(0, 3).map((p) => p.slug)).toEqual([
+      "quick-switcher",
+      "custom-dark-mode",
+      "tldraw",
+    ]);
+    expect(result.slice(-3).map((p) => p.slug)).toEqual([
+      "developer",
+      "pinned-blocks",
+      "static-site",
+    ]);
+    const dated = result.filter((p) => p.created);
+    expect(
+      dated.every(
+        (p, i) =>
+          i === 0 ||
+          Date.parse(dated[i - 1].created!) >= Date.parse(p.created!),
+      ),
+    ).toBe(true);
+    expect(
+      filterPlugins({ query: "", category: "Navigation", sort: "newest" }).map(
+        (p) => p.slug,
+      ),
+    ).toEqual(["quick-switcher", "breadcrumbs"]);
+  });
   it("excludes private repositories from the public library", () => {
     for (const slug of [
       "attribute-select",

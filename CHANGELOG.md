@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add Newest ordering to the plugin catalog and simplify the ordering control.
+
 - Update the homepage headline to “A better way to work in Roam.”
 
 - Refine the Graphite layout to match the approved mockup, with a larger wordmark, compact featured cards, illustrated SmartBlocks preview, and clearer catalog cards.

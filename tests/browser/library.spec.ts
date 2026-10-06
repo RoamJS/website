@@ -37,6 +37,13 @@ test("catalog search, filtering, sorting, guide and suggestion states", async ({
       .sort((a, b) => (b.downloads ?? -1) - (a.downloads ?? -1))
       .map((p) => p.name),
   );
+  await page.getByRole("combobox", { name: "Sort plugins" }).click();
+  await page.getByRole("option", { name: "Newest", exact: true }).click();
+  await expect(titles.first()).toHaveText("Quick Switcher");
+  await page.getByRole("button", { name: /Navigation/ }).click();
+  await expect(titles).toHaveText(["Quick Switcher", "Breadcrumbs"]);
+  await expect(page.getByText("Sort by", { exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: /All plugins/ }).click();
   await page.keyboard.press("Control+k");
   await expect(
     page.getByRole("textbox", { name: "Search plugins" }),

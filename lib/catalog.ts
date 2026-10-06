@@ -143,9 +143,14 @@ export const filterPlugins = ({
             .includes(term),
         ),
     )
-    .sort((a, b) =>
-      sort === "name"
-        ? a.name.localeCompare(b.name)
-        : (b.downloads ?? -1) - (a.downloads ?? -1),
-    );
+    .sort((a, b) => {
+      if (sort === "name") return a.name.localeCompare(b.name);
+      if (sort === "newest") {
+        const newestFirst =
+          (Date.parse(b.created ?? "") || 0) -
+          (Date.parse(a.created ?? "") || 0);
+        return newestFirst || a.name.localeCompare(b.name);
+      }
+      return (b.downloads ?? -1) - (a.downloads ?? -1);
+    });
 };
