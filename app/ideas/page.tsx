@@ -1,5 +1,5 @@
 import { CommunityForm } from "@/components/community-form";
-import { isCommunityConfigured } from "@/lib/features";
+import { isSuggestionsConfigured } from "@/lib/features";
 export const metadata = { title: "Suggest an idea" };
 const Ideas = (): React.JSX.Element => (
   <main id="main" className="mx-auto max-w-3xl px-5 py-16">
@@ -11,7 +11,7 @@ const Ideas = (): React.JSX.Element => (
       A little improvement. A whole new app. Something you keep thinking should
       exist. Tell us about the problem you’d love to solve.
     </p>
-    <CommunityForm enabled={isCommunityConfigured()} kind="idea" />
+    <CommunityForm enabled={isSuggestionsConfigured()} kind="idea" />
     <p className="mt-6 text-sm text-muted-foreground">
       Have an idea for a particular plugin? Open its page and choose “Suggest a
       change”.

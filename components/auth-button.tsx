@@ -1,22 +1,21 @@
 "use client";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-const ConnectedAccount = (): React.JSX.Element => {
-  const { isSignedIn, isLoaded } = useUser();
-  return isSignedIn ? (
-    <span data-ph-no-autocapture>
-      <UserButton />
-    </span>
-  ) : (
-    <SignInButton mode="modal">
-      <Button variant="outline" size="sm" disabled={!isLoaded}>
-        Sign in
-      </Button>
-    </SignInButton>
-  );
-};
+import { useAuth } from "./auth-provider";
 export const AuthButton = ({
   enabled,
 }: {
   enabled: boolean;
-}): React.JSX.Element | null => (enabled ? <ConnectedAccount /> : null);
+}): React.JSX.Element | null => {
+  const { user, isLoaded } = useAuth();
+  if (!enabled) return null;
+  return (
+    <span data-ph-no-autocapture>
+      <Button asChild variant="outline" size="sm" className="min-h-11">
+        <Link href="/account" prefetch={false}>
+          {!isLoaded ? "Account" : user ? "My account" : "Sign in"}
+        </Link>
+      </Button>
+    </span>
+  );
+};

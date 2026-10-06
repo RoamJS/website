@@ -62,25 +62,19 @@ describe("submission boundaries", () => {
       true,
     );
   });
-  it("accepts only a verified primary email", () => {
-    const emailAddresses = [
-      {
-        id: "a",
-        emailAddress: "a@example.com",
-        verification: { status: "unverified" },
-      },
-      {
-        id: "b",
-        emailAddress: "b@example.com",
-        verification: { status: "verified" },
-      },
-    ];
+  it("accepts only a confirmed, non-anonymous Supabase email", () => {
+    const verified = {
+      email: "a@example.com",
+      email_confirmed_at: "2026-10-06T00:00:00Z",
+    };
+    expect(verifiedPrimaryEmail(verified)).toBe("a@example.com");
+    expect(verifiedPrimaryEmail({ email: verified.email })).toBeUndefined();
     expect(
-      verifiedPrimaryEmail({ primaryEmailAddressId: "a", emailAddresses }),
+      verifiedPrimaryEmail({ ...verified, is_anonymous: true }),
     ).toBeUndefined();
     expect(
-      verifiedPrimaryEmail({ primaryEmailAddressId: "b", emailAddresses }),
-    ).toBe("b@example.com");
+      verifiedPrimaryEmail({ email_confirmed_at: verified.email_confirmed_at }),
+    ).toBeUndefined();
   });
   it("rejects cross-origin and missing-origin mutations", () => {
     expect(

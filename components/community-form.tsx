@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
+import { useAuth } from "./auth-provider";
+import { AuthButton } from "./auth-button";
 import { ArrowUpRight, CheckCircle2, Mail, Sprout } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +20,7 @@ const ConnectedForm = ({
   pluginSlug,
   pluginName,
 }: Omit<Props, "enabled">): React.JSX.Element => {
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { isLoaded, user } = useAuth();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [consent, setConsent] = useState(false);
@@ -33,7 +34,7 @@ const ConnectedForm = ({
         Loading your account…
       </p>
     );
-  if (!isSignedIn)
+  if (!user)
     return (
       <div className="rounded-xl border bg-card p-7">
         <Mail className="mb-4 size-6 text-primary" />
@@ -48,9 +49,9 @@ const ConnectedForm = ({
             ? "so we can follow up on your suggestion. Creating an account won’t add you to a mailing list."
             : "to choose whether you want occasional RoamJS announcements."}
         </p>
-        <SignInButton mode="modal">
-          <Button>Sign in to continue</Button>
-        </SignInButton>
+        <Button asChild>
+          <Link href="/account">Sign in to continue</Link>
+        </Button>
       </div>
     );
   const submit = async (subscribed?: boolean): Promise<void> => {
@@ -108,10 +109,8 @@ const ConnectedForm = ({
       }}
     >
       <div className="flex items-center justify-between gap-3 border-b pb-4">
-        <p className="break-all text-xs text-muted-foreground">
-          {user.primaryEmailAddress?.emailAddress}
-        </p>
-        <UserButton />
+        <p className="break-all text-xs text-muted-foreground">{user.email}</p>
+        <AuthButton enabled />
       </div>
       {kind === "idea" ? (
         <>

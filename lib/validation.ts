@@ -34,15 +34,8 @@ export const subscriptionSchema = z
 export const isSameOrigin = (request: Request): boolean =>
   request.headers.get("origin") === new URL(request.url).origin;
 export const verifiedPrimaryEmail = (user: {
-  primaryEmailAddressId: string | null;
-  emailAddresses: {
-    id: string;
-    emailAddress: string;
-    verification: { status: string } | null;
-  }[];
+  email?: string;
+  email_confirmed_at?: string;
+  is_anonymous?: boolean;
 }): string | undefined =>
-  user.emailAddresses.find(
-    (e) =>
-      e.id === user.primaryEmailAddressId &&
-      e.verification?.status === "verified",
-  )?.emailAddress;
+  !user.is_anonymous && user.email_confirmed_at ? user.email : undefined;

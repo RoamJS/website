@@ -1,39 +1,39 @@
 import "server-only";
-import { currentUser } from "@clerk/nextjs/server";
+import { requireVerifiedIdentity } from "./auth";
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
-import { isCommunityConfigured } from "./features";
-import { isSameOrigin, verifiedPrimaryEmail } from "./validation";
+import { isSuggestionsConfigured, isNewsletterConfigured } from "./features";
+import { isSameOrigin } from "./validation";
 export const database = (): NeonQueryFunction<false, false> =>
   neon(process.env.DATABASE_URL!);
-export const authorizeSubmission = async (
-  request: Request,
-): Promise<{ userId: string; email: string } | Response> => {
+export const authorizeSubmission = async ({
+  request,
+  kind,
+}: {
+  request: Request;
+  kind: "suggestion" | "newsletter";
+}): Promise<{ userId: string; email: string } | Response> => {
   if (!isSameOrigin(request))
     return Response.json(
       { error: "This request could not be verified. Please reload the page." },
       { status: 403 },
     );
-  if (!isCommunityConfigured())
-    return Response.json(
-      { error: "Community submissions are not open yet." },
-      { status: 503 },
-    );
-  const user = await currentUser();
-  if (!user)
-    return Response.json(
-      { error: "Please sign in to continue." },
-      { status: 401 },
-    );
-  const email = verifiedPrimaryEmail(user);
-  if (!email)
+  const identity = await requireVerifiedIdentity();
+  if (identity instanceof Response) return identity;
+  const enabled =
+    kind === "suggestion"
+      ? isSuggestionsConfigured()
+      : isNewsletterConfigured();
+  if (!enabled)
     return Response.json(
       {
         error:
-          "Verify your primary email address in your account before continuing.",
+          kind === "suggestion"
+            ? "Suggestions are not open yet."
+            : "Newsletter signup is not open yet.",
       },
-      { status: 403 },
+      { status: 503 },
     );
-  return { userId: user.id, email };
+  return identity;
 };
 export const consumeRateLimit = async (userId: string): Promise<boolean> => {
   const sql = database();

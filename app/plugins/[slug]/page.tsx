@@ -13,7 +13,7 @@ import {
   GitFork,
 } from "lucide-react";
 import { getPlugin, plugins } from "@/lib/catalog";
-import { isCommunityConfigured } from "@/lib/features";
+import { isSuggestionsConfigured } from "@/lib/features";
 import { prepareReadme, resolveReadmeUrl } from "@/lib/markdown";
 import { PluginIcon } from "@/components/plugin-icon";
 import { PluginTabs } from "@/components/plugin-tabs";
@@ -63,7 +63,7 @@ const PluginPage = async ({
           <PluginTabs
             slug={p.slug}
             name={p.name}
-            enabled={isCommunityConfigured()}
+            enabled={isSuggestionsConfigured()}
           >
             {pending ? (
               <div className="rounded-xl border p-7">

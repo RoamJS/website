@@ -1,6 +1,6 @@
 "use client";
 import { ThemeProvider } from "next-themes";
-import { ClerkProvider } from "@clerk/nextjs";
+import { AuthProvider } from "./auth-provider";
 import { AnalyticsNavigation } from "./analytics-navigation";
 export const Providers = ({
   children,
@@ -20,5 +20,5 @@ export const Providers = ({
       {children}
     </ThemeProvider>
   );
-  return authEnabled ? <ClerkProvider>{content}</ClerkProvider> : content;
+  return <AuthProvider enabled={authEnabled}>{content}</AuthProvider>;
 };

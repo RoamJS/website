@@ -19,10 +19,10 @@ const Privacy = (): React.JSX.Element => (
     </p>
     <h2>Accounts and suggestions</h2>
     <p>
-      When website submissions are enabled, Clerk handles sign-in and email
-      verification. RoamJS stores your account ID, verified primary email,
-      suggestion text, and submission time so we can review and follow up on
-      your idea. Suggestions are private to RoamJS. Please don’t submit
+      Supabase handles account sign-in and email verification. When website
+      submissions are enabled, RoamJS stores your account ID, verified primary
+      email, suggestion text, and submission time so we can review and follow up
+      on your idea. Suggestions are private to RoamJS. Please don’t submit
       sensitive information or private graph content.
     </p>
     <h2>Announcements are optional</h2>
@@ -34,7 +34,7 @@ const Privacy = (): React.JSX.Element => (
     </p>
     <h2>Third-party services</h2>
     <p>
-      Clerk processes account and sign-in information. The hosting provider
+      Supabase processes account and sign-in information. The hosting provider
       processes normal web requests. Documentation links may take you to GitHub
       or other services, which have their own privacy practices. Individual Roam
       plugins can have different data practices; check each plugin’s
@@ -52,7 +52,7 @@ const Privacy = (): React.JSX.Element => (
       channel.
     </p>
     <p className="text-xs text-muted-foreground">
-      Last updated October 5, 2026.
+      Last updated October 6, 2026.
     </p>
   </main>
 );
