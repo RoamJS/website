@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Reduce the RoamJS logo and wordmark by approximately 10%.
+
 - Remove the visible result-count line beneath catalog search while retaining screen-reader announcements.
 
 - Remove the extra Learn more link from the featured SmartBlocks card.
