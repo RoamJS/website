@@ -1,8 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-const state = vi.hoisted(() => ({ getUser: vi.fn(), sql: vi.fn() }));
+const state = vi.hoisted(() => ({
+  getUser: vi.fn(),
+  sql: vi.fn(),
+  rpc: vi.fn(),
+}));
 vi.mock("@/lib/supabase/server", () => ({
-  createClient: () => ({ auth: { getUser: state.getUser } }),
+  createClient: () => ({ auth: { getUser: state.getUser }, rpc: state.rpc }),
 }));
 vi.mock("@neondatabase/serverless", () => ({ neon: () => state.sql }));
 import { POST as suggest } from "@/app/api/suggestions/route";
@@ -26,6 +30,12 @@ beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "test");
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "test");
   vi.stubEnv("DATABASE_URL", "test");
+  state.rpc
+    .mockReset()
+    .mockResolvedValue({
+      data: { id: "afc3b29d-c4c6-4ab2-8f79-b0cf2bf516dc", duplicate: false },
+      error: null,
+    });
   state.sql.mockReset().mockResolvedValue([{ id: 1, attempts: 1 }]);
   vi.stubEnv("COMMUNITY_SUBMISSIONS_ENABLED", "true");
   vi.stubEnv("NEWSLETTER_SIGNUP_ENABLED", "true");
@@ -42,14 +52,14 @@ beforeEach(() => {
 });
 describe("community API", () => {
   it("fails closed when services are not configured", async () => {
-    vi.stubEnv("DATABASE_URL", "");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
     expect((await suggest(request(valid))).status).toBe(503);
-    expect(state.sql).not.toHaveBeenCalled();
+    expect(state.rpc).not.toHaveBeenCalled();
   });
   it("keeps persistence disabled until explicitly enabled", async () => {
     vi.stubEnv("COMMUNITY_SUBMISSIONS_ENABLED", "false");
     expect((await suggest(request(valid))).status).toBe(503);
-    expect(state.sql).not.toHaveBeenCalled();
+    expect(state.rpc).not.toHaveBeenCalled();
   });
   it.each([
     ["true", undefined, 201, 503],
@@ -62,14 +72,15 @@ describe("community API", () => {
       vi.stubEnv("COMMUNITY_SUBMISSIONS_ENABLED", suggestions);
       vi.stubEnv("NEWSLETTER_SIGNUP_ENABLED", newsletter);
       expect((await suggest(request(valid))).status).toBe(suggestionStatus);
-      if (suggestionStatus === 503) expect(state.sql).not.toHaveBeenCalled();
+      if (suggestionStatus === 503) expect(state.rpc).not.toHaveBeenCalled();
+      state.rpc.mockClear().mockResolvedValue({ data: true, error: null });
       state.sql.mockClear();
       expect((await subscribe(request({ subscribed: true }))).status).toBe(
         newsletterStatus,
       );
-      if (newsletterStatus === 503) expect(state.sql).not.toHaveBeenCalled();
+      if (newsletterStatus === 503) expect(state.rpc).not.toHaveBeenCalled();
       else
-        expect(state.sql.mock.calls[1][0].join("")).toContain(
+        expect(state.sql.mock.calls[0][0].join("")).toContain(
           "INSERT INTO subscriptions",
         );
     },
@@ -77,7 +88,7 @@ describe("community API", () => {
   it("requires a session", async () => {
     state.getUser.mockResolvedValue({ data: { user: null }, error: null });
     expect((await suggest(request(valid))).status).toBe(401);
-    expect(state.sql).not.toHaveBeenCalled();
+    expect(state.rpc).not.toHaveBeenCalled();
   });
   it("requires a verified primary email", async () => {
     state.getUser.mockResolvedValue({
@@ -98,20 +109,20 @@ describe("community API", () => {
       expect((await suggest(request({ ...valid, pluginSlug }))).status).toBe(
         400,
       );
-      expect(state.sql).not.toHaveBeenCalled();
+      expect(state.rpc).not.toHaveBeenCalled();
     },
   );
   it("stores general suggestions with a null plugin slug", async () => {
     expect(
       (await suggest(request({ ...valid, pluginSlug: null }))).status,
     ).toBe(201);
-    expect(state.sql.mock.calls[1][4]).toBeNull();
+    expect(state.rpc.mock.calls[0][1].p_plugin_slug).toBeNull();
   });
   it.each([{ title: "ab👍c" }, { body: "x".repeat(18) + "👍" }])(
     "rejects short Unicode text before consuming rate limits: %j",
     async (patch) => {
       expect((await suggest(request({ ...valid, ...patch }))).status).toBe(400);
-      expect(state.sql).not.toHaveBeenCalled();
+      expect(state.rpc).not.toHaveBeenCalled();
     },
   );
   it("accepts Unicode text at the database minimum", async () => {
@@ -122,23 +133,52 @@ describe("community API", () => {
         )
       ).status,
     ).toBe(201);
-    expect(state.sql).toHaveBeenCalledTimes(2);
+    expect(state.rpc).toHaveBeenCalledTimes(1);
   });
   it("uses server identity and never subscribes an idea author", async () => {
     expect((await suggest(request(valid))).status).toBe(201);
-    expect(state.sql.mock.calls[1].slice(1)).toContain("verified@example.com");
+    expect(state.getUser).toHaveBeenCalled();
+    expect(state.rpc).toHaveBeenCalledWith("submit_suggestion", {
+      p_request_id: valid.requestId,
+      p_plugin_slug: valid.pluginSlug,
+      p_title: valid.title,
+      p_body: valid.body,
+    });
+    expect(state.sql).not.toHaveBeenCalled();
     expect(
       state.sql.mock.calls.map((c) => c[0].join("")).join(""),
     ).not.toContain("INSERT INTO subscriptions");
   });
   it("rate limits writes across requests", async () => {
-    state.sql.mockResolvedValue([]);
+    state.rpc.mockResolvedValue({ data: null, error: { code: "RW429" } });
     expect((await suggest(request(valid))).status).toBe(429);
-    expect(state.sql).toHaveBeenCalledTimes(1);
+    expect(state.rpc).toHaveBeenCalledTimes(1);
   });
   it("returns an error when persistence fails", async () => {
-    state.sql.mockRejectedValue(new Error("DB unavailable"));
+    state.rpc.mockRejectedValue(new Error("DB unavailable"));
     expect((await suggest(request(valid))).status).toBe(503);
+  });
+  it("retries return the saved id without inventing a new success", async () => {
+    state.rpc.mockResolvedValue({
+      data: { id: "afc3b29d-c4c6-4ab2-8f79-b0cf2bf516dc", duplicate: true },
+      error: null,
+    });
+    const response = await suggest(request(valid));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      id: "afc3b29d-c4c6-4ab2-8f79-b0cf2bf516dc",
+    });
+  });
+  it.each([null, {}, { id: "", duplicate: false }])(
+    "never reports success without a persisted receipt: %j",
+    async (data) => {
+      state.rpc.mockResolvedValue({ data, error: null });
+      expect((await suggest(request(valid))).status).toBe(503);
+    },
+  );
+  it("rejects changed content reusing a request id", async () => {
+    state.rpc.mockResolvedValue({ data: null, error: { code: "RW409" } });
+    expect((await suggest(request(valid))).status).toBe(409);
   });
   it("allows an opt-out without consuming the submission limit", async () => {
     expect((await subscribe(request({ subscribed: false }))).status).toBe(200);
@@ -151,6 +191,6 @@ describe("community API", () => {
     expect(
       (await suggest(request({ ...valid, body: "x".repeat(25000) }))).status,
     ).toBe(400);
-    expect(state.sql).not.toHaveBeenCalled();
+    expect(state.rpc).not.toHaveBeenCalled();
   });
 });

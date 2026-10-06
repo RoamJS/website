@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Save private app and plugin suggestions with verified Supabase accounts, safe retries, and shared hourly limits.
+- Match suggestion form character limits to Unicode characters, preserving text when saving fails.
+
 - Keep newsletter signup closed when suggestions are enabled, with separate readiness controls.
 
 - Replace the Clerk sign-in scaffold with Supabase email sign-in and verified account sessions. Keep suggestions and newsletter consent separate and disabled until persistence is connected.

@@ -1,10 +1,9 @@
 import "server-only";
 import { requireVerifiedIdentity } from "./auth";
-import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import { createClient } from "./supabase/server";
 import { isSuggestionsConfigured, isNewsletterConfigured } from "./features";
 import { isSameOrigin } from "./validation";
-export const database = (): NeonQueryFunction<false, false> =>
-  neon(process.env.DATABASE_URL!);
+
 export const authorizeSubmission = async ({
   request,
   kind,
@@ -35,11 +34,12 @@ export const authorizeSubmission = async ({
     );
   return identity;
 };
-export const consumeRateLimit = async (userId: string): Promise<boolean> => {
-  const sql = database();
-  const rows =
-    await sql`INSERT INTO community_rate_limits (user_id, window_start, attempts) VALUES (${userId}, date_trunc('hour', now()), 1) ON CONFLICT (user_id) DO UPDATE SET window_start = EXCLUDED.window_start, attempts = CASE WHEN community_rate_limits.window_start < EXCLUDED.window_start THEN 1 ELSE community_rate_limits.attempts + 1 END WHERE community_rate_limits.window_start < EXCLUDED.window_start OR community_rate_limits.attempts < 10 RETURNING attempts`;
-  return rows.length > 0;
+export const consumeRateLimit = async (): Promise<boolean> => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("consume_community_rate_limit");
+  if (error || typeof data !== "boolean")
+    throw new Error("Rate limit unavailable");
+  return data;
 };
 export const readSmallJson = async (request: Request): Promise<unknown> => {
   if (!request.headers.get("content-type")?.includes("application/json"))

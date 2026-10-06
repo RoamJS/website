@@ -1,9 +1,9 @@
 import {
   authorizeSubmission,
   consumeRateLimit,
-  database,
   readSmallJson,
 } from "@/lib/community";
+import { database } from "@/lib/legacy-newsletter-db";
 import { subscriptionSchema } from "@/lib/validation";
 export const POST = async (request: Request): Promise<Response> => {
   try {
@@ -25,7 +25,7 @@ export const POST = async (request: Request): Promise<Response> => {
         { status: 400 },
       );
     // Opt-outs must remain possible even when a user has reached the submission limit.
-    if (parsed.data.subscribed && !(await consumeRateLimit(identity.userId)))
+    if (parsed.data.subscribed && !(await consumeRateLimit()))
       return Response.json(
         { error: "Please try again in an hour." },
         { status: 429 },

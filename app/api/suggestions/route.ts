@@ -1,9 +1,6 @@
-import {
-  authorizeSubmission,
-  consumeRateLimit,
-  database,
-  readSmallJson,
-} from "@/lib/community";
+import { authorizeSubmission, readSmallJson } from "@/lib/community";
+import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
 import { suggestionSchema } from "@/lib/validation";
 import { getPlugin } from "@/lib/catalog";
 export const POST = async (request: Request): Promise<Response> => {
@@ -31,18 +28,45 @@ export const POST = async (request: Request): Promise<Response> => {
         { error: "This plugin could not be found." },
         { status: 400 },
       );
-    if (!(await consumeRateLimit(identity.userId)))
-      return Response.json(
-        {
-          error:
-            "You have sent several requests recently. Please try again in an hour.",
-        },
-        { status: 429 },
-      );
-    const sql = database();
-    const rows =
-      await sql`INSERT INTO suggestions (request_id, user_id, email, plugin_slug, title, body) VALUES (${input.requestId},${identity.userId},${identity.email},${input.pluginSlug},${input.title},${input.body}) ON CONFLICT (user_id, request_id) DO UPDATE SET request_id=EXCLUDED.request_id RETURNING id`;
-    return Response.json({ id: rows[0].id }, { status: 201 });
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("submit_suggestion", {
+      p_request_id: input.requestId,
+      p_plugin_slug: input.pluginSlug,
+      p_title: input.title,
+      p_body: input.body,
+    });
+    if (error) {
+      if (error.code === "RW429")
+        return Response.json(
+          {
+            error:
+              "You have sent several requests recently. Please try again in an hour.",
+          },
+          { status: 429 },
+        );
+      if (error.code === "RW409")
+        return Response.json(
+          {
+            error:
+              "This request was already used for a different idea. Please reload and try again.",
+          },
+          { status: 409 },
+        );
+      if (error.code === "RW403")
+        return Response.json(
+          { error: "Verify your email before continuing." },
+          { status: 403 },
+        );
+      throw new Error("Suggestion persistence unavailable");
+    }
+    const saved = z
+      .object({ id: z.string().uuid(), duplicate: z.boolean() })
+      .safeParse(data);
+    if (!saved.success) throw new Error("Missing saved record");
+    return Response.json(
+      { id: saved.data.id },
+      { status: saved.data.duplicate ? 200 : 201 },
+    );
   } catch {
     return Response.json(
       { error: "We couldn’t save your idea. Please try again shortly." },
