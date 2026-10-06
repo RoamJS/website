@@ -60,11 +60,15 @@ test("Unicode lengths and retries preserve text and request identity", async ({
   await title.fill("ab👍c");
   await body.fill("👍".repeat(3000));
   await page.getByRole("button", { name: "Send suggestion" }).click();
-  await expect(page.locator("main").getByRole("alert")).toContainText("at least 5");
+  await expect(page.locator("main").getByRole("alert")).toContainText(
+    "at least 5",
+  );
   expect(requests).toHaveLength(0);
   await title.fill("👍".repeat(140));
   await page.getByRole("button", { name: "Send suggestion" }).click();
-  await expect(page.locator("main").getByRole("alert")).toContainText("Please retry");
+  await expect(page.locator("main").getByRole("alert")).toContainText(
+    "Please retry",
+  );
   await expect(title).toHaveValue("👍".repeat(140));
   await expect(body).toHaveValue("👍".repeat(3000));
   await page.getByRole("button", { name: "Send suggestion" }).click();
