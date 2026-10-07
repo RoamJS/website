@@ -144,3 +144,64 @@ test("using the saved version discards edits only after an explicit choice", asy
     page.getByRole("button", { name: "Save changes" }),
   ).toBeDisabled();
 });
+
+test("an expired inbox session revalidates auth and signs back in to the inbox", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  const consoleErrors: string[] = [];
+  const failedRequests: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  page.on("requestfailed", (request) => failedRequests.push(request.url()));
+  page.on("pageerror", (error) => errors.push(error.message));
+  let recovered = false;
+  await page.route("**/api/admin/suggestions**", (route) =>
+    route.fulfill({
+      status: recovered ? 200 : 401,
+      json: recovered
+        ? { items: [item], hasMore: false }
+        : { error: "Please sign in to continue." },
+    }),
+  );
+  await page.goto("/admin/suggestions");
+  await expect(page.getByRole("alert")).toHaveText(
+    "Please sign in to continue.",
+  );
+  // The auth server no longer accepts the session; the mounted provider still has its old user.
+  await page.evaluate(() =>
+    sessionStorage.setItem("fixture-session-expired", "1"),
+  );
+  const signIn = page.getByRole("link", {
+    name: "Sign in, then return to the inbox",
+  });
+  await expect(signIn).toHaveAttribute("href", "/account?next=inbox");
+  await signIn.click();
+  await expect(page).toHaveURL("http://127.0.0.1:3216/account?next=inbox");
+  await expect(page.getByLabel("Email address", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "You’re signed in" }),
+  ).toHaveCount(0);
+  expect(
+    await page.evaluate(() =>
+      Number(sessionStorage.getItem("fixture-auth-checks")),
+    ),
+  ).toBe(2);
+  await page
+    .getByLabel("Email address", { exact: true })
+    .fill("owner@example.invalid");
+  await page.getByRole("button", { name: "Email me a sign-in code" }).click();
+  await page.getByLabel("Verification code").fill("123456");
+  recovered = true;
+  await page.getByRole("button", { name: "Verify code", exact: true }).click();
+  await expect(page).toHaveURL("http://127.0.0.1:3216/admin/suggestions");
+  await expect(
+    page.getByRole("button", { name: /Meeting templates/ }),
+  ).toBeVisible();
+  expect(errors).toEqual([]);
+  expect(consoleErrors.filter((message) => !message.includes("401"))).toEqual(
+    [],
+  );
+  expect(failedRequests).toEqual([]);
+});

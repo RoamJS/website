@@ -476,12 +476,12 @@ export const SuggestionInbox = (): React.JSX.Element => {
         <div className="rounded-lg border border-border p-6">
           <p role="alert">{error}</p>
           {signIn && (
-            <Link
+            <a
               className="mt-4 inline-block text-primary underline"
-              href="/account"
+              href="/account?next=inbox"
             >
               Sign in, then return to the inbox
-            </Link>
+            </a>
           )}
         </div>
       ) : (
