@@ -478,7 +478,7 @@ export const SuggestionInbox = (): React.JSX.Element => {
           {signIn && (
             <Link
               className="mt-4 inline-block text-primary underline"
-              href="/account"
+              href="/account?next=inbox"
             >
               Sign in, then return to the inbox
             </Link>

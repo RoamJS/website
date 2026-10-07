@@ -144,3 +144,27 @@ test("using the saved version discards edits only after an explicit choice", asy
     page.getByRole("button", { name: "Save changes" }),
   ).toBeDisabled();
 });
+
+test("an expired inbox session keeps the inbox destination when signing back in", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.route("**/api/admin/suggestions**", (route) =>
+    route.fulfill({
+      status: 401,
+      json: { error: "Please sign in to continue." },
+    }),
+  );
+  await page.goto("/admin/suggestions");
+  await expect(page.getByRole("alert")).toHaveText(
+    "Please sign in to continue.",
+  );
+  const signIn = page.getByRole("link", {
+    name: "Sign in, then return to the inbox",
+  });
+  await expect(signIn).toHaveAttribute("href", "/account?next=inbox");
+  await signIn.click();
+  await expect(page).toHaveURL("http://127.0.0.1:3216/account?next=inbox");
+  expect(errors).toEqual([]);
+});
