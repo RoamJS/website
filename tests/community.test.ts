@@ -2,13 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 const state = vi.hoisted(() => ({
   getUser: vi.fn(),
-  sql: vi.fn(),
   rpc: vi.fn(),
 }));
 vi.mock("@/lib/supabase/server", () => ({
   createClient: () => ({ auth: { getUser: state.getUser }, rpc: state.rpc }),
 }));
-vi.mock("@neondatabase/serverless", () => ({ neon: () => state.sql }));
 import { POST as suggest } from "@/app/api/suggestions/route";
 import { POST as subscribe } from "@/app/api/subscriptions/route";
 const valid = {
@@ -29,14 +27,10 @@ const request = (data: unknown): Request =>
 beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "test");
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "test");
-  vi.stubEnv("DATABASE_URL", "test");
-  state.rpc
-    .mockReset()
-    .mockResolvedValue({
-      data: { id: "afc3b29d-c4c6-4ab2-8f79-b0cf2bf516dc", duplicate: false },
-      error: null,
-    });
-  state.sql.mockReset().mockResolvedValue([{ id: 1, attempts: 1 }]);
+  state.rpc.mockReset().mockResolvedValue({
+    data: { id: "afc3b29d-c4c6-4ab2-8f79-b0cf2bf516dc", duplicate: false },
+    error: null,
+  });
   vi.stubEnv("COMMUNITY_SUBMISSIONS_ENABLED", "true");
   vi.stubEnv("NEWSLETTER_SIGNUP_ENABLED", "true");
   state.getUser.mockReset().mockResolvedValue({
@@ -64,7 +58,8 @@ describe("community API", () => {
   it.each([
     ["true", undefined, 201, 503],
     ["true", "false", 201, 503],
-    ["false", "true", 503, 200],
+    ["true", "true", 201, 503],
+    ["false", "true", 503, 503],
     [undefined, undefined, 503, 503],
   ])(
     "keeps suggestion %s and newsletter %s writes independent",
@@ -74,15 +69,8 @@ describe("community API", () => {
       expect((await suggest(request(valid))).status).toBe(suggestionStatus);
       if (suggestionStatus === 503) expect(state.rpc).not.toHaveBeenCalled();
       state.rpc.mockClear().mockResolvedValue({ data: true, error: null });
-      state.sql.mockClear();
-      expect((await subscribe(request({ subscribed: true }))).status).toBe(
-        newsletterStatus,
-      );
-      if (newsletterStatus === 503) expect(state.rpc).not.toHaveBeenCalled();
-      else
-        expect(state.sql.mock.calls[0][0].join("")).toContain(
-          "INSERT INTO subscriptions",
-        );
+      expect((await subscribe()).status).toBe(newsletterStatus);
+      expect(state.rpc).not.toHaveBeenCalled();
     },
   );
   it("requires a session", async () => {
@@ -144,10 +132,7 @@ describe("community API", () => {
       p_title: valid.title,
       p_body: valid.body,
     });
-    expect(state.sql).not.toHaveBeenCalled();
-    expect(
-      state.sql.mock.calls.map((c) => c[0].join("")).join(""),
-    ).not.toContain("INSERT INTO subscriptions");
+    expect(state.rpc).toHaveBeenCalledTimes(1);
   });
   it("rate limits writes across requests", async () => {
     state.rpc.mockResolvedValue({ data: null, error: { code: "RW429" } });
@@ -180,12 +165,17 @@ describe("community API", () => {
     state.rpc.mockResolvedValue({ data: null, error: { code: "RW409" } });
     expect((await suggest(request(valid))).status).toBe(409);
   });
-  it("allows an opt-out without consuming the submission limit", async () => {
-    expect((await subscribe(request({ subscribed: false }))).status).toBe(200);
-    expect(state.sql).toHaveBeenCalledTimes(1);
-    expect(state.sql.mock.calls[0][0].join("")).toContain(
-      "INSERT INTO subscriptions",
-    );
+  it("keeps newsletter unavailable even with old configuration and no session", async () => {
+    vi.stubEnv("DATABASE_URL", "obsolete");
+    vi.stubEnv("NEWSLETTER_SIGNUP_ENABLED", "true");
+    state.getUser.mockResolvedValue({ data: { user: null }, error: null });
+    const response = await subscribe();
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      error: "Newsletter signup is not open yet.",
+    });
+    expect(state.getUser).not.toHaveBeenCalled();
+    expect(state.rpc).not.toHaveBeenCalled();
   });
   it("rejects excessively large bodies", async () => {
     expect(

@@ -5,7 +5,7 @@ import { suggestionSchema } from "@/lib/validation";
 import { getPlugin } from "@/lib/catalog";
 export const POST = async (request: Request): Promise<Response> => {
   try {
-    const identity = await authorizeSubmission({ request, kind: "suggestion" });
+    const identity = await authorizeSubmission(request);
     if (identity instanceof Response) return identity;
     let body: unknown;
     try {

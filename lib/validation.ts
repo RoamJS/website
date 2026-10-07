@@ -28,9 +28,6 @@ export const suggestionSchema = z
     website: z.string().max(0).optional(),
   })
   .strict();
-export const subscriptionSchema = z
-  .object({ subscribed: z.boolean() })
-  .strict();
 export const isSameOrigin = (request: Request): boolean =>
   request.headers.get("origin") === new URL(request.url).origin;
 export const verifiedPrimaryEmail = (user: {

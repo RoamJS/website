@@ -15,7 +15,8 @@ afterEach(() => vi.unstubAllEnvs());
 describe("independent community page availability", () => {
   it.each([
     ["true", undefined, "available", "unavailable"],
-    ["false", "true", "unavailable", "available"],
+    ["true", "true", "available", "unavailable"],
+    ["false", "true", "unavailable", "unavailable"],
     [undefined, undefined, "unavailable", "unavailable"],
   ])(
     "suggestions %s and newsletter %s show only their enabled forms",

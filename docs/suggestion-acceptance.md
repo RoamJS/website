@@ -4,7 +4,9 @@ Scope: general app ideas and plugin suggestions, private persistence, verified i
 
 The additive `suggestion_persistence`, `pin_community_rate_limit_timezone`, and `align_suggestion_whitespace_validation` migrations are applied to project `uxihswugvmdwbbtgxtfl` in organization `jevettuehuhgoesqqhxc`. Existing tables/data are preserved. Private tables have RLS and no anonymous/authenticated table grants; only the authenticated RPC is callable. Anonymous execution, cross-account reading, and direct inserts are forbidden. The website uses its existing public key and user session, never an admin key.
 
-Local validation: 59 unit/API/rendered-page tests, production build, lint, TypeScript, 14 default browser checks and one enabled-form Unicode/retry check pass. Browser sessions in local regression tests are fixtures.
+Local validation after the newsletter scaffold cleanup: 60 unit/API/rendered-page tests, production build, lint and TypeScript pass. The earlier suggestion implementation also passed 14 default browser checks and one enabled-form Unicode/retry check; those browser checks were not rerun for the cleanup. Browser sessions in local regression tests are fixtures.
+
+The unused Neon dependency, schema, migration script and newsletter write code are removed. Newsletter signup is unconditionally unavailable, including with obsolete environment flags present. The subscription endpoint returns 503 without accessing persistence. Supabase newsletter persistence, explicit consent and unsubscribe handling remain RJS-04/05 work.
 
 ## Hosted evidence (October 6, 2026)
 

@@ -1,16 +1,11 @@
 import "server-only";
 import { requireVerifiedIdentity } from "./auth";
-import { createClient } from "./supabase/server";
-import { isSuggestionsConfigured, isNewsletterConfigured } from "./features";
+import { isSuggestionsConfigured } from "./features";
 import { isSameOrigin } from "./validation";
 
-export const authorizeSubmission = async ({
-  request,
-  kind,
-}: {
-  request: Request;
-  kind: "suggestion" | "newsletter";
-}): Promise<{ userId: string; email: string } | Response> => {
+export const authorizeSubmission = async (
+  request: Request,
+): Promise<{ userId: string; email: string } | Response> => {
   if (!isSameOrigin(request))
     return Response.json(
       { error: "This request could not be verified. Please reload the page." },
@@ -18,28 +13,12 @@ export const authorizeSubmission = async ({
     );
   const identity = await requireVerifiedIdentity();
   if (identity instanceof Response) return identity;
-  const enabled =
-    kind === "suggestion"
-      ? isSuggestionsConfigured()
-      : isNewsletterConfigured();
-  if (!enabled)
+  if (!isSuggestionsConfigured())
     return Response.json(
-      {
-        error:
-          kind === "suggestion"
-            ? "Suggestions are not open yet."
-            : "Newsletter signup is not open yet.",
-      },
+      { error: "Suggestions are not open yet." },
       { status: 503 },
     );
   return identity;
-};
-export const consumeRateLimit = async (): Promise<boolean> => {
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("consume_community_rate_limit");
-  if (error || typeof data !== "boolean")
-    throw new Error("Rate limit unavailable");
-  return data;
 };
 export const readSmallJson = async (request: Request): Promise<unknown> => {
   if (!request.headers.get("content-type")?.includes("application/json"))
