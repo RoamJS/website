@@ -1,4 +1,5 @@
 "use client";
+import { suggestionSchema } from "@/lib/validation";
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "./auth-provider";
@@ -55,10 +56,23 @@ const ConnectedForm = ({
       </div>
     );
   const submit = async (subscribed?: boolean): Promise<void> => {
+    const id = requestId ?? crypto.randomUUID();
+    if (kind === "idea") {
+      const parsed = suggestionSchema.safeParse({
+        requestId: id,
+        pluginSlug: pluginSlug ?? null,
+        title,
+        body,
+      });
+      if (!parsed.success) {
+        setSuccess(false);
+        setMessage(parsed.error.issues[0].message);
+        return;
+      }
+    }
     setBusy(true);
     setMessage("");
     setSuccess(false);
-    const id = requestId ?? crypto.randomUUID();
     setRequestId(id);
     try {
       const response = await fetch(
@@ -77,6 +91,10 @@ const ConnectedForm = ({
       if (!response.ok)
         throw new Error(
           result.error ?? "Something went wrong. Please try again.",
+        );
+      if (kind === "idea" && (typeof result.id !== "string" || !result.id))
+        throw new Error(
+          "We couldn’t confirm your idea was saved. Please try again.",
         );
       setSuccess(true);
       setMessage(
@@ -128,8 +146,7 @@ const ConnectedForm = ({
                 setRequestId(null);
               }}
               required
-              minLength={5}
-              maxLength={140}
+              disabled={busy}
               placeholder="A short title for your idea"
             />
           </div>
@@ -143,8 +160,7 @@ const ConnectedForm = ({
                 setRequestId(null);
               }}
               required
-              minLength={20}
-              maxLength={5000}
+              disabled={busy}
               className="min-h-36"
               placeholder="What are you trying to do? What would make it easier?"
             />

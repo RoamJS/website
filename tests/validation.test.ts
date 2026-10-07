@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   isSameOrigin,
   suggestionSchema,
-  subscriptionSchema,
   verifiedPrimaryEmail,
 } from "@/lib/validation";
 const valid = {
@@ -52,15 +51,6 @@ describe("submission boundaries", () => {
         true,
       );
     }
-  });
-  it("requires an explicit subscription boolean", () => {
-    expect(subscriptionSchema.safeParse({}).success).toBe(false);
-    expect(subscriptionSchema.safeParse({ subscribed: "yes" }).success).toBe(
-      false,
-    );
-    expect(subscriptionSchema.safeParse({ subscribed: false }).success).toBe(
-      true,
-    );
   });
   it("accepts only a confirmed, non-anonymous Supabase email", () => {
     const verified = {

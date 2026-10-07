@@ -1,17 +1,11 @@
 import "server-only";
 import { requireVerifiedIdentity } from "./auth";
-import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
-import { isSuggestionsConfigured, isNewsletterConfigured } from "./features";
+import { isSuggestionsConfigured } from "./features";
 import { isSameOrigin } from "./validation";
-export const database = (): NeonQueryFunction<false, false> =>
-  neon(process.env.DATABASE_URL!);
-export const authorizeSubmission = async ({
-  request,
-  kind,
-}: {
-  request: Request;
-  kind: "suggestion" | "newsletter";
-}): Promise<{ userId: string; email: string } | Response> => {
+
+export const authorizeSubmission = async (
+  request: Request,
+): Promise<{ userId: string; email: string } | Response> => {
   if (!isSameOrigin(request))
     return Response.json(
       { error: "This request could not be verified. Please reload the page." },
@@ -19,27 +13,12 @@ export const authorizeSubmission = async ({
     );
   const identity = await requireVerifiedIdentity();
   if (identity instanceof Response) return identity;
-  const enabled =
-    kind === "suggestion"
-      ? isSuggestionsConfigured()
-      : isNewsletterConfigured();
-  if (!enabled)
+  if (!isSuggestionsConfigured())
     return Response.json(
-      {
-        error:
-          kind === "suggestion"
-            ? "Suggestions are not open yet."
-            : "Newsletter signup is not open yet.",
-      },
+      { error: "Suggestions are not open yet." },
       { status: 503 },
     );
   return identity;
-};
-export const consumeRateLimit = async (userId: string): Promise<boolean> => {
-  const sql = database();
-  const rows =
-    await sql`INSERT INTO community_rate_limits (user_id, window_start, attempts) VALUES (${userId}, date_trunc('hour', now()), 1) ON CONFLICT (user_id) DO UPDATE SET window_start = EXCLUDED.window_start, attempts = CASE WHEN community_rate_limits.window_start < EXCLUDED.window_start THEN 1 ELSE community_rate_limits.attempts + 1 END WHERE community_rate_limits.window_start < EXCLUDED.window_start OR community_rate_limits.attempts < 10 RETURNING attempts`;
-  return rows.length > 0;
 };
 export const readSmallJson = async (request: Request): Promise<unknown> => {
   if (!request.headers.get("content-type")?.includes("application/json"))
