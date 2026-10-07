@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { setInboxReturnHint } from "@/lib/auth-return";
 import { verifiedPrimaryEmail } from "@/lib/validation";
 import { useAuth } from "./auth-provider";
 import { Button } from "./ui/button";
@@ -11,6 +12,8 @@ import { Label } from "./ui/label";
 export const AccountForm = (): React.JSX.Element => {
   const { user, enabled, isLoaded } = useAuth();
   const search = useSearchParams();
+  const router = useRouter();
+  const returnToInbox = search.get("next") === "inbox";
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
   const [sent, setSent] = useState(false);
@@ -33,14 +36,17 @@ export const AccountForm = (): React.JSX.Element => {
   const send = async (): Promise<void> => {
     if (Date.now() < resendAt)
       throw new Error("Please wait a minute before requesting another email.");
+    setInboxReturnHint(returnToInbox);
     const { error } = await createClient().auth.signInWithOtp({
       email: email.trim(),
       options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
-    if (error)
+    if (error) {
+      setInboxReturnHint(false);
       throw new Error(
         "We couldn’t send the sign-in email. Please wait a moment and try again.",
       );
+    }
     setSent(true);
     setResendAt(Date.now() + 60_000);
     setMessage(
@@ -58,10 +64,13 @@ export const AccountForm = (): React.JSX.Element => {
         "That code is invalid or expired. Try again or request a new email.",
       );
     setToken("");
+    setInboxReturnHint(false);
+    if (returnToInbox) router.replace("/admin/suggestions");
   };
   const signOut = async (): Promise<void> => {
     const { error } = await createClient().auth.signOut({ scope: "local" });
     if (error) throw new Error("We couldn’t sign you out. Please try again.");
+    setInboxReturnHint(false);
     setEmail("");
     setToken("");
     setSent(false);
@@ -95,8 +104,11 @@ export const AccountForm = (): React.JSX.Element => {
             {busy ? "Signing out…" : "Sign out"}
           </Button>
           <p>
-            <Link href="/ideas" className="text-sm text-primary underline">
-              Visit suggestions
+            <Link
+              href={returnToInbox ? "/admin/suggestions" : "/ideas"}
+              className="text-sm text-primary underline"
+            >
+              {returnToInbox ? "Continue to inbox" : "Visit suggestions"}
             </Link>
           </p>
         </>

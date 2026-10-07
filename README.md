@@ -63,3 +63,7 @@ Tests cover search/category composition, provenance, safe relative documentation
 The existing `RoamJS/website` repository deploys through Vercel. Deploy this branch as a preview before promoting it to the production domain. Preserve all existing OAuth environment variables and the `/releases/:path*` rewrite in `vercel.json`. Deploying the catalog does not require enabling accounts or submissions.
 
 For suggestion form browser regression checks, build with `COMMUNITY_SUBMISSIONS_ENABLED=true`, start the server, then run `SUGGESTION_BROWSER_ENABLED=true npx playwright test suggestions.spec.ts`. This suite uses a mocked browser session/API and sends no email; it checks Unicode lengths, preserved text, retry UUIDs, and consent separation.
+
+## Private suggestion inbox
+
+Owners can review ideas at `/admin/suggestions`, filter/search the inbox, update status and private notes, and record a manual reply. Access requires a currently verified email in the administrator-managed private owner allowlist. Newsletter signup and public production activation remain separate. See [inbox access and acceptance](docs/inbox-acceptance.md) for setup, verification and remaining real-email checks.
