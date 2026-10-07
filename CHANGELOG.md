@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Require verified owner access before rendering the private inbox; send signed-out visitors directly to sign-in.
+
 - Add a private owner inbox for reviewing suggestions, tracking status, and recording manual follow-ups.
 
 - Save private app and plugin suggestions with verified Supabase accounts, safe retries, and shared hourly limits.

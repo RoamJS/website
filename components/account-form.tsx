@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { verifiedPrimaryEmail } from "@/lib/validation";
@@ -11,6 +11,8 @@ import { Label } from "./ui/label";
 export const AccountForm = (): React.JSX.Element => {
   const { user, enabled, isLoaded } = useAuth();
   const search = useSearchParams();
+  const router = useRouter();
+  const returnToInbox = search.get("next") === "inbox";
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
   const [sent, setSent] = useState(false);
@@ -58,6 +60,7 @@ export const AccountForm = (): React.JSX.Element => {
         "That code is invalid or expired. Try again or request a new email.",
       );
     setToken("");
+    if (returnToInbox) router.replace("/admin/suggestions");
   };
   const signOut = async (): Promise<void> => {
     const { error } = await createClient().auth.signOut({ scope: "local" });
@@ -95,8 +98,11 @@ export const AccountForm = (): React.JSX.Element => {
             {busy ? "Signing out…" : "Sign out"}
           </Button>
           <p>
-            <Link href="/ideas" className="text-sm text-primary underline">
-              Visit suggestions
+            <Link
+              href={returnToInbox ? "/admin/suggestions" : "/ideas"}
+              className="text-sm text-primary underline"
+            >
+              {returnToInbox ? "Continue to inbox" : "Visit suggestions"}
             </Link>
           </p>
         </>

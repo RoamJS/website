@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+test.use({ storageState: process.env.INBOX_BROWSER_STORAGE_STATE });
 const fixture = {
   id: "63fbb2d2-3b95-4d1f-bd6c-9aa7c2177210",
   email: "author@example.com",
@@ -15,6 +16,10 @@ const fixture = {
 test("owner review saves status, recovers failed writes, and records manual follow-up", async ({
   page,
 }) => {
+  test.skip(
+    !process.env.INBOX_BROWSER_STORAGE_STATE,
+    "Requires a real server-verified owner session",
+  );
   let saved = { ...fixture };
   let fail = true;
   let writes = 0;
@@ -74,6 +79,10 @@ test("owner review saves status, recovers failed writes, and records manual foll
   ).toContainText("Planned");
 });
 test("private inbox has no horizontal overflow on mobile", async ({ page }) => {
+  test.skip(
+    !process.env.INBOX_BROWSER_STORAGE_STATE,
+    "Requires a real server-verified owner session",
+  );
   await page.setViewportSize({ width: 390, height: 844 });
   await page.route("**/api/admin/suggestions**", (route) =>
     route.fulfill({ json: { items: [fixture], hasMore: false } }),
@@ -90,38 +99,41 @@ test("private inbox has no horizontal overflow on mobile", async ({ page }) => {
   ).toBe(true);
   await page.screenshot({ path: "local/inbox-mobile.png", fullPage: true });
 });
-test("signed-out and denied states expose no private cards", async ({
-  page,
+test("signed-out visitors are redirected before any inbox UI renders", async ({
+  browser,
 }) => {
-  let status = 401;
-  await page.route("**/api/admin/suggestions**", (route) =>
-    route.fulfill({
-      status,
-      json: {
-        error:
-          status === 401
-            ? "Please sign in to continue."
-            : "This inbox is only available to the site owner.",
-      },
-    }),
-  );
-  await page.goto("/admin/suggestions");
+  const context = await browser.newContext({
+    storageState: { cookies: [], origins: [] },
+  });
+  const page = await context.newPage();
+  let inboxRequests = 0;
+  await page.route("**/api/admin/suggestions**", (route) => {
+    inboxRequests++;
+    return route.abort();
+  });
+  const response = await page.goto("/admin/suggestions");
+  await expect(page).toHaveURL(/\/account\?next=inbox$/);
   await expect(
-    page.getByRole("link", { name: /Sign in, then return/ }),
-  ).toBeVisible();
-  await expect(page.getByText(fixture.email)).toHaveCount(0);
-  status = 403;
-  await page.getByRole("button", { name: "Refresh" }).click();
-  await expect(page.locator("main").getByRole("alert")).toContainText(
-    "only available to the site owner",
-  );
-  await expect(
-    page.getByRole("link", { name: /Sign in, then return/ }),
+    page.getByRole("heading", { name: "Suggestion inbox", exact: true }),
   ).toHaveCount(0);
+  await expect(page.getByLabel("Search suggestions")).toHaveCount(0);
+  await expect(page.getByLabel("Filter by status")).toHaveCount(0);
+  expect(inboxRequests).toBe(0);
+  const html = await response!.text();
+  expect(html).not.toContain("OWNER WORKSPACE");
+  await page.screenshot({
+    path: "local/inbox-signin-gate.png",
+    fullPage: true,
+  });
+  await context.close();
 });
 test("filters, empty state and pagination keep bounded requests", async ({
   page,
 }) => {
+  test.skip(
+    !process.env.INBOX_BROWSER_STORAGE_STATE,
+    "Requires a real server-verified owner session",
+  );
   const requests: string[] = [];
   await page.route("**/api/admin/suggestions**", (route) => {
     requests.push(route.request().url());
