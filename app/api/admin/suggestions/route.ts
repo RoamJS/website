@@ -30,7 +30,7 @@ const databaseFailure = (code?: string): Response => {
     return reply(
       {
         error:
-          "This suggestion changed in another session. Reload the inbox before saving again; your draft is still here.",
+          "This suggestion changed in another session. Load the latest saved review to reconcile your draft.",
       },
       409,
     );
@@ -48,6 +48,21 @@ export const GET = async (request: Request): Promise<Response> => {
     const denied = await identityFailure();
     if (denied) return denied;
     const query = new URL(request.url).searchParams;
+    const lookupId = query.get("id");
+    if (lookupId !== null) {
+      const parsedId = z.string().uuid().safeParse(lookupId);
+      if (!parsedId.success)
+        return reply({ error: "Invalid suggestion." }, 400);
+      const supabase = await createClient();
+      const { data, error } = await supabase.rpc("get_suggestion_review", {
+        p_id: parsedId.data,
+      });
+      if (error) return databaseFailure(error.code);
+      const receipt = reviewReceiptSchema.safeParse(data);
+      if (!receipt.success || receipt.data.id !== parsedId.data)
+        return databaseFailure();
+      return reply(receipt.data);
+    }
     const parsed = z
       .object({
         status: z.enum(reviewStatuses).nullable(),

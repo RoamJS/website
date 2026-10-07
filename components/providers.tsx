@@ -1,5 +1,6 @@
 "use client";
 import { ThemeProvider } from "next-themes";
+import { InboxDraftProvider } from "./inbox-drafts";
 import { AuthProvider } from "./auth-provider";
 import { AnalyticsNavigation } from "./analytics-navigation";
 export const Providers = ({
@@ -17,7 +18,7 @@ export const Providers = ({
       enableSystem
     >
       <AnalyticsNavigation />
-      {children}
+      <InboxDraftProvider>{children}</InboxDraftProvider>
     </ThemeProvider>
   );
   return <AuthProvider enabled={authEnabled}>{content}</AuthProvider>;

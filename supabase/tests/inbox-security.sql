@@ -19,6 +19,8 @@ begin
  receipt:=public.update_suggestion_review(sid,1,'reviewing','Checking this idea',false);
  if receipt->>'version' <> '2' or receipt->>'followed_up_at' is not null then raise exception 'Review incorrectly records contact'; end if;
  receipt:=public.update_suggestion_review(sid,2,'completed','Replied manually',true);
+ if public.get_suggestion_review(sid) <> receipt then raise exception 'Current review mismatch'; end if;
+ begin perform public.get_suggestion_review(gen_random_uuid()); raise exception 'Missing row accepted'; exception when sqlstate 'RW404' then null; end;
  if receipt->>'followed_up_at' is null then raise exception 'Contact timestamp not recorded'; end if;
  begin perform public.update_suggestion_review(sid,2,'planned','stale',false); raise exception 'Stale write accepted'; exception when sqlstate 'RW409' then null; end;
  begin perform public.update_suggestion_review(sid,3,'invalid','',false); raise exception 'Invalid status accepted'; exception when sqlstate 'RW400' then null; end;
@@ -31,6 +33,7 @@ reset role;
 select set_config('request.jwt.claims',jsonb_build_object('sub',reader_id,'role','authenticated','user_metadata',jsonb_build_object('owner',true,'email','owner@example.invalid'))::text,true) from inbox_fixture;
 set local role authenticated;
 do $$ begin
+ begin perform public.get_suggestion_review(gen_random_uuid()); raise exception 'Nonowner can read review'; exception when sqlstate 'RW403' then null; end;
  begin perform public.list_suggestion_inbox(null,'',0); raise exception 'Nonowner can list'; exception when sqlstate 'RW403' then null; end;
  begin perform public.update_suggestion_review(gen_random_uuid(),1,'new','',false); raise exception 'Nonowner can update'; exception when sqlstate 'RW403' then null; end;
 end $$;
@@ -39,17 +42,20 @@ update auth.users set email_confirmed_at=null where id=(select owner_id from inb
 select set_config('request.jwt.claims',jsonb_build_object('sub',owner_id,'role','authenticated')::text,true) from inbox_fixture;
 set local role authenticated;
 do $$ begin
+ begin perform public.get_suggestion_review(gen_random_uuid()); raise exception 'Unverified owner can read review'; exception when sqlstate 'RW403' then null; end;
  begin perform public.list_suggestion_inbox(null,'',0); raise exception 'Unverified owner can list'; exception when sqlstate 'RW403' then null; end;
 end $$;
 reset role;
 update auth.users set email_confirmed_at=now(),is_anonymous=true where id=(select owner_id from inbox_fixture);
 set local role authenticated;
 do $$ begin
+ begin perform public.get_suggestion_review(gen_random_uuid()); raise exception 'Anonymous owner can read review'; exception when sqlstate 'RW403' then null; end;
  begin perform public.list_suggestion_inbox(null,'',0); raise exception 'Anonymous owner can list'; exception when sqlstate 'RW403' then null; end;
 end $$;
 reset role;
 set local role anon;
 do $$ begin
+ begin perform public.get_suggestion_review(gen_random_uuid()); raise exception 'Anon review RPC granted'; exception when insufficient_privilege then null; end;
  begin perform public.list_suggestion_inbox(null,'',0); raise exception 'Anon RPC granted'; exception when insufficient_privilege then null; end;
 end $$;
 reset role;

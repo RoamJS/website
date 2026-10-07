@@ -83,6 +83,41 @@ describe("email link callback", () => {
     expect(response.headers.get("Cache-Control")).toBe("private, no-store");
     expect(response.headers.get("Referrer-Policy")).toBe("no-referrer");
   });
+  it.each([
+    [true, "/admin/suggestions"],
+    [false, "/account?error=expired&next=inbox"],
+  ])(
+    "preserves and clears the fixed inbox return hint (success %s)",
+    async (success, destination) => {
+      state.exchangeCodeForSession.mockResolvedValue({
+        error: success ? null : new Error("expired"),
+      });
+      const response = await callback(
+        new NextRequest("https://preview.example/auth/callback?code=test", {
+          headers: { cookie: "roamjs-inbox-return=1" },
+        }),
+      );
+      expect(response.headers.get("location")).toBe(
+        `https://preview.example${destination}`,
+      );
+      expect(response.cookies.get("roamjs-inbox-return")?.value).toBe("");
+      expect(response.headers.get("set-cookie")).toContain(
+        "Path=/auth/callback",
+      );
+      expect(response.headers.get("set-cookie")).toContain("Max-Age=0");
+    },
+  );
+  it("ignores arbitrary cookie destinations", async () => {
+    state.exchangeCodeForSession.mockResolvedValue({ error: null });
+    const response = await callback(
+      new NextRequest("https://preview.example/auth/callback?code=test", {
+        headers: { cookie: "roamjs-inbox-return=https://evil.example" },
+      }),
+    );
+    expect(response.headers.get("location")).toBe(
+      "https://preview.example/account",
+    );
+  });
   it.each(["", "?code=expired"])(
     "recovers from missing or invalid codes %s",
     async (query) => {

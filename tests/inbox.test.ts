@@ -36,18 +36,16 @@ const request = (body = changes, origin = "https://roamjs.com"): Request =>
 beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co");
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "test");
-  state.getUser
-    .mockReset()
-    .mockResolvedValue({
-      data: {
-        user: {
-          id: "owner",
-          email: "owner@example.com",
-          email_confirmed_at: "2026-10-06",
-        },
+  state.getUser.mockReset().mockResolvedValue({
+    data: {
+      user: {
+        id: "owner",
+        email: "owner@example.com",
+        email_confirmed_at: "2026-10-06",
       },
-      error: null,
-    });
+    },
+    error: null,
+  });
   state.rpc
     .mockReset()
     .mockResolvedValue({ data: { items: [item] }, error: null });
@@ -86,6 +84,61 @@ describe("private suggestion inbox", () => {
       expect(response.headers.get("Cache-Control")).toBe("private, no-store");
       expect(JSON.stringify(await response.json())).not.toContain(item.email);
     }
+  });
+  it("loads the current private review for explicit reconciliation", async () => {
+    state.rpc.mockResolvedValue({
+      data: { ...item, version: 2, follow_up_note: "Another tab" },
+      error: null,
+    });
+    const response = await GET(
+      new Request(`https://roamjs.com/api/admin/suggestions?id=${id}`),
+    );
+    expect(response.status).toBe(200);
+    expect(state.rpc).toHaveBeenCalledWith("get_suggestion_review", {
+      p_id: id,
+    });
+    const body = await response.json();
+    expect(body.version).toBe(2);
+    expect(body.email).toBeUndefined();
+    expect(response.headers.get("Cache-Control")).toBe("private, no-store");
+  });
+  it("rejects malformed or mismatched lookup receipts", async () => {
+    expect(
+      (
+        await GET(
+          new Request("https://roamjs.com/api/admin/suggestions?id=invalid"),
+        )
+      ).status,
+    ).toBe(400);
+    expect(state.rpc).not.toHaveBeenCalled();
+    state.rpc.mockResolvedValue({
+      data: { ...item, id: "6cb34f03-bd71-4b12-9858-17a35f57f1a0" },
+      error: null,
+    });
+    expect(
+      (
+        await GET(
+          new Request(`https://roamjs.com/api/admin/suggestions?id=${id}`),
+        )
+      ).status,
+    ).toBe(503);
+  });
+  it.each([
+    ["RW403", 403],
+    ["RW404", 404],
+    ["XX000", 503],
+  ])("denies failed current-review lookup %s", async (code, status) => {
+    state.rpc.mockResolvedValue({
+      data: null,
+      error: { code, message: "private detail" },
+    });
+    const response = await GET(
+      new Request(`https://roamjs.com/api/admin/suggestions?id=${id}`),
+    );
+    expect(response.status).toBe(status);
+    expect(JSON.stringify(await response.json())).not.toContain(
+      "private detail",
+    );
   });
   it("passes bounded filters and separates the pagination sentinel", async () => {
     state.rpc.mockResolvedValue({

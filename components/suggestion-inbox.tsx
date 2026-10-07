@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/components/auth-provider";
+import { useInboxDrafts } from "@/components/inbox-drafts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,21 +26,78 @@ const ReviewEditor = ({
   onSaved: (updated: InboxItem) => void;
   onClose: () => void;
 }): React.JSX.Element => {
-  const [status, setStatus] = useState(item.status);
-  const [note, setNote] = useState(item.follow_up_note);
-  const [recordFollowUp, setRecordFollowUp] = useState(false);
+  const { getDraft, saveDraft, clearDraft } = useInboxDrafts();
+  const [restored] = useState(() => getDraft(item.id));
+  const [baseItem, setBaseItem] = useState(restored?.item ?? item);
+  const [status, setStatus] = useState(restored?.status ?? item.status);
+  const [note, setNote] = useState(restored?.note ?? item.follow_up_note);
+  const [recordFollowUp, setRecordFollowUp] = useState(
+    restored?.recordFollowUp ?? false,
+  );
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [conflict, setConflict] = useState(false);
+  const [latest, setLatest] = useState<InboxItem | null>(null);
   const dirty =
-    status !== item.status || note !== item.follow_up_note || recordFollowUp;
+    status !== baseItem.status ||
+    note !== baseItem.follow_up_note ||
+    recordFollowUp;
+  useEffect(() => {
+    if (dirty)
+      saveDraft(item.id, { item: baseItem, status, note, recordFollowUp });
+    else clearDraft(item.id);
+  }, [
+    dirty,
+    item.id,
+    baseItem,
+    status,
+    note,
+    recordFollowUp,
+    saveDraft,
+    clearDraft,
+  ]);
   useEffect(() => {
     if (!dirty) return;
     const warn = (event: BeforeUnloadEvent): void => {
       event.preventDefault();
     };
+    const guardLink = (event: MouseEvent): void => {
+      if (
+        event.button !== 0 ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        event.altKey
+      )
+        return;
+      const anchor =
+        event.target instanceof Element
+          ? event.target.closest("a[href]")
+          : null;
+      if (
+        !(anchor instanceof HTMLAnchorElement) ||
+        anchor.target === "_blank" ||
+        anchor.hasAttribute("download")
+      )
+        return;
+      const url = new URL(anchor.href);
+      if (
+        !["http:", "https:"].includes(url.protocol) ||
+        url.href.split("#")[0] === window.location.href.split("#")[0]
+      )
+        return;
+      if (!window.confirm("Leave this page with unsaved changes?")) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    };
     window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
+    document.addEventListener("click", guardLink, true);
+    return () => {
+      window.removeEventListener("beforeunload", warn);
+      document.removeEventListener("click", guardLink, true);
+    };
   }, [dirty]);
   const save = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
@@ -51,17 +110,24 @@ const ReviewEditor = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: item.id,
-          version: item.version,
+          version: baseItem.version,
           status,
           note,
           recordFollowUp,
         }),
       });
       const data = await response.json();
-      if (!response.ok)
+      if (!response.ok) {
+        if (response.status === 409) setConflict(true);
         throw new Error(data.error ?? "Could not save changes.");
+      }
       const saved = reviewReceiptSchema.parse(data);
-      onSaved({ ...item, ...saved });
+      const updated = { ...item, ...saved };
+      setBaseItem(updated);
+      onSaved(updated);
+      clearDraft(item.id);
+      setConflict(false);
+      setLatest(null);
       setRecordFollowUp(false);
       setMessage("Changes saved.");
     } catch (cause) {
@@ -73,6 +139,52 @@ const ReviewEditor = ({
     } finally {
       setBusy(false);
     }
+  };
+  const loadLatest = async (): Promise<void> => {
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch(
+        `/api/admin/suggestions?id=${encodeURIComponent(item.id)}`,
+        { cache: "no-store" },
+      );
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(
+          data.error ?? "Could not load the latest saved review.",
+        );
+      const receipt = reviewReceiptSchema.parse(data);
+      if (receipt.id !== item.id)
+        throw new Error("Could not load the latest saved review.");
+      setLatest({ ...item, ...receipt });
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Could not load the latest saved review.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+  const reconcile = (keepDraft: boolean): void => {
+    if (!latest) return;
+    setBaseItem(latest);
+    onSaved(latest);
+    if (!keepDraft) {
+      setStatus(latest.status);
+      setNote(latest.follow_up_note);
+      setRecordFollowUp(false);
+      clearDraft(item.id);
+    }
+    setLatest(null);
+    setConflict(false);
+    setError("");
+    setMessage(
+      keepDraft
+        ? "Your draft is kept. Review it, then save against the latest version."
+        : "Latest saved review loaded.",
+    );
   };
   return (
     <section
@@ -88,8 +200,10 @@ const ReviewEditor = ({
             window.confirm(
               "Discard your unsaved changes and return to the inbox?",
             )
-          )
+          ) {
+            clearDraft(item.id);
             onClose();
+          }
         }}
       >
         ← Back to inbox
@@ -114,6 +228,56 @@ const ReviewEditor = ({
         Reply in your email app, then record the follow-up below. Opening a
         draft does not send or log a reply.
       </p>
+      {restored && (
+        <p className="mb-4 text-sm">Your unsaved draft was restored.</p>
+      )}
+      {conflict && (
+        <aside
+          className="mb-5 space-y-3 rounded-md border border-border p-4"
+          aria-label="Resolve conflicting edits"
+        >
+          <p>This idea has a newer saved review. Your draft is still below.</p>
+          {!latest ? (
+            <Button
+              type="button"
+              disabled={busy}
+              variant="outline"
+              onClick={() => void loadLatest()}
+            >
+              Load latest saved review
+            </Button>
+          ) : (
+            <>
+              <p>Saved status: {statusLabel(latest.status)}</p>
+              <p className="whitespace-pre-wrap break-words">
+                Saved note: {latest.follow_up_note || "No note"}
+              </p>
+              <p>
+                Last follow-up:{" "}
+                {latest.followed_up_at
+                  ? dateLabel(latest.followed_up_at)
+                  : "Not recorded"}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => reconcile(true)}
+                >
+                  Keep my draft
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => reconcile(false)}
+                >
+                  Use saved version
+                </Button>
+              </div>
+            </>
+          )}
+        </aside>
+      )}
       <form onSubmit={save} className="space-y-5">
         <label
           htmlFor="review-status"
@@ -178,7 +342,9 @@ const ReviewEditor = ({
         )}
         <Button
           type="submit"
-          disabled={busy || !dirty || Array.from(note).length > 2000}
+          disabled={
+            busy || conflict || !dirty || Array.from(note).length > 2000
+          }
         >
           {busy ? "Saving…" : "Save changes"}
         </Button>
@@ -187,6 +353,7 @@ const ReviewEditor = ({
   );
 };
 export const SuggestionInbox = (): React.JSX.Element => {
+  const { isLoaded, user } = useAuth();
   const [items, setItems] = useState<InboxItem[]>([]);
   const [selected, setSelected] = useState<InboxItem | null>(null);
   const [status, setStatus] = useState("");
@@ -241,6 +408,9 @@ export const SuggestionInbox = (): React.JSX.Element => {
     void load(controller.signal);
     return () => controller.abort();
   }, [load, reload]);
+  if (!isLoaded) return <p role="status">Checking your session…</p>;
+  if (!user)
+    return <Link href="/account?next=inbox">Sign in to open the inbox</Link>;
   if (selected)
     return (
       <ReviewEditor

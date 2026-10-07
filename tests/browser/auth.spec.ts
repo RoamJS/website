@@ -148,3 +148,50 @@ test("email delivery errors preserve the address and allow another attempt", asy
   await page.getByRole("button", { name: "Email me a sign-in code" }).click();
   await expect(page.getByRole("status")).toContainText("Check your email");
 });
+
+test("inbox sign-in sets only a fixed same-browser return hint and clears it on delivery failure", async ({
+  page,
+  context,
+}) => {
+  await page.route(`${authUrl}/otp**`, (route) => route.fulfill({ json: {} }));
+  await page.goto("/account?next=inbox");
+  await page
+    .getByLabel("Email address", { exact: true })
+    .fill("test@example.com");
+  await page.getByRole("button", { name: "Email me a sign-in code" }).click();
+  await expect(page.getByRole("status")).toContainText("Check your email");
+  const hint = (await context.cookies()).find(
+    (cookie) => cookie.name === "roamjs-inbox-return",
+  );
+  expect(hint?.value).toBe("1");
+  expect(hint?.path).toBe("/auth/callback");
+  expect(hint?.sameSite).toBe("Lax");
+  await page.goto("/auth/callback");
+  await expect(page).toHaveURL(/account\?error=expired&next=inbox$/);
+  expect(
+    (await context.cookies()).some(
+      (cookie) => cookie.name === "roamjs-inbox-return",
+    ),
+  ).toBe(false);
+  await page.route(`${authUrl}/otp**`, (route) =>
+    route.fulfill({
+      status: 429,
+      json: { code: "over_email_send_rate_limit", msg: "Unavailable" },
+    }),
+  );
+  await page
+    .getByLabel("Email address", { exact: true })
+    .fill("test@example.com");
+  await page.getByRole("button", { name: "Email me a sign-in code" }).click();
+  await expect(
+    page
+      .locator("main")
+      .getByRole("alert")
+      .filter({ hasText: "couldn’t send" }),
+  ).toContainText("couldn’t send");
+  expect(
+    (await context.cookies()).some(
+      (cookie) => cookie.name === "roamjs-inbox-return",
+    ),
+  ).toBe(false);
+});

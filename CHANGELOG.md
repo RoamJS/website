@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Preserve private review drafts during site navigation, recover conflicting edits, and return email-link sign-in to the inbox.
+
 - Require verified owner access before rendering the private inbox; send signed-out visitors directly to sign-in.
 
 - Add a private owner inbox for reviewing suggestions, tracking status, and recording manual follow-ups.

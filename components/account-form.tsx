@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { setInboxReturnHint } from "@/lib/auth-return";
 import { verifiedPrimaryEmail } from "@/lib/validation";
 import { useAuth } from "./auth-provider";
 import { Button } from "./ui/button";
@@ -35,14 +36,17 @@ export const AccountForm = (): React.JSX.Element => {
   const send = async (): Promise<void> => {
     if (Date.now() < resendAt)
       throw new Error("Please wait a minute before requesting another email.");
+    setInboxReturnHint(returnToInbox);
     const { error } = await createClient().auth.signInWithOtp({
       email: email.trim(),
       options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
-    if (error)
+    if (error) {
+      setInboxReturnHint(false);
       throw new Error(
         "We couldn’t send the sign-in email. Please wait a moment and try again.",
       );
+    }
     setSent(true);
     setResendAt(Date.now() + 60_000);
     setMessage(
@@ -60,11 +64,13 @@ export const AccountForm = (): React.JSX.Element => {
         "That code is invalid or expired. Try again or request a new email.",
       );
     setToken("");
+    setInboxReturnHint(false);
     if (returnToInbox) router.replace("/admin/suggestions");
   };
   const signOut = async (): Promise<void> => {
     const { error } = await createClient().auth.signOut({ scope: "local" });
     if (error) throw new Error("We couldn’t sign you out. Please try again.");
+    setInboxReturnHint(false);
     setEmail("");
     setToken("");
     setSent(false);
