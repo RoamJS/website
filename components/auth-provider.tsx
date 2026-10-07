@@ -28,7 +28,9 @@ export const AuthProvider = ({
     let eventReceived = false;
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // Cached initialization must not override the fresh getUser check.
+      if (event === "INITIAL_SESSION") return;
       eventReceived = true;
       if (active)
         setState({ user: session?.user ?? null, isLoaded: true, enabled });

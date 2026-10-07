@@ -20,6 +20,8 @@ export const createClient = () => ({
   auth: {
     onAuthStateChange: (listener: Listener) => {
       listeners.add(listener);
+      const initialSession = user ? { user } : null;
+      queueMicrotask(() => listener("INITIAL_SESSION", initialSession));
       return {
         data: {
           subscription: { unsubscribe: () => listeners.delete(listener) },
