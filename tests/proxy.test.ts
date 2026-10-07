@@ -51,6 +51,8 @@ describe("session refresh", () => {
   it("does not intercept existing extension OAuth or public catalog routes", () => {
     expect(config.matcher).toEqual([
       "/account",
+      "/admin/:path*",
+      "/api/admin/:path*",
       "/api/auth/:path*",
       "/api/suggestions",
       "/api/subscriptions",

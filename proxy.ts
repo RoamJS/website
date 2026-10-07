@@ -32,6 +32,8 @@ export default proxy;
 export const config = {
   matcher: [
     "/account",
+    "/admin/:path*",
+    "/api/admin/:path*",
     "/api/auth/:path*",
     "/api/suggestions",
     "/api/subscriptions",

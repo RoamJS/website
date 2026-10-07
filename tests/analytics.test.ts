@@ -16,6 +16,8 @@ describe("analytics privacy boundary", () => {
       "/api/suggestions",
       "/sign-in",
       "/account",
+      "/admin/suggestions",
+      "/api/admin/suggestions",
       "/auth/callback",
       "/unknown",
     ])
