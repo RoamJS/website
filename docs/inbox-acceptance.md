@@ -19,6 +19,10 @@ All API responses are private/no-store. The route is excluded by the analytics p
 - Four browser checks passed; production build, lint and typecheck passed. Browser tests use API fixtures for the owner workflow, failed-save retry, follow-up checkbox, search/filter/pagination, denied/signed-out states, and mobile width. They do not establish real owner email delivery.
 - Existing `public.apps` and `public.oauth_clients` RLS/GraphQL advisories are unchanged and remain outside this task. RLS-without-policies information notices on private tables reflect deliberate default-deny table access.
 
+## Hosted preview
+
+Preview: https://roamjs-website-git-codex-sugges-81c6b1-michael-gartner-projects.vercel.app/admin/suggestions. Branch-only Supabase public configuration is present; public suggestion submission remains disabled on this branch. The exact branch `/auth/callback` URL is allowlisted. The protected deployed API returned 401 with “Please sign in to continue” when checked without an account session. Vercel checks passed.
+
 ## User acceptance
 
 Sign in with the designated verified owner email on the protected preview, then open `/admin/suggestions`. Review a real idea, change its status, open a reply in your mail app, and record follow-up only after sending. Real inbox sign-in still depends on the RJS-01 email acceptance/custom SMTP work. Production sign-in and public community activation are not part of this PR. Newsletter signup remains unavailable.
