@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add hosted DeepWiki, Slack, and website badges for extension READMEs.
+
 - Preserve private review drafts during site navigation, recover conflicting edits, and return email-link sign-in to the inbox.
 
 - Require verified owner access before rendering the private inbox; send signed-out visitors directly to sign-in.
