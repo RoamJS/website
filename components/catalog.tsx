@@ -126,7 +126,7 @@ export const Catalog = ({
                   }}
                 >
                   <Icon
-                    className={`size-5 shrink-0 ${active ? "text-brand-orange" : ""}`}
+                    className={`size-5 shrink-0 ${active ? "text-brand-orange-foreground" : ""}`}
                   />
                   {c}
                   <span className="ml-auto tabular-nums text-muted-foreground">
@@ -199,7 +199,7 @@ export const Catalog = ({
               <div className="flex w-full flex-wrap items-center gap-x-5 gap-y-3 xl:w-auto">
                 <Link
                   href="/ideas"
-                  className="inline-flex items-center gap-2 text-sm text-brand-orange"
+                  className="inline-flex items-center gap-2 text-sm text-brand-orange-foreground"
                 >
                   <Lightbulb className="size-4" /> Share an idea
                 </Link>

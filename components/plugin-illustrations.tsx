@@ -130,7 +130,12 @@ const WorkbenchIllustration = (): React.JSX.Element => (
       rx="6"
       className="fill-brand-orange/10 stroke-brand-orange/50 [stroke-width:0.8]"
     />
-    <text x="110" y="115" className="fill-brand-orange" fontSize="10">
+    <text
+      x="110"
+      y="115"
+      className="fill-brand-orange-foreground"
+      fontSize="10"
+    >
       [[Inbox]]
     </text>
     <rect
