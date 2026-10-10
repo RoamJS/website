@@ -91,9 +91,17 @@ test("theme persists; mobile layout and keyboard navigation work", async ({
   const themeToggle = page.getByRole("button", { name: "Toggle dark mode" });
   await expect(themeToggle.locator("svg:visible")).toHaveCount(1);
   await expect(themeToggle.locator(".lucide-sun")).toBeVisible();
-  await expect(page.locator("header img")).toHaveJSProperty(
-    "naturalWidth",
-    460,
+  await expect(page.locator("header img")).toHaveJSProperty("naturalWidth", 96);
+  await expect(
+    page.locator('link[rel="icon"][type="image/svg+xml"]'),
+  ).toHaveAttribute("href", /^\/icon\.svg/);
+  await expect(
+    page.locator('link[rel="icon"][type="image/x-icon"]'),
+  ).toHaveAttribute("href", /^\/favicon\.ico/);
+  const favicon = await page.request.get("/favicon.ico");
+  expect(favicon.ok()).toBe(true);
+  expect((await favicon.body()).subarray(0, 4)).toEqual(
+    Buffer.from([0, 0, 1, 0]),
   );
   await page.evaluate(() => localStorage.setItem("theme", "light"));
   await page.reload();
@@ -352,4 +360,68 @@ test("header shrinks without shifting content and mobile navigation stays access
     })
     .toBeLessThanOrEqual(390);
   await menu.getByRole("button", { name: "Close navigation menu" }).click();
+});
+
+test("keyboard focus rings retain contrast in both themes", async ({
+  page,
+}) => {
+  await page.goto("/");
+  for (const theme of ["light", "dark"]) {
+    await page.evaluate((value) => localStorage.setItem("theme", value), theme);
+    await page.reload();
+    await expect(page.locator("html")).toHaveClass(new RegExp(theme));
+    await page.keyboard.press("Tab");
+    for (const control of [
+      page.getByRole("button", { name: "Toggle dark mode" }),
+      page.getByRole("combobox", { name: "Sort plugins" }),
+    ]) {
+      await control.focus();
+      await expect(control).toBeFocused();
+      await expect
+        .poll(() =>
+          control.evaluate((element) => {
+            if (!element.matches(":focus-visible")) return 0;
+            const style = getComputedStyle(element);
+            if (style.boxShadow === "none") return 0;
+            const canvas = document.createElement("canvas");
+            canvas.width = canvas.height = 1;
+            const context = canvas.getContext("2d")!;
+            const rgba = (color: string): number[] => {
+              context.clearRect(0, 0, 1, 1);
+              context.fillStyle = color;
+              context.fillRect(0, 0, 1, 1);
+              return Array.from(context.getImageData(0, 0, 1, 1).data);
+            };
+            const luminance = (rgb: number[]): number =>
+              rgb.slice(0, 3).reduce((sum, value, index) => {
+                const channel = value / 255;
+                const linear =
+                  channel <= 0.04045
+                    ? channel / 12.92
+                    : ((channel + 0.055) / 1.055) ** 2.4;
+                return sum + linear * [0.2126, 0.7152, 0.0722][index];
+              }, 0);
+            const root = getComputedStyle(document.documentElement);
+            const ring = rgba(style.getPropertyValue("--tw-ring-color"));
+            return ["--background", "--card"].reduce((minimum, token) => {
+              const background = rgba(root.getPropertyValue(token));
+              const alpha = ring[3] / 255;
+              const foreground = ring
+                .slice(0, 3)
+                .map(
+                  (value, index) =>
+                    value * alpha + background[index] * (1 - alpha),
+                );
+              const a = luminance(foreground),
+                b = luminance(background);
+              return Math.min(
+                minimum,
+                (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05),
+              );
+            }, Infinity);
+          }),
+        )
+        .toBeGreaterThanOrEqual(3);
+    }
+  }
 });

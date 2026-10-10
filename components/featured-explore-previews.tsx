@@ -30,7 +30,7 @@ export const BreadcrumbsPreview = (): React.JSX.Element => (
       </div>
     </div>
     <div className="absolute bottom-0 right-3 flex rotate-[-3deg] items-center gap-3 rounded-lg border border-brand-orange/35 bg-card px-4 py-3 text-xs shadow-sm">
-      <ArrowLeft className="size-4 text-brand-orange" />
+      <ArrowLeft className="size-4 text-brand-orange-foreground" />
       <span>
         Back to <span className="font-medium text-primary">Projects</span>
       </span>
@@ -57,7 +57,7 @@ export const StatsPreview = (): React.JSX.Element => (
           </span>
         </span>
         <span className="rounded bg-secondary p-1">
-          <span className="block text-sm font-semibold leading-none text-brand-orange">
+          <span className="block text-sm font-semibold leading-none text-brand-orange-foreground">
             2,406
           </span>
           <span className="block text-[8px] leading-tight text-muted-foreground">
@@ -85,7 +85,7 @@ export const GiphyPreview = (): React.JSX.Element => (
         <span className="flex h-14 items-center justify-center rounded border border-primary/50 bg-accent text-primary">
           <Smile className="size-7" strokeWidth={1.5} />
         </span>
-        <span className="flex h-14 flex-col items-center justify-center gap-1 rounded bg-brand-orange/10 text-brand-orange">
+        <span className="flex h-14 flex-col items-center justify-center gap-1 rounded bg-brand-orange/10 text-brand-orange-foreground">
           <Sparkles className="size-5" strokeWidth={1.5} />
           <span className="text-[8px] font-semibold tracking-wider">NICE!</span>
         </span>

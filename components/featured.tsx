@@ -59,7 +59,7 @@ const WorkflowPreview = (): React.JSX.Element => (
         into templates.
       </p>
       <svg
-        className="ml-1 mt-3 h-16 w-20 text-brand-orange"
+        className="ml-1 mt-3 h-16 w-20 text-brand-orange-foreground"
         viewBox="0 0 80 64"
         fill="none"
       >
@@ -80,7 +80,7 @@ const DarkModePreview = (): React.JSX.Element => (
     aria-hidden="true"
     className="relative hidden h-[264px] w-full transform-gpu self-center sm:block"
   >
-    <div className="absolute inset-y-2 left-0 right-3 overflow-hidden rounded-lg border border-slate-700 bg-[#0d1117] p-5 text-[#c9d1d9]">
+    <div className="absolute inset-y-2 left-0 right-3 overflow-hidden rounded-lg border border-slate-700 bg-slate-950 p-5 text-slate-300">
       <div className="flex items-center gap-1.5 border-b border-slate-700/60 pb-3">
         <span className="size-1.5 rounded-full bg-slate-600" />
         <span className="size-1.5 rounded-full bg-slate-600" />
@@ -90,27 +90,26 @@ const DarkModePreview = (): React.JSX.Element => (
       <div className="mt-4 border-l border-slate-700 pl-3 text-[11px] leading-6 text-slate-400">
         <p>• &nbsp; Make space for the next idea</p>
         <p>
-          • &nbsp; Explore{" "}
-          <span className="text-[#58a6ff]">[[Connections]]</span>
+          • &nbsp; Explore <span className="text-sky-400">[[Connections]]</span>
         </p>
         <p>• &nbsp; Pick up where you left off</p>
       </div>
     </div>
-    <div className="absolute bottom-0 right-0 w-[205px] rounded-lg border border-slate-600 bg-[#161b22] p-3.5 text-[11px] text-[#c9d1d9] shadow-lg">
+    <div className="absolute bottom-0 right-0 w-[205px] rounded-lg border border-slate-600 bg-slate-900 p-3.5 text-[11px] text-slate-300 shadow-lg">
       <div className="flex items-center justify-between">
         <span className="font-medium">Custom Dark Mode</span>
-        <span className="rounded bg-[#58a6ff]/15 px-2 py-0.5 text-[#58a6ff]">
+        <span className="rounded bg-sky-400/15 px-2 py-0.5 text-sky-400">
           Dark
         </span>
       </div>
-      <p className="mt-3 text-slate-400">GitHub Primer</p>
+      <p className="mt-3 text-slate-400">Color palette</p>
       <div className="mt-2 flex gap-2">
         {[
-          "bg-[#0d1117]",
-          "bg-[#161b22]",
-          "bg-[#30363d]",
-          "bg-[#c9d1d9]",
-          "bg-[#58a6ff]",
+          "bg-slate-950",
+          "bg-slate-900",
+          "bg-slate-700",
+          "bg-slate-300",
+          "bg-sky-400",
         ].map((color) => (
           <span
             key={color}
@@ -147,7 +146,7 @@ const DiscoveryPreview = ({ slug }: { slug: string }): React.JSX.Element => (
       <>
         <span className="absolute inset-x-3 inset-y-1 rotate-[-6deg] rounded-md border border-brand-orange/30 bg-brand-orange/10" />
         <span className="absolute inset-x-1 inset-y-1 rotate-[3deg] overflow-hidden rounded-md border border-brand-orange/40 bg-card shadow-sm">
-          <span className="block border-b border-brand-orange/20 bg-brand-orange/15 px-2.5 py-1.5 text-[10px] font-medium text-brand-orange">
+          <span className="block border-b border-brand-orange/20 bg-brand-orange/15 px-2.5 py-1.5 text-[10px] font-medium text-brand-orange-foreground">
             A thought for later
           </span>
           <span className="block px-2.5 py-2 text-[11px] leading-5 text-muted-foreground">
