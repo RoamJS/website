@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Return owners to the suggestion inbox after signing back in when a session expires.
+
 - Refresh README badges with the 41K RoamJS logo, a crisp vector DeepWiki symbol, and consistent icon sizing and spacing.
 
 - Use the simplified 41K RoamJS logo in the header, footer, and browser icon.

@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { InboxDraftProvider } from "@/components/inbox-drafts";
 import { SuggestionInbox } from "@/components/suggestion-inbox";
-import { FixtureAuthContext } from "./auth";
+import { AuthProvider, useAuth } from "@/components/auth-provider";
+import { AccountForm } from "@/components/account-form";
+import { setFixtureUser, fixtureOwner } from "./supabase";
 import Link from "./link";
 const Surface = (): React.JSX.Element => {
   const [path, setPath] = useState(location.pathname);
@@ -20,6 +22,8 @@ const Surface = (): React.JSX.Element => {
       <main>
         {path === "/admin/suggestions" ? (
           <SuggestionInbox />
+        ) : path === "/account" ? (
+          <AccountForm />
         ) : (
           <h1>Home fixture</h1>
         )}
@@ -27,21 +31,20 @@ const Surface = (): React.JSX.Element => {
     </>
   );
 };
-const Fixture = (): React.JSX.Element => {
-  const [user, setUser] = useState<{ id: string } | null>({
-    id: "fixture-owner",
-  });
+const FixtureControls = (): React.JSX.Element => {
+  const { user } = useAuth();
   return (
-    <FixtureAuthContext.Provider
-      value={{ user, isLoaded: true, enabled: true }}
-    >
-      <button onClick={() => setUser(user ? null : { id: "fixture-owner" })}>
-        {user ? "Sign out fixture" : "Sign in fixture"}
-      </button>
-      <InboxDraftProvider>
-        <Surface />
-      </InboxDraftProvider>
-    </FixtureAuthContext.Provider>
+    <button onClick={() => setFixtureUser(user ? null : fixtureOwner)}>
+      {user ? "Sign out fixture" : "Sign in fixture"}
+    </button>
   );
 };
+const Fixture = (): React.JSX.Element => (
+  <AuthProvider enabled>
+    <FixtureControls />
+    <InboxDraftProvider>
+      <Surface />
+    </InboxDraftProvider>
+  </AuthProvider>
+);
 createRoot(document.getElementById("root")!).render(<Fixture />);

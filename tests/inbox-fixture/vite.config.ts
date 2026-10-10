@@ -6,12 +6,16 @@ export default defineConfig({
   resolve: {
     alias: [
       {
-        find: "@/components/auth-provider",
-        replacement: path.resolve(__dirname, "auth.tsx"),
+        find: "@/lib/supabase/client",
+        replacement: path.resolve(__dirname, "supabase.ts"),
       },
       {
         find: "next/link",
         replacement: path.resolve(__dirname, "link.tsx"),
+      },
+      {
+        find: "next/navigation",
+        replacement: path.resolve(__dirname, "navigation.ts"),
       },
       { find: "@", replacement: repo },
     ],
