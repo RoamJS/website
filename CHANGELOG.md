@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Prepare recognizable RoamJS sign-in and email confirmation templates with the website logo and clear verification codes.
+
 - Return owners to the suggestion inbox after signing back in when a session expires.
 
 - Refresh README badges with the 41K RoamJS logo, a crisp vector DeepWiki symbol, and consistent icon sizing and spacing.

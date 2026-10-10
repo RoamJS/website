@@ -51,3 +51,9 @@ This proves real owner code sign-in and session recovery on the protected previe
 3. Before public activation, configure the intended production site URL/callback and public environment values, then repeat sign-in and submission acceptance on the public domain.
 
 Account creation never grants newsletter consent. Suggestion submission, public community activation and campaigns remain separate checks.
+
+## Branded email templates proposed in PR #14
+
+`supabase/email-templates/magic-link.html` and `confirmation.html` add the current RoamJS mark, a selectable code and one authentication button. The existing authentication placeholders are preserved. The source, deployment prerequisite, installation and rollback steps are in [the template guide](../supabase/email-templates/README.md).
+
+The new email-compatible PNG must be deployed at `https://roamjs.com/email/roamjs-mark.png` before the hosted templates are saved. The branded templates are not yet applied in Supabase, and no branded test email has been sent. The successful October 10 email/session checks above used the earlier plain template. Local layout and template invariant checks do not establish branded-email delivery, inbox placement or mail-client rendering.
