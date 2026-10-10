@@ -6,6 +6,8 @@
 
 - Give README badges a consistent compact background and spacing.
 
+- Use a consistent Tailwind sky, orange, and slate palette for website colors, cards, and plugin illustrations.
+
 - Add hosted DeepWiki, Slack, and website badges for extension READMEs.
 - Use the RoamJS logo as the website favicon.
 
