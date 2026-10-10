@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Use the simplified 41K RoamJS logo in the header, footer, and browser icon.
+
 - Give README badges a consistent compact background and spacing.
 
 - Add hosted DeepWiki, Slack, and website badges for extension READMEs.

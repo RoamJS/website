@@ -91,10 +91,7 @@ test("theme persists; mobile layout and keyboard navigation work", async ({
   const themeToggle = page.getByRole("button", { name: "Toggle dark mode" });
   await expect(themeToggle.locator("svg:visible")).toHaveCount(1);
   await expect(themeToggle.locator(".lucide-sun")).toBeVisible();
-  await expect(page.locator("header img")).toHaveJSProperty(
-    "naturalWidth",
-    460,
-  );
+  await expect(page.locator("header img")).toHaveJSProperty("naturalWidth", 96);
   await page.evaluate(() => localStorage.setItem("theme", "light"));
   await page.reload();
   await page.getByRole("button", { name: "Toggle dark mode" }).click();
