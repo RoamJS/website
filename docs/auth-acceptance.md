@@ -48,7 +48,7 @@ This proves real owner code sign-in and session recovery on the protected previe
 
 1. Exercise the same-browser email-link flow and a new-account/unverified-email boundary with controlled test identities.
 2. Capture an authenticated session endpoint result through a supported request context if separate API proof is needed.
-3. Before public activation, configure the intended production site URL/callback and public environment values, then repeat sign-in and submission acceptance on the public domain.
+3. Before public activation, configure the intended production site URL/callback and public environment values, then repeat sign-in acceptance on the public domain. Public suggestion submission acceptance is tracked separately under [RJS-02](suggestion-acceptance.md).
 
 Account creation never grants newsletter consent. Suggestion submission, public community activation and campaigns remain separate checks.
 

@@ -37,4 +37,6 @@ Supabase custom SMTP is configured through Resend with the owner-selected sender
 
 The October 6 synthetic submission checks above remain separate evidence; they do not establish a real email-to-suggestion workflow. New-account and same-browser email-link acceptance, real suggestion review/manual reply, and production account/submission activation remain pending. Production account/submission settings remain disabled; newsletter signup remains disabled everywhere for this work.
 
+Before public suggestion activation, repeat the submission acceptance flow on the public domain using a verified account. This is an RJS-02 requirement, separate from closing the RJS-01 auth acceptance checklist.
+
 The existing empty `public.apps` and `public.oauth_clients` tables have RLS disabled and public grants. This is a pre-existing project advisory, left unchanged because their intended access rules are outside RJS-02. Review the [Supabase RLS advisory](https://supabase.com/docs/guides/database/database-linter?lint=0013_rls_disabled_in_public) before public rollout.
