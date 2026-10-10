@@ -9,3 +9,5 @@
 
 All semantic colors reference Tailwind v4 default variables. Logo assets are managed separately.
 
+
+Keyboard focus uses opaque sky-700 rings in light mode and sky-400 in dark mode, preserving a clear boundary against the surrounding surfaces.
