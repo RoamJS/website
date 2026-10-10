@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Give README badges a consistent compact background and spacing.
+
 - Add hosted DeepWiki, Slack, and website badges for extension READMEs.
 - Use the RoamJS logo as the website favicon.
 
