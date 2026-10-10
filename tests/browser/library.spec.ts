@@ -92,6 +92,17 @@ test("theme persists; mobile layout and keyboard navigation work", async ({
   await expect(themeToggle.locator("svg:visible")).toHaveCount(1);
   await expect(themeToggle.locator(".lucide-sun")).toBeVisible();
   await expect(page.locator("header img")).toHaveJSProperty("naturalWidth", 96);
+  await expect(
+    page.locator('link[rel="icon"][type="image/svg+xml"]'),
+  ).toHaveAttribute("href", /^\/icon\.svg/);
+  await expect(
+    page.locator('link[rel="icon"][type="image/x-icon"]'),
+  ).toHaveAttribute("href", /^\/favicon\.ico/);
+  const favicon = await page.request.get("/favicon.ico");
+  expect(favicon.ok()).toBe(true);
+  expect((await favicon.body()).subarray(0, 4)).toEqual(
+    Buffer.from([0, 0, 1, 0]),
+  );
   await page.evaluate(() => localStorage.setItem("theme", "light"));
   await page.reload();
   await page.getByRole("button", { name: "Toggle dark mode" }).click();
