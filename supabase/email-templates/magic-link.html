@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in to RoamJS</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-family: Arial, Helvetica, sans-serif;
+    "
+  >
+    <div style="display: none; max-height: 0; overflow: hidden; mso-hide: all">
+      Your one-time code for signing in to RoamJS.
+    </div>
+    <table
+      role="presentation"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      border="0"
+      bgcolor="#f1f5f9"
+    >
+      <tr>
+        <td align="center" style="padding: 24px 12px">
+          <!-- Fixed-width fallback for desktop Outlook; other clients use a fluid container. -->
+          <!--[if mso]><table role="presentation" width="520" cellspacing="0" cellpadding="0" border="0"><tr><td><![endif]-->
+          <table
+            role="presentation"
+            width="100%"
+            cellspacing="0"
+            cellpadding="0"
+            border="0"
+            bgcolor="#ffffff"
+            style="
+              max-width: 520px;
+              border: 1px solid #cbd5e1;
+              border-radius: 12px;
+            "
+          >
+            <tr>
+              <td
+                style="
+                  padding: 28px 24px 24px;
+                  border-bottom: 1px solid #e2e8f0;
+                "
+              >
+                <table
+                  role="presentation"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                >
+                  <tr>
+                    <td width="44" valign="middle">
+                      <img
+                        src="https://roamjs.com/email/roamjs-mark.png"
+                        alt=""
+                        width="40"
+                        height="40"
+                        style="display: block; border: 0"
+                      />
+                    </td>
+                    <td
+                      valign="middle"
+                      style="
+                        padding-left: 10px;
+                        font-size: 26px;
+                        line-height: 32px;
+                        font-weight: 700;
+                        color: #0f172a;
+                      "
+                    >
+                      RoamJS
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 28px 24px 32px">
+                <h1
+                  style="
+                    margin: 0 0 14px;
+                    font-size: 24px;
+                    line-height: 32px;
+                    font-weight: 700;
+                    color: #0f172a;
+                  "
+                >
+                  Sign in to RoamJS
+                </h1>
+                <p
+                  style="
+                    margin: 0 0 20px;
+                    font-size: 16px;
+                    line-height: 25px;
+                    color: #334155;
+                  "
+                >
+                  Enter this code on the RoamJS account page where you requested
+                  it.
+                </p>
+                <table
+                  role="presentation"
+                  width="100%"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                >
+                  <tr>
+                    <td
+                      align="center"
+                      bgcolor="#f1f5f9"
+                      style="
+                        padding: 20px 12px;
+                        border: 1px solid #cbd5e1;
+                        border-radius: 8px;
+                      "
+                    >
+                      <p
+                        style="
+                          margin: 0 0 8px;
+                          font-size: 14px;
+                          line-height: 20px;
+                          color: #475569;
+                        "
+                      >
+                        Your verification code
+                      </p>
+                      <p
+                        style="
+                          margin: 0;
+                          font-family:
+                            &quot;Courier New&quot;, Courier, monospace;
+                          font-size: 32px;
+                          line-height: 42px;
+                          letter-spacing: 3px;
+                          font-weight: 700;
+                          color: #0f172a;
+                        "
+                      >
+                        {{ .Token }}
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+                <p
+                  style="
+                    margin: 18px 0 22px;
+                    font-size: 14px;
+                    line-height: 22px;
+                    color: #475569;
+                  "
+                >
+                  This code can only be used once. If it has expired, request a
+                  new email from the account page.
+                </p>
+                <p
+                  style="
+                    margin: 0 0 12px;
+                    font-size: 16px;
+                    line-height: 25px;
+                    color: #334155;
+                  "
+                >
+                  Or use the link in the same browser where you requested it:
+                </p>
+                <table
+                  role="presentation"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                >
+                  <tr>
+                    <td
+                      align="center"
+                      bgcolor="#075985"
+                      style="
+                        border: 1px solid #075985;
+                        border-radius: 6px;
+                        mso-padding-alt: 14px 22px;
+                      "
+                    >
+                      <a
+                        href="{{ .ConfirmationURL }}"
+                        style="
+                          display: inline-block;
+                          padding: 14px 22px;
+                          font-size: 16px;
+                          line-height: 22px;
+                          font-weight: 700;
+                          color: #ffffff;
+                          text-decoration: none;
+                        "
+                        >Sign in to RoamJS</a
+                      >
+                    </td>
+                  </tr>
+                </table>
+                <p
+                  style="
+                    margin: 24px 0 0;
+                    font-size: 14px;
+                    line-height: 22px;
+                    color: #475569;
+                  "
+                >
+                  If you didn’t request this email, you can ignore it. Do not
+                  share your code or sign-in link.
+                </p>
+              </td>
+            </tr>
+          </table>
+          <!--[if mso]></td></tr></table><![endif]-->
+          <p
+            style="
+              margin: 18px 0 0;
+              font-size: 13px;
+              line-height: 20px;
+              color: #475569;
+            "
+          >
+            RoamJS · roamjs.com
+          </p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

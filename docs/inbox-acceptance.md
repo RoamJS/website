@@ -4,7 +4,7 @@ The owner workspace is `/admin/suggestions`. It supports search, status filters,
 
 ## Access and data
 
-Migration `20261007020345_suggestion_owner_inbox.sql` extends the existing private suggestions table and creates `private.website_owners`. It is applied to the existing project `uxihswugvmdwbbtgxtfl` in organization `jevettuehuhgoesqqhxc`. The user-designated owner email was configured privately, outside source control. No email was sent and no real user account was created.
+Migration `20261007020345_suggestion_owner_inbox.sql` extends the existing private suggestions table and creates `private.website_owners`. It is applied to the existing project `uxihswugvmdwbbtgxtfl` in organization `jevettuehuhgoesqqhxc`. The user-designated owner email was configured privately, outside source control. No email was sent and no real user account was created during that initial implementation pass. Subsequent delivery evidence is recorded in `docs/auth-acceptance.md`.
 
 An administrator manages the exact lowercase verified-email allowlist using the authorized database connection. It is intentionally empty on fresh migration; populate it separately after confirming the intended owner. Membership follows the current verified email in `auth.users`: changing away from that email removes access. No user metadata claim grants ownership. Never expose owner-list writes to website clients. Remove the allowlist row to revoke access.
 
@@ -23,8 +23,8 @@ All API responses are private/no-store. The route is excluded by the analytics p
 
 ## Hosted preview
 
-Preview: https://roamjs-website-git-codex-sugges-81c6b1-michael-gartner-projects.vercel.app/admin/suggestions. Branch-only Supabase public configuration is present; public suggestion submission remains disabled on this branch. The exact branch `/auth/callback` URL is allowlisted. The protected deployed API returned 401 with “Please sign in to continue” when checked without an account session. Vercel checks passed.
+Current preview: https://roamjs-website-git-codex-inbox-370a64-michael-gartner-projects.vercel.app/admin/suggestions. Public Supabase configuration is present for protected previews; public suggestion submission remains disabled on this branch. The exact branch `/auth/callback` URL is allowlisted. The protected deployed API returned 401 with “Please sign in to continue” when checked without an account session. Vercel checks passed.
 
 ## User acceptance
 
-Sign in with the designated verified owner email on the protected preview, then open `/admin/suggestions`. Review a real idea, change its status, open a reply in your mail app, and record follow-up only after sending. Real inbox sign-in still depends on the RJS-01 email acceptance/custom SMTP work. Production sign-in and public community activation are not part of this PR. Newsletter signup remains unavailable.
+Sign in with the designated verified owner email on the protected preview, then open `/admin/suggestions`. Review a real idea, change its status, open a reply in your mail app, and record follow-up only after sending. Resend SMTP delivery and real owner code sign-in are verified on the protected preview. The owner inbox renders after verification and full reload; sign-out restores the access gate. Review/status changes and manual reply acceptance with a real suggestion remain pending. See `docs/auth-acceptance.md`. Production sign-in and public community activation are not part of this PR. Newsletter signup remains unavailable.

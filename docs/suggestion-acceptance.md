@@ -31,6 +31,12 @@ Run `SUGGESTION_TEST_DEPLOYMENT=https://… node --env-file=.env.local scripts/v
 
 Safe integration procedure: an authorized administrator creates two uniquely named synthetic `@example.invalid` Auth identities, explicitly confirmed for this test only. Admin-generated verification links produce genuine Auth sessions without sending email. Sessions are kept in ignored, mode-600 local files. Submit through the protected hosted website using those user sessions; retrieve only the test records through the authorized SQL connector; test retries, conflicts, validation, quota and unauthorized access. Revoke all test sessions, delete only test records/limits and disposable identities, then remove local session files. This does not prove delivery to an inbox or replace public email verification.
 
-The real inbox sign-in/sign-out acceptance from RJS-01 remains pending. Custom SMTP is still needed before public sign-in. Production account/submission settings remain disabled; newsletter signup remains disabled everywhere for this work.
+## Email acceptance update (October 10, 2026)
+
+Supabase custom SMTP is configured through Resend with the owner-selected sender `noreply@roamjs.com`. Real owner code sign-in, private inbox access, reload persistence and local sign-out passed on the protected inbox preview. See [RJS-01 acceptance](auth-acceptance.md) for the current preview, delivery evidence and limitations, and [RJS-03 acceptance](inbox-acceptance.md) for the owner workflow.
+
+The October 6 synthetic submission checks above remain separate evidence; they do not establish a real email-to-suggestion workflow. New-account and same-browser email-link acceptance, real suggestion review/manual reply, and production account/submission activation remain pending. Production account/submission settings remain disabled; newsletter signup remains disabled everywhere for this work.
+
+Before public suggestion activation, repeat the submission acceptance flow on the public domain using a verified account. This is an RJS-02 requirement, separate from closing the RJS-01 auth acceptance checklist.
 
 The existing empty `public.apps` and `public.oauth_clients` tables have RLS disabled and public grants. This is a pre-existing project advisory, left unchanged because their intended access rules are outside RJS-02. Review the [Supabase RLS advisory](https://supabase.com/docs/guides/database/database-linter?lint=0013_rls_disabled_in_public) before public rollout.
