@@ -1,5 +1,7 @@
 # RJS-03 private suggestion inbox
 
+Current rollout: the owner inbox is active on roamjs.com. Real owner sign-in, ordinary-account access denial, suggestion retrieval and review persistence passed on the public domain; see [production activation](production-activation.md). Protected-preview manual Gmail reply acceptance also passed. The dated and initial implementation sections below retain their historical limitations.
+
 The owner workspace is `/admin/suggestions`. It supports search, status filters, 25-item pages, full suggestion/contact details, statuses (new, reviewing, planned, completed), private follow-up notes, and manual email replies. Opening an email draft does not record a sent message. The owner explicitly checks “I sent a reply” and saves to record the server timestamp. This is a manual follow-up log, not proof of email delivery.
 
 ## Access and data
@@ -19,7 +21,7 @@ All API responses are private/no-store. The route is excluded by the analytics p
 - Four independent browser component fixtures pass navigation/history restoration, sign-out clearing, conflict reconciliation with a new version, explicit discard, and expired-session recovery revalidating auth, showing the sign-in form and returning to the inbox after code verification. They render the real editor/draft provider and AuthProvider/AccountForm with synthetic Supabase/API fixtures in a test-only Vite server; no production auth bypass is present. Run `npm run test:inbox-recovery`.
 - Five auth browser cases pass, including a fixed return hint, callback failure recovery, and delivery-failure cleanup. Email requests are intercepted; no real emails are sent.
 - The signed-out browser redirect check passes with no inbox markup or inbox API request. Production build, lint and typecheck passed. Earlier owner workflow checks passed before the new server gate. Rerunning the three authenticated browser cases now requires a real owner session file via `INBOX_BROWSER_STORAGE_STATE`; API interception cannot bypass server-rendered access checks. Browser tests use API fixtures for the owner workflow, failed-save retry, follow-up checkbox, search/filter/pagination, denied/signed-out states, and mobile width. They do not establish real owner email delivery.
-- Existing `public.apps` and `public.oauth_clients` RLS/GraphQL advisories are unchanged and remain outside this task. RLS-without-policies information notices on private tables reflect deliberate default-deny table access.
+- At the initial inbox check, `public.apps` and `public.oauth_clients` RLS/GraphQL advisories were left unchanged. Their later owner-approved backup/removal is recorded in [production activation](production-activation.md). RLS-without-policies information notices on private tables reflect deliberate default-deny table access.
 
 ## Hosted preview
 

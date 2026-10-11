@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Remove unused legacy integration tables after a verified backup before enabling public accounts and suggestions.
+
 - Prepare recognizable RoamJS sign-in and email confirmation templates with the website logo and clear verification codes.
 
 - Return owners to the suggestion inbox after signing back in when a session expires.
