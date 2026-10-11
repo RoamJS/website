@@ -39,4 +39,4 @@ The October 6 synthetic submission checks above remain separate evidence; they d
 
 Before public suggestion activation, repeat the submission acceptance flow on the public domain using a verified account. This is an RJS-02 requirement, separate from closing the RJS-01 auth acceptance checklist.
 
-The existing empty `public.apps` and `public.oauth_clients` tables have RLS disabled and public grants. This is a pre-existing project advisory, left unchanged because their intended access rules are outside RJS-02. Review the [Supabase RLS advisory](https://supabase.com/docs/guides/database/database-linter?lint=0013_rls_disabled_in_public) before public rollout.
+The earlier RJS-02 check left pre-existing `public.apps` and `public.oauth_clients` advisories unchanged. The owner subsequently approved backing up and removing both tables before public activation; that removal and its verification are recorded in [production activation](production-activation.md).
