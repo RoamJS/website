@@ -19,13 +19,15 @@ After removal, both tables and the owned sequence are absent, all four website p
 - Newsletter signup remains unconditionally disabled.
 - The production rebuild uses reviewed main commit `06a18617edbddce4d59ec6fdca90c260df32fd44`, rather than deploying unreviewed local source.
 
-## Acceptance still to verify on the public domain
+## Verified public-domain acceptance — October 11, 2026 (UTC)
 
 - Passed: Vercel production deployment `dpl_FodmurErfthqLMrKYEbuoD1kD8Wm` is Ready and aliased to roamjs.com.
 - Passed: the public signed-out session endpoint returns 401; `/admin/suggestions` redirects to `/account?next=inbox` before private content renders. `www.roamjs.com` redirects to the canonical domain.
-- Pending: real owner sign-in returns to the owner inbox, survives reload and signs out correctly. The production sign-in email was requested at 02:15:12 UTC and Resend reported delivered; the recipient must complete verification.
-- Pending: the approved ordinary test account can submit a controlled idea and cannot access the owner inbox.
-- Pending: the owner retrieves the public-domain test submission and saves a review that survives reload.
+- Passed: the recipient completed real owner email-code verification on roamjs.com and returned to the private inbox. The session survived a full reload; sign-out restored the whole-page sign-in gate. Resend reported the first production sign-in email delivered. This does not independently establish mailbox placement or rendering for that specific message.
+- Passed: the approved ordinary test account completed email-code verification, was denied the owner inbox with the not-found page and no private controls, and submitted a controlled app idea through `/ideas`. The public form confirmed that the idea was saved.
+- Passed: the owner signed in again, retrieved that submission, saved Completed status and a private review note, then reloaded and reopened the record. Both status and note persisted. The reply-recording checkbox stayed unchecked; no email reply was sent for this production test.
+
+The controlled test record is retained in the private inbox, marked Completed. Browser screenshots and exact rollout evidence are kept locally outside committed source. This verifies the tested account and app-suggestion path on the production domain; it does not claim every mail client, browser or future newsletter workflow is tested.
 
 Protected-preview acceptance is complete: branded confirmation reached Gmail Inbox with a correctly rendered logo, a new account verified its code and submitted an idea, the ordinary account was denied owner access, the owner email link/reload/sign-out checks passed, and a manual Gmail reply was verified and its follow-up persisted. These are separate from the public-domain checks above.
 
