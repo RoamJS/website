@@ -1,6 +1,15 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
+vi.mock("server-only", () => ({}));
+vi.mock("@/components/newsletter-form", () => ({
+  NewsletterForm: ({ enabled }: { enabled: boolean }) =>
+    createElement(
+      "div",
+      null,
+      `subscription: ${enabled ? "available" : "unavailable"}`,
+    ),
+}));
 vi.mock("@/components/community-form", () => ({
   CommunityForm: ({ enabled, kind }: { enabled: boolean; kind: string }) =>
     createElement(

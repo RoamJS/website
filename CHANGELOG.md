@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Prepare email-only newsletter signup with explicit consent, email confirmation and unsubscribe controls, separate from RoamJS accounts.
+
 - Prepare recognizable RoamJS sign-in and email confirmation templates with the website logo and clear verification codes.
 
 - Return owners to the suggestion inbox after signing back in when a session expires.

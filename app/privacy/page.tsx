@@ -28,13 +28,19 @@ const Privacy = (): React.JSX.Element => (
     <h2>Announcements are optional</h2>
     <p>
       Creating an account or submitting a suggestion does not subscribe you to
-      announcements. Subscribing records your email, account ID, consent choice,
-      and the time of that choice. You can withdraw consent on the Updates page.
-      We keep your current preference so it can be respected in future mailings.
+      announcements. When newsletter signup is open, you can sign up with just
+      your email, without an account. We send a confirmation email through
+      Resend and store your email, confirmation and consent history privately in
+      Supabase. Requests are limited using a hashed network identifier; we do
+      not store your raw IP address in the newsletter records. You can withdraw
+      consent through the unsubscribe link shown after confirmation and in
+      future announcements. We keep your current preference so it can be
+      respected in future mailings.
     </p>
     <h2>Third-party services</h2>
     <p>
-      Supabase processes account and sign-in information. The hosting provider
+      Supabase processes account, sign-in and newsletter consent information.
+      Resend delivers requested verification emails. The hosting provider
       processes normal web requests. Documentation links may take you to GitHub
       or other services, which have their own privacy practices. Individual Roam
       plugins can have different data practices; check each plugin’s
@@ -52,7 +58,7 @@ const Privacy = (): React.JSX.Element => (
       channel.
     </p>
     <p className="text-xs text-muted-foreground">
-      Last updated October 6, 2026.
+      Last updated October 10, 2026.
     </p>
   </main>
 );
