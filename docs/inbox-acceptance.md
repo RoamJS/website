@@ -1,5 +1,7 @@
 # RJS-03 private suggestion inbox
 
+Current rollout: the owner inbox is active on roamjs.com. Real owner sign-in, ordinary-account access denial, suggestion retrieval and review persistence passed on the public domain; see [production activation](production-activation.md). Protected-preview manual Gmail reply acceptance also passed. The dated and initial implementation sections below retain their historical limitations.
+
 The owner workspace is `/admin/suggestions`. It supports search, status filters, 25-item pages, full suggestion/contact details, statuses (new, reviewing, planned, completed), private follow-up notes, and manual email replies. Opening an email draft does not record a sent message. The owner explicitly checks “I sent a reply” and saves to record the server timestamp. This is a manual follow-up log, not proof of email delivery.
 
 ## Access and data

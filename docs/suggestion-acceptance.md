@@ -2,6 +2,8 @@
 
 Scope: general app ideas and plugin suggestions, private persistence, verified identity, validation, retries and shared limits. Owner review/replies and newsletter flows are RJS-03–05.
 
+Current rollout: production sign-in and suggestions are enabled on roamjs.com. Real ordinary-account submission, owner-access denial and owner review persistence passed on the public domain; see [production activation](production-activation.md). Newsletter signup remains disabled. The dated sections below preserve the evidence and limitations at earlier stages.
+
 The additive `suggestion_persistence`, `pin_community_rate_limit_timezone`, and `align_suggestion_whitespace_validation` migrations are applied to project `uxihswugvmdwbbtgxtfl` in organization `jevettuehuhgoesqqhxc`. Existing tables/data are preserved. Private tables have RLS and no anonymous/authenticated table grants; only the authenticated RPC is callable. Anonymous execution, cross-account reading, and direct inserts are forbidden. The website uses its existing public key and user session, never an admin key.
 
 Local validation after the newsletter scaffold cleanup: 60 unit/API/rendered-page tests, production build, lint and TypeScript pass. The earlier suggestion implementation also passed 14 default browser checks and one enabled-form Unicode/retry check; those browser checks were not rerun for the cleanup. Browser sessions in local regression tests are fixtures.
@@ -31,12 +33,12 @@ Run `SUGGESTION_TEST_DEPLOYMENT=https://… node --env-file=.env.local scripts/v
 
 Safe integration procedure: an authorized administrator creates two uniquely named synthetic `@example.invalid` Auth identities, explicitly confirmed for this test only. Admin-generated verification links produce genuine Auth sessions without sending email. Sessions are kept in ignored, mode-600 local files. Submit through the protected hosted website using those user sessions; retrieve only the test records through the authorized SQL connector; test retries, conflicts, validation, quota and unauthorized access. Revoke all test sessions, delete only test records/limits and disposable identities, then remove local session files. This does not prove delivery to an inbox or replace public email verification.
 
-## Email acceptance update (October 10, 2026)
+## Historical email acceptance update (October 10, 2026, before production activation)
 
 Supabase custom SMTP is configured through Resend with the owner-selected sender `noreply@roamjs.com`. Real owner code sign-in, private inbox access, reload persistence and local sign-out passed on the protected inbox preview. See [RJS-01 acceptance](auth-acceptance.md) for the current preview, delivery evidence and limitations, and [RJS-03 acceptance](inbox-acceptance.md) for the owner workflow.
 
-The October 6 synthetic submission checks above remain separate evidence; they do not establish a real email-to-suggestion workflow. New-account and same-browser email-link acceptance, real suggestion review/manual reply, and production account/submission activation remain pending. Production account/submission settings remain disabled; newsletter signup remains disabled everywhere for this work.
+At this stage, the October 6 synthetic submission checks remained separate evidence and did not establish a real email-to-suggestion workflow. New-account and same-browser email-link acceptance, real suggestion review/manual reply, and production account/submission activation were still pending, and production account/submission settings were disabled. Those gaps were subsequently closed by protected-preview acceptance and the [verified public-domain rollout](production-activation.md). Newsletter signup remains disabled everywhere.
 
-Before public suggestion activation, repeat the submission acceptance flow on the public domain using a verified account. This is an RJS-02 requirement, separate from closing the RJS-01 auth acceptance checklist.
+The required public-domain submission acceptance was subsequently completed using a verified ordinary account, separately from the RJS-01 auth checks. The owner retrieved the test idea, saved Completed status and a private note, and verified both after reload; see [production activation](production-activation.md).
 
 The earlier RJS-02 check left pre-existing `public.apps` and `public.oauth_clients` advisories unchanged. The owner subsequently approved backing up and removing both tables before public activation; that removal and its verification are recorded in [production activation](production-activation.md).

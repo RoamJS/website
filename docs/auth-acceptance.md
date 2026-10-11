@@ -1,6 +1,6 @@
 # RJS-01: Supabase Auth acceptance
 
-Current rollout: branded templates are installed and real protected-preview acceptance is complete. Public account configuration and remaining production checks are recorded in [production activation](production-activation.md). The dated sections below retain the evidence and limitations at each earlier stage.
+Current rollout: branded templates are installed and real protected-preview acceptance is complete. Production sign-in and suggestions are enabled, with real public-domain acceptance completed as recorded in [production activation](production-activation.md). Newsletter signup remains disabled. The dated sections below retain the evidence and limitations at each earlier stage.
 
 Initial implementation: [website PR #5](https://github.com/RoamJS/website/pull/5). Email delivery configuration and hosted checks updated October 10, 2026. Public account activation remains separate.
 
