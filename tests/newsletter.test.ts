@@ -167,6 +167,37 @@ describe("independent email-only signup", () => {
     expect(response.status).toBe(503);
     expect(JSON.stringify(await response.json())).not.toContain("secret");
   });
+  it("records only the provider status while keeping private details out of logs and responses", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      vi.mocked(fetch).mockResolvedValueOnce(
+        Response.json(
+          {
+            message: "private-provider-details",
+            recipient: "test@example.invalid",
+          },
+          { status: 401 },
+        ),
+      );
+      const response = await signup(
+        request("/api/subscriptions", {
+          email: "test@example.invalid",
+          consent: true,
+        }),
+      );
+      expect(response.status).toBe(503);
+      expect(log).toHaveBeenCalledExactlyOnceWith(
+        "newsletter-confirmation-delivery-failed",
+        { status: 401 },
+      );
+      const visible = JSON.stringify([log.mock.calls, await response.json()]);
+      expect(visible).not.toContain("private-provider-details");
+      expect(visible).not.toContain("test@example.invalid");
+      expect(visible).not.toContain("fixture-not-a-real-api-key");
+    } finally {
+      log.mockRestore();
+    }
+  });
   it("rejects oversized bodies without persistence", async () => {
     expect(
       (

@@ -112,8 +112,13 @@ export const sendNewsletterConfirmation = async ({
     }),
     signal: AbortSignal.timeout(10000),
   });
+  if (!response.ok) {
+    console.error("newsletter-confirmation-delivery-failed", {
+      status: response.status,
+    });
+    throw new Error("newsletter-delivery");
+  }
   if (
-    !response.ok ||
     !z.object({ id: z.string().min(1) }).safeParse(await response.json())
       .success
   )
