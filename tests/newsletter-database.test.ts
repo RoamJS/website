@@ -8,11 +8,12 @@ const requestId = "aa43e4d7-1585-4ab7-bd9e-9c0449857fdd";
 const signup = async (
   email: string,
   token = hash,
+  id = requestId,
 ): Promise<{ send: boolean }> =>
   (
     await db.query<{ result: { send: boolean } }>(
       "SELECT public.request_newsletter_signup($1,$2,$3,$4) AS result",
-      [email, token, requestId, client],
+      [email, token, id, client],
     )
   ).rows[0].result;
 beforeAll(async () => {
@@ -23,6 +24,12 @@ beforeAll(async () => {
   await db.exec(
     readFileSync(
       "supabase/migrations/20261011025930_newsletter_double_opt_in.sql",
+      "utf8",
+    ),
+  );
+  await db.exec(
+    readFileSync(
+      "supabase/migrations/20261013165138_release_failed_newsletter_delivery.sql",
       "utf8",
     ),
   );
@@ -45,6 +52,11 @@ describe("real PostgreSQL consent transitions and role permissions", () => {
       ).rejects.toThrow(/permission denied/);
       await expect(
         db.query("SELECT public.unsubscribe_newsletter($1)", [requestId]),
+      ).rejects.toThrow(/permission denied/);
+      await expect(
+        db.query("SELECT public.release_failed_newsletter_delivery($1)", [
+          requestId,
+        ]),
       ).rejects.toThrow(/permission denied/);
       await db.exec("RESET ROLE");
     }
@@ -123,11 +135,61 @@ describe("real PostgreSQL consent transitions and role permissions", () => {
     );
     await db.exec("RESET ROLE");
   });
+  it("permits an immediate retry after failed delivery only for the current pending request", async () => {
+    await db.exec("SET ROLE service_role");
+    const email = "delivery-failed@example.invalid";
+    const firstId = "85a80e45-a361-4e6a-bf20-b469017a5934";
+    const secondId = "5dfda93d-c6ec-49d5-aeaa-09b64b1d2ab1";
+    const firstToken = "e".repeat(64);
+    const secondToken = "f".repeat(64);
+    expect(await signup(email, firstToken, firstId)).toEqual({ send: true });
+    expect(await signup(email, secondToken, secondId)).toEqual({ send: false });
+    expect(
+      (
+        await db.query<{ result: boolean }>(
+          "SELECT public.release_failed_newsletter_delivery($1) AS result",
+          [firstId],
+        )
+      ).rows[0].result,
+    ).toBe(true);
+    expect(await signup(email, secondToken, secondId)).toEqual({ send: true });
+    const currentRequestedAt = (
+      await db.query<{ requested_at: string }>(
+        "SELECT requested_at FROM private.newsletter_subscriptions WHERE email=$1",
+        [email],
+      )
+    ).rows[0].requested_at;
+    expect(
+      (
+        await db.query<{ result: boolean }>(
+          "SELECT public.release_failed_newsletter_delivery($1) AS result",
+          [firstId],
+        )
+      ).rows[0].result,
+    ).toBe(false);
+    expect(
+      (
+        await db.query<{ requested_at: string }>(
+          "SELECT requested_at FROM private.newsletter_subscriptions WHERE email=$1",
+          [email],
+        )
+      ).rows[0].requested_at,
+    ).toEqual(currentRequestedAt);
+    expect(
+      (
+        await db.query<{ result: unknown }>(
+          "SELECT public.confirm_newsletter_signup($1) AS result",
+          [firstToken],
+        )
+      ).rows[0].result,
+    ).toBeNull();
+    await db.exec("RESET ROLE");
+  });
   it("requires empty search paths, invoker execution and RLS", async () => {
     const funcs = await db.query<{ prosecdef: boolean; proconfig: string[] }>(
-      "SELECT prosecdef,proconfig FROM pg_proc WHERE proname IN ('request_newsletter_signup','confirm_newsletter_signup','unsubscribe_newsletter','consume_newsletter_limit')",
+      "SELECT prosecdef,proconfig FROM pg_proc WHERE proname IN ('request_newsletter_signup','confirm_newsletter_signup','unsubscribe_newsletter','consume_newsletter_limit','release_failed_newsletter_delivery')",
     );
-    expect(funcs.rows).toHaveLength(4);
+    expect(funcs.rows).toHaveLength(5);
     for (const row of funcs.rows) {
       expect(row.prosecdef).toBe(false);
       expect(row.proconfig.join()).toContain("search_path=");

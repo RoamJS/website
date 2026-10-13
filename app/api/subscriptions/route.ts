@@ -49,12 +49,22 @@ export const POST = async (request: Request): Promise<Response> => {
         p_client_hash: newsletterClientHash(request),
       }),
     );
-    if (receipt.send)
-      await sendNewsletterConfirmation({
-        email: parsed.data.email,
-        token,
-        requestId,
-      });
+    if (receipt.send) {
+      try {
+        await sendNewsletterConfirmation({
+          email: parsed.data.email,
+          token,
+          requestId,
+        });
+      } catch {
+        // Release only this request's cooldown; keep its token valid if delivery
+        // succeeded but the provider response was lost.
+        await newsletterRpc("release_failed_newsletter_delivery", {
+          p_request_id: requestId,
+        });
+        throw new Error("newsletter-delivery");
+      }
+    }
     // Identical response for pending and existing subscribers; no address enumeration.
     return Response.json(
       {

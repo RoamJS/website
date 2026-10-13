@@ -13,6 +13,12 @@ await db.exec(
     "utf8",
   ),
 );
+await db.exec(
+  await readFile(
+    "supabase/migrations/20261013165138_release_failed_newsletter_delivery.sql",
+    "utf8",
+  ),
+);
 await db.exec("SET ROLE service_role");
 const methods = {
   request_newsletter_signup: [
@@ -23,6 +29,7 @@ const methods = {
   ],
   confirm_newsletter_signup: ["p_token_hash"],
   unsubscribe_newsletter: ["p_id"],
+  release_failed_newsletter_delivery: ["p_request_id"],
 };
 const api = createServer(async (request, response) => {
   response.setHeader("Content-Type", "application/json");

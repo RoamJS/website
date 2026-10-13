@@ -128,6 +128,7 @@ describe("independent email-only signup", () => {
       ).status,
     ).toBe(200);
     expect(fetch).not.toHaveBeenCalled();
+    expect(state.rpc).toHaveBeenCalledTimes(1);
   });
   it("fails honestly on quota, missing receipt or ambiguous provider delivery", async () => {
     state.rpc.mockResolvedValueOnce({
@@ -166,6 +167,10 @@ describe("independent email-only signup", () => {
     );
     expect(response.status).toBe(503);
     expect(JSON.stringify(await response.json())).not.toContain("secret");
+    expect(state.rpc).toHaveBeenLastCalledWith(
+      "release_failed_newsletter_delivery",
+      { p_request_id: expect.any(String) },
+    );
   });
   it("records only the provider status while keeping private details out of logs and responses", async () => {
     const log = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -186,6 +191,10 @@ describe("independent email-only signup", () => {
         }),
       );
       expect(response.status).toBe(503);
+      expect(state.rpc).toHaveBeenLastCalledWith(
+        "release_failed_newsletter_delivery",
+        { p_request_id: expect.any(String) },
+      );
       expect(log).toHaveBeenCalledExactlyOnceWith(
         "newsletter-confirmation-delivery-failed",
         { status: 401 },
