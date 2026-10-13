@@ -69,7 +69,13 @@ describe("community API", () => {
       expect((await suggest(request(valid))).status).toBe(suggestionStatus);
       if (suggestionStatus === 503) expect(state.rpc).not.toHaveBeenCalled();
       state.rpc.mockClear().mockResolvedValue({ data: true, error: null });
-      expect((await subscribe()).status).toBe(newsletterStatus);
+      expect(
+        (
+          await subscribe(
+            request({ email: "test@example.invalid", consent: true }),
+          )
+        ).status,
+      ).toBe(newsletterStatus);
       expect(state.rpc).not.toHaveBeenCalled();
     },
   );
@@ -169,7 +175,9 @@ describe("community API", () => {
     vi.stubEnv("DATABASE_URL", "obsolete");
     vi.stubEnv("NEWSLETTER_SIGNUP_ENABLED", "true");
     state.getUser.mockResolvedValue({ data: { user: null }, error: null });
-    const response = await subscribe();
+    const response = await subscribe(
+      request({ email: "test@example.invalid", consent: true }),
+    );
     expect(response.status).toBe(503);
     expect(await response.json()).toEqual({
       error: "Newsletter signup is not open yet.",
