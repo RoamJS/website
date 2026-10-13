@@ -14,6 +14,10 @@ if (
     if (url === "https://api.resend.com/emails") {
       if (init?.method !== "POST")
         throw new Error("Unexpected fixture email method");
+      const delay = Number(
+        process.env.ROAMJS_NEWSLETTER_FIXTURE_EMAIL_DELAY_MS ?? 0,
+      );
+      if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
       const message = JSON.parse(init.body);
       await mkdir("local", { recursive: true });
       await writeFile(

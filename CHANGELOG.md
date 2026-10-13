@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Send requested newsletter confirmations after the signup response so response time does not reveal subscriber status.
+
 - Allow an immediate newsletter confirmation retry when email delivery fails, while preserving request quotas.
 
 - Clear expired newsletter request limits incrementally so old windows do not keep growing the database.

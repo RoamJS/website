@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { after } from "next/server";
 import { readSmallJson } from "@/lib/community";
 import { isSameOrigin } from "@/lib/validation";
 import { isNewsletterSignupConfigured } from "@/lib/newsletter-config";
@@ -50,26 +51,30 @@ export const POST = async (request: Request): Promise<Response> => {
       }),
     );
     if (receipt.send) {
-      try {
-        await sendNewsletterConfirmation({
-          email: parsed.data.email,
-          token,
-          requestId,
-        });
-      } catch {
-        // Release only this request's cooldown; keep its token valid if delivery
-        // succeeded but the provider response was lost.
-        await newsletterRpc("release_failed_newsletter_delivery", {
-          p_request_id: requestId,
-        });
-        throw new Error("newsletter-delivery");
-      }
+      after(async () => {
+        try {
+          await sendNewsletterConfirmation({
+            email: parsed.data.email,
+            token,
+            requestId,
+          });
+        } catch {
+          try {
+            // Keep the token valid if delivery succeeded but its response was lost.
+            await newsletterRpc("release_failed_newsletter_delivery", {
+              p_request_id: requestId,
+            });
+          } catch {
+            console.error("newsletter-confirmation-retry-release-failed");
+          }
+        }
+      });
     }
-    // Identical response for pending and existing subscribers; no address enumeration.
+    // Provider latency must not reveal whether this address needs an email.
     return Response.json(
       {
         message:
-          "Check your email to confirm. If you already receive RoamJS updates, you’re all set.",
+          "If confirmation is needed, an email should arrive shortly. If it doesn’t, try again in a minute.",
       },
       { headers: { "Cache-Control": "no-store" } },
     );

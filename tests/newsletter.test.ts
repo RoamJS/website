@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
-const state = vi.hoisted(() => ({ rpc: vi.fn() }));
+const state = vi.hoisted(() => ({
+  rpc: vi.fn(),
+  after: vi.fn(),
+  scheduled: [] as Array<() => Promise<void>>,
+}));
+vi.mock("next/server", () => ({ after: state.after }));
 vi.mock("@supabase/supabase-js", () => ({
   createClient: () => ({ rpc: state.rpc }),
 }));
@@ -41,6 +46,10 @@ beforeEach(() => {
   state.rpc
     .mockReset()
     .mockResolvedValue({ data: { send: true }, error: null });
+  state.scheduled.length = 0;
+  state.after.mockReset().mockImplementation((task: () => Promise<void>) => {
+    state.scheduled.push(task);
+  });
   vi.stubGlobal(
     "fetch",
     vi.fn().mockResolvedValue(Response.json({ id: "fixture-delivery" })),
@@ -66,6 +75,9 @@ describe("independent email-only signup", () => {
     expect(args.p_email).toBe("person@example.invalid");
     expect(args.p_client_hash).toMatch(/^[a-f0-9]{64}$/);
     expect(JSON.stringify(args)).not.toContain("192.0.2.5");
+    expect(state.after).toHaveBeenCalledTimes(1);
+    expect(fetch).not.toHaveBeenCalled();
+    await state.scheduled[0]();
     const options = vi.mocked(fetch).mock.calls[0][1]!;
     const sent = JSON.parse(options.body as string);
     const token = new URL(sent.text.match(/https:\/\/\S+/)[0]).searchParams.get(
@@ -128,9 +140,32 @@ describe("independent email-only signup", () => {
       ).status,
     ).toBe(200);
     expect(fetch).not.toHaveBeenCalled();
+    expect(state.after).not.toHaveBeenCalled();
     expect(state.rpc).toHaveBeenCalledTimes(1);
   });
-  it("fails honestly on quota, missing receipt or ambiguous provider delivery", async () => {
+  it("returns the same receipt before provider work for new and existing addresses", async () => {
+    state.rpc.mockResolvedValueOnce({ data: { send: false }, error: null });
+    const existing = await signup(
+      request("/api/subscriptions", {
+        email: "existing@example.invalid",
+        consent: true,
+      }),
+    );
+    const fresh = await signup(
+      request("/api/subscriptions", {
+        email: "new@example.invalid",
+        consent: true,
+      }),
+    );
+    expect(existing.status).toBe(200);
+    expect(fresh.status).toBe(200);
+    expect(await existing.text()).toBe(await fresh.text());
+    expect(fetch).not.toHaveBeenCalled();
+    expect(state.scheduled).toHaveLength(1);
+    await state.scheduled[0]();
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+  it("handles quota, missing receipt and background provider failure without leaking details", async () => {
     state.rpc.mockResolvedValueOnce({
       data: null,
       error: { code: "NL429", message: "private details" },
@@ -165,8 +200,10 @@ describe("independent email-only signup", () => {
         consent: true,
       }),
     );
-    expect(response.status).toBe(503);
+    expect(response.status).toBe(200);
     expect(JSON.stringify(await response.json())).not.toContain("secret");
+    expect(fetch).not.toHaveBeenCalled();
+    await state.scheduled[0]();
     expect(state.rpc).toHaveBeenLastCalledWith(
       "release_failed_newsletter_delivery",
       { p_request_id: expect.any(String) },
@@ -190,7 +227,8 @@ describe("independent email-only signup", () => {
           consent: true,
         }),
       );
-      expect(response.status).toBe(503);
+      expect(response.status).toBe(200);
+      await state.scheduled[0]();
       expect(state.rpc).toHaveBeenLastCalledWith(
         "release_failed_newsletter_delivery",
         { p_request_id: expect.any(String) },
@@ -203,6 +241,31 @@ describe("independent email-only signup", () => {
       expect(visible).not.toContain("private-provider-details");
       expect(visible).not.toContain("test@example.invalid");
       expect(visible).not.toContain("fixture-not-a-real-api-key");
+    } finally {
+      log.mockRestore();
+    }
+  });
+  it("keeps background release errors private", async () => {
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      state.rpc
+        .mockResolvedValueOnce({ data: { send: true }, error: null })
+        .mockRejectedValueOnce(new Error("private database details"));
+      vi.mocked(fetch).mockRejectedValueOnce(
+        new Error("private provider details"),
+      );
+      const response = await signup(
+        request("/api/subscriptions", {
+          email: "test@example.invalid",
+          consent: true,
+        }),
+      );
+      expect(response.status).toBe(200);
+      await expect(state.scheduled[0]()).resolves.toBeUndefined();
+      expect(log).toHaveBeenCalledExactlyOnceWith(
+        "newsletter-confirmation-retry-release-failed",
+      );
+      expect(JSON.stringify(log.mock.calls)).not.toContain("private");
     } finally {
       log.mockRestore();
     }
