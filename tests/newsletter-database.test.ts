@@ -33,6 +33,12 @@ beforeAll(async () => {
       "utf8",
     ),
   );
+  await db.exec(
+    readFileSync(
+      "supabase/migrations/20261013170656_prune_expired_newsletter_limits.sql",
+      "utf8",
+    ),
+  );
 }, 30000);
 afterAll(async () => {
   await db.close();
@@ -183,6 +189,39 @@ describe("real PostgreSQL consent transitions and role permissions", () => {
         )
       ).rows[0].result,
     ).toBeNull();
+    await db.exec("RESET ROLE");
+  });
+  it("prunes expired limit windows in bounded batches without weakening current limits", async () => {
+    await db.exec("SET ROLE service_role");
+    await db.exec(`
+      INSERT INTO private.newsletter_request_limits(key, window_start, attempts)
+      SELECT 'expired:' || n,
+        date_trunc('hour', now() AT TIME ZONE 'UTC') AT TIME ZONE 'UTC' - interval '3 hours',
+        1
+      FROM generate_series(1, 70) AS n;
+      INSERT INTO private.newsletter_request_limits(key, window_start, attempts)
+      VALUES ('keep-recent', date_trunc('hour', now() AT TIME ZONE 'UTC') AT TIME ZONE 'UTC', 1);
+    `);
+    expect(await signup("pruning@example.invalid")).toEqual({ send: true });
+    expect(
+      (
+        await db.query<{ count: number }>(
+          "SELECT count(*)::integer AS count FROM private.newsletter_request_limits WHERE key LIKE 'expired:%'",
+        )
+      ).rows[0].count,
+    ).toBe(0);
+    expect(
+      (
+        await db.query<{ count: number }>(
+          "SELECT count(*)::integer AS count FROM private.newsletter_request_limits WHERE key='keep-recent'",
+        )
+      ).rows[0].count,
+    ).toBe(1);
+    expect(await signup("pruning@example.invalid")).toEqual({ send: false });
+    expect(await signup("pruning@example.invalid")).toEqual({ send: false });
+    await expect(signup("pruning@example.invalid")).rejects.toThrow(
+      /Too many newsletter requests/,
+    );
     await db.exec("RESET ROLE");
   });
   it("requires empty search paths, invoker execution and RLS", async () => {

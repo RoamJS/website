@@ -4,6 +4,8 @@
 
 - Allow an immediate newsletter confirmation retry when email delivery fails, while preserving request quotas.
 
+- Clear expired newsletter request limits incrementally so old windows do not keep growing the database.
+
 - Prepare email-only newsletter signup with explicit consent, email confirmation and unsubscribe controls, separate from RoamJS accounts.
 
 - Prepare recognizable RoamJS sign-in and email confirmation templates with the website logo and clear verification codes.

@@ -19,6 +19,12 @@ await db.exec(
     "utf8",
   ),
 );
+await db.exec(
+  await readFile(
+    "supabase/migrations/20261013170656_prune_expired_newsletter_limits.sql",
+    "utf8",
+  ),
+);
 await db.exec("SET ROLE service_role");
 const methods = {
   request_newsletter_signup: [
