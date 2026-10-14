@@ -5,6 +5,7 @@ create table private.suggestion_notification_outbox (
  created_at timestamptz not null default now(),
  state text not null default 'pending' check (state in ('pending','sent','failed','skipped')),
  attempts integer not null default 0 check (attempts between 0 and 5),
+ first_attempt_at timestamptz,
  next_attempt_at timestamptz not null default now(),
  lease_token uuid,
  lease_expires_at timestamptz,
@@ -54,12 +55,15 @@ begin
  for update of o skip locked limit 1;
  if not found then return null; end if;
  update private.suggestion_notification_outbox
- set attempts = attempts + 1, lease_token = gen_random_uuid(),
+ set attempts = attempts + 1, first_attempt_at = coalesce(first_attempt_at, now()),
+     lease_token = gen_random_uuid(),
      lease_expires_at = now() + interval '2 minutes'
  where suggestion_id = claimed.suggestion_id
  returning lease_token into claimed_token;
  return jsonb_build_object('suggestion_id', claimed.suggestion_id,
    'created_at', claimed.created_at, 'plugin_slug', claimed.plugin_slug,
+   'first_attempt_at', (select first_attempt_at from private.suggestion_notification_outbox
+                        where suggestion_id = claimed.suggestion_id),
    'lease_token', claimed_token,
    'attempts', (select attempts from private.suggestion_notification_outbox
                 where suggestion_id = claimed.suggestion_id));
@@ -85,7 +89,7 @@ begin
  end if;
  update private.suggestion_notification_outbox
  set state = case when p_outcome = 'retry' and attempts < 5
-                   and created_at > now() - interval '20 hours' then 'pending'
+                   and first_attempt_at > now() - interval '20 hours' then 'pending'
                   when p_outcome = 'retry' then 'failed'
                   else p_outcome end,
      next_attempt_at = case when p_outcome = 'retry' then
@@ -93,7 +97,7 @@ begin
        else next_attempt_at end,
      provider_id = case when p_outcome = 'sent' then p_provider_id else provider_id end,
      completed_at = case when p_outcome in ('sent','failed','skipped') or
-       (p_outcome = 'retry' and (attempts >= 5 or created_at <= now() - interval '20 hours'))
+       (p_outcome = 'retry' and (attempts >= 5 or first_attempt_at <= now() - interval '20 hours'))
        then now() else null end,
      lease_token = null, lease_expires_at = null
  where suggestion_id = p_suggestion_id and lease_token = p_lease_token and state = 'pending';

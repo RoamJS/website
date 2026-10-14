@@ -5,6 +5,7 @@ import { z } from "zod";
 const jobSchema = z.object({
   suggestion_id: z.uuid(),
   created_at: z.iso.datetime({ offset: true }),
+  first_attempt_at: z.iso.datetime({ offset: true }),
   plugin_slug: z.string().nullable(),
   lease_token: z.uuid(),
   attempts: z.number().int().min(1),
@@ -132,7 +133,7 @@ export const processSuggestionNotifications = async ({
       Date.parse(job.created_at) < activationAt
         ? { outcome: "skipped" as const }
         : job.attempts > 1 &&
-            Date.now() - Date.parse(job.created_at) >= 20 * 60 * 60 * 1000
+            Date.now() - Date.parse(job.first_attempt_at) >= 20 * 60 * 60 * 1000
           ? { outcome: "failed" as const }
           : await sendNotification({
               id: job.suggestion_id,

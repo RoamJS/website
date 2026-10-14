@@ -7,6 +7,7 @@ const first = "afc3b29d-c4c6-4ab2-8f79-b0cf2bf516dc";
 const second = "bfc3b29d-c4c6-4ab2-8f79-b0cf2bf516dc";
 const exhausted = "cfc3b29d-c4c6-4ab2-8f79-b0cf2bf516dc";
 const following = "dfc3b29d-c4c6-4ab2-8f79-b0cf2bf516dc";
+const delayed = "efc3b29d-c4c6-4ab2-8f79-b0cf2bf516dc";
 
 beforeAll(async () => {
   db = new PGlite();
@@ -138,5 +139,66 @@ describe("suggestion notification outbox", () => {
       )
     ).rows[0];
     expect(retired).toMatchObject({ state: "failed", attempts: 5 });
+  });
+  it("starts the retry window on the first claim, including delayed jobs", async () => {
+    await db.query(
+      "INSERT INTO private.suggestions(id,plugin_slug) VALUES ($1,NULL)",
+      [delayed],
+    );
+    await db.query(
+      "UPDATE private.suggestion_notification_outbox SET created_at=now()-interval '21 hours' WHERE suggestion_id=$1",
+      [delayed],
+    );
+    await db.exec("SET ROLE service_role");
+    const firstJob = (
+      await db.query<{
+        job: { lease_token: string; first_attempt_at: string };
+      }>("SELECT public.claim_suggestion_notification($1) AS job", [delayed])
+    ).rows[0].job;
+    const firstResult = (
+      await db.query<{ done: boolean }>(
+        "SELECT public.finish_suggestion_notification($1,$2,'retry',NULL) AS done",
+        [delayed, firstJob.lease_token],
+      )
+    ).rows[0].done;
+    expect(firstResult).toBe(true);
+    await db.exec("RESET ROLE");
+    const afterFirst = (
+      await db.query<{ state: string; first_attempt_at: Date }>(
+        "SELECT state,first_attempt_at FROM private.suggestion_notification_outbox WHERE suggestion_id=$1",
+        [delayed],
+      )
+    ).rows[0];
+    expect(afterFirst.state).toBe("pending");
+    expect(afterFirst.first_attempt_at).toBeTruthy();
+    await db.query(
+      "UPDATE private.suggestion_notification_outbox SET next_attempt_at=now()-interval '1 second' WHERE suggestion_id=$1",
+      [delayed],
+    );
+    await db.exec("SET ROLE service_role");
+    const secondJob = (
+      await db.query<{
+        job: { lease_token: string; first_attempt_at: string };
+      }>("SELECT public.claim_suggestion_notification($1) AS job", [delayed])
+    ).rows[0].job;
+    await db.exec("RESET ROLE");
+    expect(secondJob.first_attempt_at).toBe(firstJob.first_attempt_at);
+    await db.query(
+      "UPDATE private.suggestion_notification_outbox SET first_attempt_at=now()-interval '21 hours' WHERE suggestion_id=$1",
+      [delayed],
+    );
+    await db.exec("SET ROLE service_role");
+    await db.query(
+      "SELECT public.finish_suggestion_notification($1,$2,'retry',NULL)",
+      [delayed, secondJob.lease_token],
+    );
+    await db.exec("RESET ROLE");
+    const afterCutoff = (
+      await db.query<{ state: string }>(
+        "SELECT state FROM private.suggestion_notification_outbox WHERE suggestion_id=$1",
+        [delayed],
+      )
+    ).rows[0];
+    expect(afterCutoff.state).toBe("failed");
   });
 });

@@ -16,6 +16,7 @@ const lease = "a6c3b29d-c4c6-4ab2-8f79-b0cf2bf516dc";
 const newJob = {
   suggestion_id: id,
   created_at: new Date(Date.now() - 60_000).toISOString(),
+  first_attempt_at: new Date().toISOString(),
   plugin_slug: "smartblocks",
   lease_token: lease,
   attempts: 1,
@@ -109,6 +110,9 @@ describe("private suggestion notices", () => {
               created_at: new Date(
                 Date.now() - 21 * 60 * 60 * 1000,
               ).toISOString(),
+              first_attempt_at: new Date(
+                Date.now() - 21 * 60 * 60 * 1000,
+              ).toISOString(),
               attempts: 2,
             }
           : true,
@@ -118,6 +122,31 @@ describe("private suggestion notices", () => {
     expect(state.rpc).toHaveBeenCalledWith(
       "finish_suggestion_notification",
       expect.objectContaining({ p_outcome: "failed" }),
+    );
+  });
+  it("retries a late first delivery within 20 hours of its first claim", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response("", { status: 503 }));
+    vi.stubGlobal("fetch", fetchMock);
+    state.rpc.mockImplementation(async (name: string) => ({
+      data:
+        name === "claim_suggestion_notification"
+          ? {
+              ...newJob,
+              created_at: new Date(
+                Date.now() - 21 * 60 * 60 * 1000,
+              ).toISOString(),
+              attempts: 2,
+            }
+          : true,
+      error: null,
+    }));
+    expect(await processSuggestionNotifications({ suggestionId: id })).toBe(1);
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(state.rpc).toHaveBeenCalledWith(
+      "finish_suggestion_notification",
+      expect.objectContaining({ p_outcome: "retry" }),
     );
   });
   it("rejects unauthenticated cron calls", async () => {
