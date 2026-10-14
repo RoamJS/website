@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Simplify plugin-page navigation with a heading and secondary action, removing the duplicate divider and heavy tab underline.
+- Use a quiet, non-animated segmented switch for plugin instructions and suggestions, without the duplicate divider or heavy underline.
 
 - Send requested newsletter confirmations after the signup response so response time does not reveal subscriber status.
 

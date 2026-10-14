@@ -185,6 +185,45 @@ test("all public plugin guides hydrate without errors", async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test("plugin view switch keeps label size and geometry still", async ({
+  page,
+}) => {
+  await page.goto("/plugins/workbench");
+  const instructions = page.getByRole("tab", { name: "Instructions" });
+  const suggestion = page.getByRole("tab", { name: "Suggest a change" });
+  const measure = async (): Promise<
+    {
+      fontSize: string;
+      width: number;
+      height: number;
+      transitionDuration: string;
+    }[]
+  > =>
+    page.getByRole("tablist", { name: "Plugin page views" }).evaluate((list) =>
+      Array.from(list.querySelectorAll('[role="tab"]')).map((tab) => {
+        const style = getComputedStyle(tab);
+        const bounds = tab.getBoundingClientRect();
+        return {
+          fontSize: style.fontSize,
+          width: bounds.width,
+          height: bounds.height,
+          transitionDuration: style.transitionDuration,
+        };
+      }),
+    );
+  const before = await measure();
+  expect(before.map(({ transitionDuration }) => transitionDuration)).toEqual([
+    "0s",
+    "0s",
+  ]);
+  expect(before[0].fontSize).toBe(before[1].fontSize);
+  await suggestion.click();
+  await expect(suggestion).toHaveAttribute("data-state", "active");
+  expect(await measure()).toEqual(before);
+  await instructions.click();
+  expect(await measure()).toEqual(before);
+});
+
 test("featured carousel promotes newer plugins and stays stable when paging", async ({
   page,
 }) => {
