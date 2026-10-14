@@ -3,7 +3,9 @@ vi.mock("server-only", () => ({}));
 const state = vi.hoisted(() => ({
   getUser: vi.fn(),
   rpc: vi.fn(),
+  after: vi.fn(),
 }));
+vi.mock("next/server", () => ({ after: state.after }));
 vi.mock("@/lib/supabase/server", () => ({
   createClient: () => ({ auth: { getUser: state.getUser }, rpc: state.rpc }),
 }));
@@ -25,6 +27,8 @@ const request = (data: unknown): Request =>
     body: JSON.stringify(data),
   });
 beforeEach(() => {
+  state.after.mockReset();
+  vi.stubEnv("SUGGESTION_NOTIFICATIONS_ENABLED", "false");
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "test");
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "test");
   state.rpc.mockReset().mockResolvedValue({
@@ -140,6 +144,35 @@ describe("community API", () => {
     });
     expect(state.rpc).toHaveBeenCalledTimes(1);
   });
+  it("schedules a notice only for a newly saved suggestion when enabled", async () => {
+    vi.stubEnv("SUGGESTION_NOTIFICATIONS_ENABLED", "true");
+    vi.stubEnv("SUGGESTION_NOTIFICATION_TO", "owner@example.test");
+    vi.stubEnv("SUGGESTION_NOTIFICATION_START_AT", new Date().toISOString());
+    vi.stubEnv("RESEND_API_KEY", "re_test");
+    vi.stubEnv("SUPABASE_NEWSLETTER_SECRET_KEY", "sb_secret_test");
+    expect((await suggest(request(valid))).status).toBe(201);
+    expect(state.after).toHaveBeenCalledTimes(1);
+    state.rpc.mockResolvedValue({
+      data: { id: "afc3b29d-c4c6-4ab2-8f79-b0cf2bf516dc", duplicate: true },
+      error: null,
+    });
+    expect((await suggest(request(valid))).status).toBe(200);
+    expect(state.after).toHaveBeenCalledTimes(1);
+  });
+  it("returns the saved receipt if notification scheduling fails", async () => {
+    vi.stubEnv("SUGGESTION_NOTIFICATIONS_ENABLED", "true");
+    vi.stubEnv("SUGGESTION_NOTIFICATION_TO", "owner@example.test");
+    vi.stubEnv("SUGGESTION_NOTIFICATION_START_AT", new Date().toISOString());
+    vi.stubEnv("RESEND_API_KEY", "re_test");
+    vi.stubEnv("SUPABASE_NEWSLETTER_SECRET_KEY", "sb_secret_test");
+    state.after.mockImplementation(() => {
+      throw new Error("Unavailable");
+    });
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    expect((await suggest(request(valid))).status).toBe(201);
+    expect(state.rpc).toHaveBeenCalledTimes(1);
+    vi.restoreAllMocks();
+  });
   it("rate limits writes across requests", async () => {
     state.rpc.mockResolvedValue({ data: null, error: { code: "RW429" } });
     expect((await suggest(request(valid))).status).toBe(429);
@@ -159,6 +192,7 @@ describe("community API", () => {
     expect(await response.json()).toEqual({
       id: "afc3b29d-c4c6-4ab2-8f79-b0cf2bf516dc",
     });
+    expect(state.after).not.toHaveBeenCalled();
   });
   it.each([null, {}, { id: "", duplicate: false }])(
     "never reports success without a persisted receipt: %j",

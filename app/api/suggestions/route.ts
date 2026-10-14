@@ -3,6 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 import { suggestionSchema } from "@/lib/validation";
 import { getPlugin } from "@/lib/catalog";
+import { after } from "next/server";
+import {
+  processSuggestionNotifications,
+  suggestionNotificationsConfigured,
+} from "@/lib/suggestion-notifications";
 export const POST = async (request: Request): Promise<Response> => {
   try {
     const identity = await authorizeSubmission(request);
@@ -63,6 +68,22 @@ export const POST = async (request: Request): Promise<Response> => {
       .object({ id: z.string().uuid(), duplicate: z.boolean() })
       .safeParse(data);
     if (!saved.success) throw new Error("Missing saved record");
+    if (!saved.data.duplicate && suggestionNotificationsConfigured()) {
+      try {
+        after(async () => {
+          try {
+            await processSuggestionNotifications({
+              suggestionId: saved.data.id,
+            });
+          } catch {
+            // The durable outbox and authenticated cron retain this notification.
+            console.error("suggestion-notification-immediate-attempt-failed");
+          }
+        });
+      } catch {
+        console.error("suggestion-notification-scheduling-failed");
+      }
+    }
     return Response.json(
       { id: saved.data.id },
       { status: saved.data.duplicate ? 200 : 201 },

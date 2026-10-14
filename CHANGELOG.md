@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Use a quiet, non-animated segmented switch for plugin instructions and suggestions, without the duplicate divider or heavy underline.
+- Notify the owner when a new plugin or app suggestion arrives, with a private delivery outbox and retry path.
 
 - Send requested newsletter confirmations after the signup response so response time does not reveal subscriber status.
 
