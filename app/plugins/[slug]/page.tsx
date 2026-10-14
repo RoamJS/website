@@ -46,7 +46,7 @@ const PluginPage = async ({
       >
         <ArrowLeft className="size-3" /> All plugins
       </Link>
-      <section className="mb-10 mt-9 border-b pb-10">
+      <section className="mb-7 mt-9">
         <div className="flex items-center gap-4">
           <PluginIcon slug={p.slug} className="size-16 rounded-2xl" />
           <div>
