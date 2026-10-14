@@ -5,7 +5,7 @@ import { suggestionSchema } from "@/lib/validation";
 import { getPlugin } from "@/lib/catalog";
 import { after } from "next/server";
 import {
-  processSuggestionNotifications,
+  sendSuggestionNotification,
   suggestionNotificationsConfigured,
 } from "@/lib/suggestion-notifications";
 export const POST = async (request: Request): Promise<Response> => {
@@ -72,12 +72,12 @@ export const POST = async (request: Request): Promise<Response> => {
       try {
         after(async () => {
           try {
-            await processSuggestionNotifications({
-              suggestionId: saved.data.id,
+            await sendSuggestionNotification({
+              id: saved.data.id,
+              pluginSlug: input.pluginSlug,
             });
           } catch {
-            // The durable outbox and authenticated cron retain this notification.
-            console.error("suggestion-notification-immediate-attempt-failed");
+            console.error("suggestion-notification-delivery-failed");
           }
         });
       } catch {

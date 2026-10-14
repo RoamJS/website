@@ -27,6 +27,8 @@ const request = (data: unknown): Request =>
     body: JSON.stringify(data),
   });
 beforeEach(() => {
+  vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
   state.after.mockReset();
   vi.stubEnv("SUGGESTION_NOTIFICATIONS_ENABLED", "false");
   vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "test");
@@ -147,11 +149,16 @@ describe("community API", () => {
   it("schedules a notice only for a newly saved suggestion when enabled", async () => {
     vi.stubEnv("SUGGESTION_NOTIFICATIONS_ENABLED", "true");
     vi.stubEnv("SUGGESTION_NOTIFICATION_TO", "owner@example.test");
-    vi.stubEnv("SUGGESTION_NOTIFICATION_START_AT", new Date().toISOString());
     vi.stubEnv("RESEND_API_KEY", "re_test");
-    vi.stubEnv("SUPABASE_NEWSLETTER_SECRET_KEY", "sb_secret_test");
+    vi.stubEnv("SUPABASE_NEWSLETTER_SECRET_KEY", "");
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response(null, { status: 202 }));
+    vi.stubGlobal("fetch", fetchMock);
     expect((await suggest(request(valid))).status).toBe(201);
     expect(state.after).toHaveBeenCalledTimes(1);
+    await (state.after.mock.calls[0][0] as () => Promise<void>)();
+    expect(fetchMock).toHaveBeenCalledOnce();
     state.rpc.mockResolvedValue({
       data: { id: "afc3b29d-c4c6-4ab2-8f79-b0cf2bf516dc", duplicate: true },
       error: null,
@@ -162,9 +169,7 @@ describe("community API", () => {
   it("returns the saved receipt if notification scheduling fails", async () => {
     vi.stubEnv("SUGGESTION_NOTIFICATIONS_ENABLED", "true");
     vi.stubEnv("SUGGESTION_NOTIFICATION_TO", "owner@example.test");
-    vi.stubEnv("SUGGESTION_NOTIFICATION_START_AT", new Date().toISOString());
     vi.stubEnv("RESEND_API_KEY", "re_test");
-    vi.stubEnv("SUPABASE_NEWSLETTER_SECRET_KEY", "sb_secret_test");
     state.after.mockImplementation(() => {
       throw new Error("Unavailable");
     });
@@ -172,6 +177,23 @@ describe("community API", () => {
     expect((await suggest(request(valid))).status).toBe(201);
     expect(state.rpc).toHaveBeenCalledTimes(1);
     vi.restoreAllMocks();
+  });
+  it("keeps the saved receipt when Resend rejects the owner notice", async () => {
+    vi.stubEnv("SUGGESTION_NOTIFICATIONS_ENABLED", "true");
+    vi.stubEnv("SUGGESTION_NOTIFICATION_TO", "owner@example.test");
+    vi.stubEnv("RESEND_API_KEY", "re_test");
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(new Response(null, { status: 503 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const log = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const response = await suggest(request(valid));
+    expect(response.status).toBe(201);
+    await (state.after.mock.calls[0][0] as () => Promise<void>)();
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(log).toHaveBeenCalledWith("suggestion-notification-delivery-failed");
+    expect(state.rpc).toHaveBeenCalledTimes(1);
+    log.mockRestore();
   });
   it("rate limits writes across requests", async () => {
     state.rpc.mockResolvedValue({ data: null, error: { code: "RW429" } });
