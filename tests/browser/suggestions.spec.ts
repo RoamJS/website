@@ -1,4 +1,9 @@
 import { test, expect } from "@playwright/test";
+import { mockPassingTurnstile } from "./turnstile-fixture";
+
+test.beforeEach(async ({ page }) => {
+  await mockPassingTurnstile(page);
+});
 
 test.skip(
   process.env.SUGGESTION_BROWSER_ENABLED !== "true",
