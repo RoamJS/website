@@ -50,7 +50,11 @@ export const AuthTurnstile = ({
   useEffect(() => {
     const api = turnstileApi();
     const container = containerRef.current;
-    if (!scriptReady || !api || !container || !size) return;
+    if (!scriptReady || !container || !size) return;
+    if (!api) {
+      onIssue("Security check could not load. Reload this page and try again.");
+      return;
+    }
 
     let widgetId: string;
     try {

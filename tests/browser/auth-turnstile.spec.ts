@@ -54,6 +54,11 @@ test("requires a fresh challenge for each email request", async ({ page }) => {
   );
   expect(requests).toHaveLength(0);
 
+  await page.waitForFunction(
+    () =>
+      !!(window as unknown as { testTurnstile?: { options?: unknown } })
+        .testTurnstile?.options,
+  );
   await page.evaluate(() =>
     (
       window as unknown as {
@@ -139,6 +144,11 @@ test("expired or unavailable checks never request email", async ({ page }) => {
   await page
     .getByLabel("Email address", { exact: true })
     .fill("test@example.com");
+  await page.waitForFunction(
+    () =>
+      !!(window as unknown as { testTurnstile?: { callback?: unknown } })
+        .testTurnstile?.callback,
+  );
   await page.evaluate(() => {
     const options = (
       window as unknown as {
@@ -155,5 +165,32 @@ test("expired or unavailable checks never request email", async ({ page }) => {
   await expect(page.locator("main").getByRole("alert").first()).toContainText(
     "expired",
   );
+  expect(requests).toHaveLength(0);
+});
+
+test("a loaded script without the widget API offers recovery", async ({
+  page,
+}) => {
+  const requests: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().startsWith(AUTH_OTP_URL)) requests.push(request.url());
+  });
+  await page.route(TURNSTILE_SCRIPT, (route) =>
+    route.fulfill({
+      contentType: "application/javascript",
+      body: "window.turnstile = undefined;",
+    }),
+  );
+  await page.goto("/account");
+  await expect(page.locator("main").getByRole("alert")).toContainText(
+    "Security check could not load",
+  );
+  await expect(
+    page.getByRole("button", { name: "Retry security check" }),
+  ).toBeVisible();
+  await page
+    .getByLabel("Email address", { exact: true })
+    .fill("test@example.com");
+  await page.getByRole("button", { name: "Email me a sign-in code" }).click();
   expect(requests).toHaveLength(0);
 });
