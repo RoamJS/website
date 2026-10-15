@@ -17,12 +17,17 @@ test("requires a fresh challenge for each email request", async ({ page }) => {
       contentType: "application/javascript",
       body: `window.testTurnstile = { resetCount: 0 };
         window.turnstile = {
-          render: function (_container, options) {
+          render: function (container, options) {
             window.testTurnstile.options = options;
+            window.testTurnstile.container = container;
+            var widget = document.createElement('div');
+            widget.style.width = options.size === 'compact' ? '150px' : '300px';
+            widget.style.height = options.size === 'compact' ? '140px' : '65px';
+            container.replaceChildren(widget);
             return 'test-widget';
           },
           reset: function () { window.testTurnstile.resetCount++; },
-          remove: function () {}
+          remove: function () { window.testTurnstile.container.replaceChildren(); }
         };`,
     }),
   );
@@ -90,8 +95,20 @@ test("requires a fresh challenge for each email request", async ({ page }) => {
           .testTurnstile.resetCount,
     ),
   ).toBe(2);
-  for (const width of [320, 390]) {
+  for (const width of [320, 375, 390]) {
     await page.setViewportSize({ width, height: 844 });
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            (
+              window as unknown as {
+                testTurnstile: { options: { size: "compact" | "flexible" } };
+              }
+            ).testTurnstile.options.size,
+        ),
+      )
+      .toBe(width < 390 ? "compact" : "flexible");
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth,

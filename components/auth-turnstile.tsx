@@ -9,7 +9,7 @@ type TurnstileApi = {
     options: {
       sitekey: string;
       theme: "auto";
-      size: "flexible";
+      size: "flexible" | "compact";
       callback: (token: string) => void;
       "expired-callback": () => void;
       "error-callback": () => void;
@@ -35,18 +35,30 @@ export const AuthTurnstile = ({
 }): React.JSX.Element => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scriptReady, setScriptReady] = useState(false);
+  const [size, setSize] = useState<"flexible" | "compact" | null>(null);
+
+  useEffect(() => {
+    const form = containerRef.current?.closest("form");
+    if (!form) return;
+    const observer = new ResizeObserver(() => {
+      setSize(form.clientWidth < 300 ? "compact" : "flexible");
+    });
+    observer.observe(form);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const api = turnstileApi();
     const container = containerRef.current;
-    if (!scriptReady || !api || !container) return;
+    if (!scriptReady || !api || !container || !size) return;
 
     let widgetId: string;
     try {
+      onToken(null);
       widgetId = api.render(container, {
         sitekey: siteKey,
         theme: "auto",
-        size: "flexible",
+        size,
         callback: (token) => {
           onIssue("");
           onToken(token);
@@ -71,9 +83,10 @@ export const AuthTurnstile = ({
     resetRef.current = () => api.reset(widgetId);
     return () => {
       resetRef.current = null;
+      onToken(null);
       api.remove(widgetId);
     };
-  }, [scriptReady, siteKey, onToken, onIssue, resetRef]);
+  }, [scriptReady, siteKey, size, onToken, onIssue, resetRef]);
 
   return (
     <div className="space-y-2">
@@ -87,8 +100,12 @@ export const AuthTurnstile = ({
           )
         }
       />
-      <div ref={containerRef} aria-label="Security check" />
-      {!scriptReady && (
+      <div
+        ref={containerRef}
+        aria-label="Security check"
+        className={size === "compact" ? "flex justify-center" : ""}
+      />
+      {(!scriptReady || !size) && (
         <p className="text-sm text-muted-foreground">Loading security check…</p>
       )}
     </div>
