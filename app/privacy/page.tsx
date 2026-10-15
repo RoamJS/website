@@ -29,8 +29,8 @@ const Privacy = (): React.JSX.Element => (
       When the account security check is enabled, Cloudflare Turnstile checks
       sign-in requests before an email is sent. It processes browser and network
       signals, including your IP address and this site’s origin, to detect
-      automated requests. It does not receive what you type into the email
-      field. See{" "}
+      automated requests. RoamJS does not include your email address in the
+      Turnstile verification request. See{" "}
       <a href="https://www.cloudflare.com/turnstile-privacy-policy/">
         Cloudflare’s Turnstile privacy terms
       </a>
