@@ -59,6 +59,18 @@ test("requires a fresh challenge for each email request", async ({ page }) => {
       !!(window as unknown as { testTurnstile?: { options?: unknown } })
         .testTurnstile?.options,
   );
+  expect(
+    await page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            testTurnstile: {
+              options: { appearance: string; theme: string };
+            };
+          }
+        ).testTurnstile.options,
+    ),
+  ).toMatchObject({ appearance: "interaction-only", theme: "dark" });
   await page.evaluate(() =>
     (
       window as unknown as {
@@ -120,6 +132,19 @@ test("requires a fresh challenge for each email request", async ({ page }) => {
       ),
     ).toBe(true);
   }
+  await page.getByRole("button", { name: "Toggle dark mode" }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (
+            window as unknown as {
+              testTurnstile: { options: { theme: string } };
+            }
+          ).testTurnstile.options.theme,
+      ),
+    )
+    .toBe("light");
 });
 
 test("expired or unavailable checks never request email", async ({ page }) => {
