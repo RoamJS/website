@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add an optional Turnstile check to account email requests, renewing it after each request so Supabase can reject automated sign-in mail before delivery.
+
 - Use a quiet, non-animated segmented switch for plugin instructions and suggestions, without the duplicate divider or heavy underline.
 - Send the owner a best-effort email when a new plugin or app suggestion is saved.
 

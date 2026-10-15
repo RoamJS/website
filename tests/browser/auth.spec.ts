@@ -1,4 +1,9 @@
 import { test, expect } from "@playwright/test";
+import { mockPassingTurnstile } from "./turnstile-fixture";
+
+test.beforeEach(async ({ page }) => {
+  await mockPassingTurnstile(page);
+});
 const authUrl = "https://uxihswugvmdwbbtgxtfl.supabase.co/auth/v1";
 test("email sign-in stays separate from consent and handles failed verification", async ({
   page,

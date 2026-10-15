@@ -1,14 +1,19 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { setInboxReturnHint } from "@/lib/auth-return";
 import { verifiedPrimaryEmail } from "@/lib/validation";
 import { useAuth } from "./auth-provider";
+import { AuthTurnstile } from "./auth-turnstile";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+
+const TURNSTILE_SITE_KEY =
+  process.env.NEXT_PUBLIC_AUTH_TURNSTILE_SITE_KEY?.trim() || "";
+
 export const AccountForm = (): React.JSX.Element => {
   const { user, enabled, isLoaded } = useAuth();
   const search = useSearchParams();
@@ -21,6 +26,9 @@ export const AccountForm = (): React.JSX.Element => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [resendAt, setResendAt] = useState(0);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaIssue, setCaptchaIssue] = useState("");
+  const resetCaptchaRef = useRef<(() => void) | null>(null);
   const run = async (action: () => Promise<void>): Promise<void> => {
     setBusy(true);
     setError("");
@@ -36,22 +44,37 @@ export const AccountForm = (): React.JSX.Element => {
   const send = async (): Promise<void> => {
     if (Date.now() < resendAt)
       throw new Error("Please wait a minute before requesting another email.");
-    setInboxReturnHint(returnToInbox);
-    const { error } = await createClient().auth.signInWithOtp({
-      email: email.trim(),
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-    });
-    if (error) {
-      setInboxReturnHint(false);
+    if (TURNSTILE_SITE_KEY && !captchaToken)
       throw new Error(
-        "We couldn’t send the sign-in email. Please wait a moment and try again.",
+        captchaIssue ||
+          "Complete the security check before requesting an email.",
       );
+    setInboxReturnHint(returnToInbox);
+    try {
+      const { error } = await createClient().auth.signInWithOtp({
+        email: email.trim(),
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          ...(captchaToken ? { captchaToken } : {}),
+        },
+      });
+      if (error) {
+        setInboxReturnHint(false);
+        throw new Error(
+          "We couldn’t send the sign-in email. Please wait a moment and try again.",
+        );
+      }
+      setSent(true);
+      setResendAt(Date.now() + 60_000);
+      setMessage(
+        "Check your email for a verification code. You can also open the sign-in link in this browser.",
+      );
+    } finally {
+      if (TURNSTILE_SITE_KEY) {
+        setCaptchaToken(null);
+        resetCaptchaRef.current?.();
+      }
     }
-    setSent(true);
-    setResendAt(Date.now() + 60_000);
-    setMessage(
-      "Check your email for a verification code. You can also open the sign-in link in this browser.",
-    );
   };
   const verify = async (): Promise<void> => {
     const { error } = await createClient().auth.verifyOtp({
@@ -141,6 +164,32 @@ export const AccountForm = (): React.JSX.Element => {
               disabled={busy || sent}
               onChange={(e) => setEmail(e.target.value)}
             />
+            {TURNSTILE_SITE_KEY && (
+              <>
+                <AuthTurnstile
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onToken={setCaptchaToken}
+                  onIssue={setCaptchaIssue}
+                  resetRef={resetCaptchaRef}
+                />
+                {captchaIssue && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {captchaIssue}{" "}
+                    <button
+                      type="button"
+                      className="underline"
+                      onClick={() => {
+                        setCaptchaIssue("");
+                        if (resetCaptchaRef.current) resetCaptchaRef.current();
+                        else window.location.reload();
+                      }}
+                    >
+                      Retry security check
+                    </button>
+                  </p>
+                )}
+              </>
+            )}
             <Button type="submit" disabled={busy}>
               {busy
                 ? "Please wait…"
