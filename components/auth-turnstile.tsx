@@ -2,14 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
+import { useTheme } from "next-themes";
 
 type TurnstileApi = {
   render: (
     container: HTMLElement,
     options: {
       sitekey: string;
-      theme: "auto";
+      theme: "light" | "dark";
       size: "flexible" | "compact";
+      appearance: "interaction-only";
       callback: (token: string) => void;
       "expired-callback": () => void;
       "error-callback": () => void;
@@ -34,8 +36,13 @@ export const AuthTurnstile = ({
   resetRef: React.RefObject<(() => void) | null>;
 }): React.JSX.Element => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { resolvedTheme } = useTheme();
   const [scriptReady, setScriptReady] = useState(false);
   const [size, setSize] = useState<"flexible" | "compact" | null>(null);
+  const widgetTheme =
+    resolvedTheme === "light" || resolvedTheme === "dark"
+      ? resolvedTheme
+      : null;
 
   useEffect(() => {
     const form = containerRef.current?.closest("form");
@@ -50,7 +57,7 @@ export const AuthTurnstile = ({
   useEffect(() => {
     const api = turnstileApi();
     const container = containerRef.current;
-    if (!scriptReady || !container || !size) return;
+    if (!scriptReady || !container || !size || !widgetTheme) return;
     if (!api) {
       onIssue("Security check could not load. Reload this page and try again.");
       return;
@@ -61,8 +68,9 @@ export const AuthTurnstile = ({
       onToken(null);
       widgetId = api.render(container, {
         sitekey: siteKey,
-        theme: "auto",
+        theme: widgetTheme,
         size,
+        appearance: "interaction-only",
         callback: (token) => {
           onIssue("");
           onToken(token);
@@ -90,10 +98,10 @@ export const AuthTurnstile = ({
       onToken(null);
       api.remove(widgetId);
     };
-  }, [scriptReady, siteKey, size, onToken, onIssue, resetRef]);
+  }, [scriptReady, siteKey, size, widgetTheme, onToken, onIssue, resetRef]);
 
   return (
-    <div className="space-y-2">
+    <div>
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
         strategy="afterInteractive"
@@ -104,13 +112,11 @@ export const AuthTurnstile = ({
           )
         }
       />
-      <div
-        ref={containerRef}
-        aria-label="Security check"
-        className={size === "compact" ? "flex justify-center" : ""}
-      />
-      {(!scriptReady || !size) && (
-        <p className="text-sm text-muted-foreground">Loading security check…</p>
+      <div ref={containerRef} aria-label="Security check" />
+      {(!scriptReady || !size || !widgetTheme) && (
+        <p role="status" className="sr-only">
+          Loading security check…
+        </p>
       )}
     </div>
   );
