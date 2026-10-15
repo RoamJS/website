@@ -25,6 +25,17 @@ const Privacy = (): React.JSX.Element => (
       on your idea. Suggestions are private to RoamJS. Please don’t submit
       sensitive information or private graph content.
     </p>
+    <p>
+      When the account security check is enabled, Cloudflare Turnstile checks
+      sign-in requests before an email is sent. It processes browser and network
+      signals, including your IP address and this site’s origin, to detect
+      automated requests. It does not receive what you type into the email
+      field. See{" "}
+      <a href="https://www.cloudflare.com/turnstile-privacy-policy/">
+        Cloudflare’s Turnstile privacy terms
+      </a>
+      .
+    </p>
     <h2>Announcements are optional</h2>
     <p>
       Creating an account or submitting a suggestion does not subscribe you to
@@ -58,7 +69,7 @@ const Privacy = (): React.JSX.Element => (
       channel.
     </p>
     <p className="text-xs text-muted-foreground">
-      Last updated October 10, 2026.
+      Last updated October 14, 2026.
     </p>
   </main>
 );
