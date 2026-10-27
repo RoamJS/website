@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 export const metadata: Metadata = {
+  metadataBase: new URL("https://roamjs.com"),
+  openGraph: { siteName: "RoamJS", type: "website" },
+  twitter: { card: "summary_large_image" },
   title: {
     default: "RoamJS — A better way to work in Roam",
     template: "%s · RoamJS",
