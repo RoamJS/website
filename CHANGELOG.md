@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Show a branded image when website links are shared in Slack and other social apps.
+
 - Keep the account security check out of the way unless visitor interaction is needed, and match its visible theme to the website.
 
 - Add an optional Turnstile check to account email requests, renewing it after each request so Supabase can reject automated sign-in mail before delivery.
