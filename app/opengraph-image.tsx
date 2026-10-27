@@ -8,7 +8,14 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 const OpenGraphImage = async (): Promise<ImageResponse> => {
-  const logo = await readFile(join(process.cwd(), "public/roamjs-logo.png"));
+  const source = await readFile(
+    join(process.cwd(), "public/roamjs-logo.svg"),
+    "utf8",
+  );
+  // ImageResponse's SVG decoder needs sRGB equivalents of the header logo's colors.
+  const logo = source
+    .replaceAll("oklch(68.5% 0.169 237.323)", "#00a6f4")
+    .replaceAll("oklch(75% 0.183 55.934)", "#ff8904");
 
   return new ImageResponse(
     <div
@@ -27,7 +34,7 @@ const OpenGraphImage = async (): Promise<ImageResponse> => {
       <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
         {/* ImageResponse embeds the local brand asset without a network request. */}
         <img
-          src={`data:image/png;base64,${logo.toString("base64")}`}
+          src={`data:image/svg+xml;base64,${Buffer.from(logo).toString("base64")}`}
           width={90}
           height={90}
           alt=""

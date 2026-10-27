@@ -45,5 +45,28 @@ for (const path of ["/", "/plugins/smartblocks"]) {
     expect(png.subarray(0, 8).toString("hex")).toBe("89504e470d0a1a0a");
     expect(png.readUInt32BE(16)).toBe(1200);
     expect(png.readUInt32BE(20)).toBe(630);
+    const logoPixels = await page.evaluate(async (encoded): Promise<number> => {
+      const image = new Image();
+      image.src = `data:image/png;base64,${encoded}`;
+      await image.decode();
+      const canvas = document.createElement("canvas");
+      canvas.width = 90;
+      canvas.height = 90;
+      const context = canvas.getContext("2d")!;
+      context.drawImage(image, 76, 64, 90, 90, 0, 0, 90, 90);
+      const { data } = context.getImageData(0, 0, 90, 90);
+      let coloredPixels = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        if (
+          Math.max(data[i], data[i + 1], data[i + 2]) -
+            Math.min(data[i], data[i + 1], data[i + 2]) >
+          100
+        )
+          coloredPixels++;
+      }
+      return coloredPixels;
+    }, png.toString("base64"));
+    // Valid PNG responses can still hide SVGs whose color syntax is unsupported.
+    expect(logoPixels).toBeGreaterThan(1000);
   });
 }
