@@ -1,4 +1,5 @@
 import documentation from "@/content/plugins-source.json";
+import curatedDocumentation from "@/content/curated-guides.json";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -34,7 +35,10 @@ const PluginPage = async ({
   params: Promise<{ slug: string }>;
 }): Promise<React.JSX.Element> => {
   const plugin = getPlugin((await params).slug);
-  const readme = documentation.plugins.find((p) => p.slug === plugin?.slug);
+  const readme = [
+    ...documentation.plugins,
+    ...curatedDocumentation.plugins,
+  ].find((p) => p.slug === plugin?.slug);
   if (!plugin || !readme) notFound();
   const p = { ...plugin, ...readme };
   const pending = p.readme.startsWith("# RoamJS Extension Base");
@@ -65,7 +69,7 @@ const PluginPage = async ({
             name={p.name}
             enabled={isSuggestionsConfigured()}
           >
-            {pending ? (
+            {pending && p.repository ? (
               <div className="rounded-xl border p-7">
                 <h2 className="text-lg font-medium">
                   This guide is being prepared
@@ -85,10 +89,16 @@ const PluginPage = async ({
               <>
                 <p className="mb-6 flex items-center gap-2 text-xs text-muted-foreground">
                   <BookOpen className="size-3.5" />
-                  From the plugin’s public README ·{" "}
-                  <a href={p.readmeUrl} className="underline">
-                    View source
-                  </a>
+                  {p.readmeUrl ? (
+                    <>
+                      From the plugin’s public README ·{" "}
+                      <a href={p.readmeUrl} className="underline">
+                        View source
+                      </a>
+                    </>
+                  ) : (
+                    "About this plugin · by RoamJS"
+                  )}
                 </p>
                 <article className="prose">
                   <Markdown
@@ -99,7 +109,7 @@ const PluginPage = async ({
                         <a
                           href={resolveReadmeUrl({
                             url: href ?? "",
-                            readmeUrl: p.readmeUrl,
+                            readmeUrl: p.readmeUrl ?? "https://roamjs.com/",
                           })}
                         >
                           {children}
@@ -110,7 +120,7 @@ const PluginPage = async ({
                           <Image
                             src={resolveReadmeUrl({
                               url: src,
-                              readmeUrl: p.readmeUrl,
+                              readmeUrl: p.readmeUrl ?? "https://roamjs.com/",
                               image: true,
                             })}
                             alt={alt || "Screenshot from the plugin guide"}
@@ -131,21 +141,33 @@ const PluginPage = async ({
         </div>
         <aside className="space-y-6 lg:sticky lg:top-28 lg:self-start">
           <div className="rounded-xl border bg-card p-6">
-            <p className="eyebrow mb-4">MAKE IT PART OF YOUR GRAPH</p>
+            <p className="eyebrow mb-4">
+              {p.depotInstallation || p.repository
+                ? "MAKE IT PART OF YOUR GRAPH"
+                : "AVAILABILITY"}
+            </p>
             <h2 className="text-lg font-medium">
-              {p.depotId ? "Find it in Roam Depot" : "Explore the repository"}
+              {p.depotInstallation
+                ? "Find it in Roam Depot"
+                : p.repository
+                  ? "Explore the repository"
+                  : "Coming soon"}
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-              {p.depotId
+              {p.depotInstallation
                 ? `In Roam, open Settings → Roam Depot and search for “${p.name}”.`
-                : "Check the repository for availability, installation details, and development status."}
+                : p.repository
+                  ? "Check the repository for availability, installation details, and development status."
+                  : "Find In Page isn’t available in Roam Depot yet. Installation details will be added here when it’s available."}
             </p>
-            <Button asChild className="mt-5 w-full" variant="outline">
-              <a href={p.repository}>
-                View on GitHub
-                <ArrowUpRight className="size-4" />
-              </a>
-            </Button>
+            {p.repository && (
+              <Button asChild className="mt-5 w-full" variant="outline">
+                <a href={p.repository}>
+                  View on GitHub
+                  <ArrowUpRight className="size-4" />
+                </a>
+              </Button>
+            )}
             <Link
               href="/getting-started"
               className="mt-4 block text-center text-xs text-muted-foreground underline"
@@ -163,7 +185,7 @@ const PluginPage = async ({
           )}
           <div className="flex items-center gap-2 border-t pt-5 text-xs text-muted-foreground">
             <GitFork className="size-4" />
-            Open source · by RoamJS
+            {p.repository ? "Open source · by RoamJS" : "By RoamJS"}
           </div>
         </aside>
       </div>

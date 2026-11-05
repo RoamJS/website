@@ -51,6 +51,15 @@ beforeEach(() => {
   });
 });
 describe("community API", () => {
+  it("routes Find In Page suggestions through the existing persistence flow", async () => {
+    expect(
+      (await suggest(request({ ...valid, pluginSlug: "find-in-page" }))).status,
+    ).toBe(201);
+    expect(state.rpc).toHaveBeenCalledWith(
+      "submit_suggestion",
+      expect.objectContaining({ p_plugin_slug: "find-in-page" }),
+    );
+  });
   it("fails closed when services are not configured", async () => {
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
     expect((await suggest(request(valid))).status).toBe(503);
