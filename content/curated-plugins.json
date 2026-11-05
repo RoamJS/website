@@ -1,0 +1,17 @@
+{
+  "plugins": [
+    {
+      "name": "Find In Page",
+      "creator": "RoamJS",
+      "downloads": null,
+      "depotId": null,
+      "created": null,
+      "updated": null,
+      "version": null,
+      "repository": "https://github.com/RoamJS/find-in-page",
+      "slug": "find-in-page",
+      "depotInstallation": true,
+      "added": "2026-11-04"
+    }
+  ]
+}

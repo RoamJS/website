@@ -41,7 +41,7 @@ Account creation and suggestions never subscribe someone to announcements. Newsl
 - `content/plugins-index.json`: metadata only, so full README text is not shipped in the catalog's client bundle.
 - `lib/catalog.ts`: edited descriptions and categories.
 - Depot metadata is a historical October 4, 2026 snapshot, not live counts or active-user statistics. It includes 20 entries attributed to RoamJS. Three additional public repositories are included without inferred download counts or Depot availability.
-- Private repositories and the deprecated Static Site extension are excluded. Plugin reviews and ratings are not part of the website.
+- Private repositories and the deprecated Static Site extension are excluded from README imports. Plugins can also have website-authored guides in `content/curated-guides.json` and metadata in `content/curated-plugins.json`. These are kept separate from the public README refresh and historical Depot snapshot. Find In Page has launch-ready Roam Depot installation copy; standard source and suggestion links are prepared for launch, and unverified download counts are omitted. See [Find In Page content notes](docs/find-in-page.md). Plugin reviews and ratings are not part of the website.
 - Markdown renders without raw HTML. Images use their original source URLs. Some upstream guides link to further docs or videos, so the README is not necessarily the complete manual.
 
 Refresh public README snapshots with `node scripts/refresh-documentation.mjs` (requires authenticated `gh`). The script refuses private repositories and writes only after every read succeeds. Download data is updated separately from a verified Depot snapshot. Review the diff before publishing refreshed content.
