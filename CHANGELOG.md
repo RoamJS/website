@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Simplify plugin catalog cards to an arrow-only navigation cue while keeping the whole card clickable.
+
 - Add Find In Page with Roam Depot installation instructions and plugin suggestions; sort Find In Page and Pinned Blocks using their website-added dates.
 
 - Show a branded image when website links are shared in Slack and other social apps.

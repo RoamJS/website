@@ -267,13 +267,10 @@ export const Catalog = ({
                           <span className="rounded-full bg-secondary px-2 py-1 text-[11px] text-secondary-foreground">
                             {p.category}
                           </span>
-                          <span className="inline-flex items-center gap-1 text-sm text-primary">
-                            View{" "}
-                            <ArrowRight
-                              aria-hidden="true"
-                              className="size-4 transition-transform group-hover:translate-x-1"
-                            />
-                          </span>
+                          <ArrowRight
+                            aria-hidden="true"
+                            className="size-4 shrink-0 text-primary transition-transform group-hover:translate-x-1 group-focus-visible:translate-x-1"
+                          />
                         </div>
                       </div>
                     </Link>
