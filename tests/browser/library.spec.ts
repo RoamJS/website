@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { plugins } from "../../content/plugins-index.json";
+import { plugins } from "../../lib/catalog";
 test("catalog search, filtering, sorting, guide and suggestion states", async ({
   page,
 }) => {
@@ -43,7 +43,11 @@ test("catalog search, filtering, sorting, guide and suggestion states", async ({
   await page.getByRole("combobox", { name: "Sort plugins" }).click();
   await page.getByRole("option", { name: "Title (A–Z)" }).click();
   const titles = page.locator("#catalog-results h3");
-  await expect(titles).toHaveText(["Breadcrumbs", "Quick Switcher"]);
+  await expect(titles).toHaveText([
+    "Breadcrumbs",
+    "Find In Page",
+    "Quick Switcher",
+  ]);
   await page.getByRole("button", { name: /All plugins/ }).click();
   await expect(titles).toHaveText(
     plugins.map((p) => p.name).sort((a, b) => a.localeCompare(b)),
@@ -57,9 +61,14 @@ test("catalog search, filtering, sorting, guide and suggestion states", async ({
   );
   await page.getByRole("combobox", { name: "Sort plugins" }).click();
   await page.getByRole("option", { name: "Newest", exact: true }).click();
-  await expect(titles.first()).toHaveText("Quick Switcher");
+  await expect(titles.first()).toHaveText("Find In Page");
+  await expect(titles.nth(1)).toHaveText("Pinned Blocks");
   await page.getByRole("button", { name: /Navigation/ }).click();
-  await expect(titles).toHaveText(["Quick Switcher", "Breadcrumbs"]);
+  await expect(titles).toHaveText([
+    "Find In Page",
+    "Quick Switcher",
+    "Breadcrumbs",
+  ]);
   await expect(page.getByText("Sort by", { exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: /All plugins/ }).click();
   await page.keyboard.press("Control+k");

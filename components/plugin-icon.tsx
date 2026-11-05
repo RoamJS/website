@@ -65,6 +65,7 @@ const icons = {
   "sticky-notes": StickyNote,
   "custom-dark-mode": Moon,
   "quick-switcher": ArrowLeftRight,
+  "find-in-page": Search,
   "attribute-select": ListFilter,
   "media-gallery": Images,
   "pinned-blocks": Pin,

@@ -1,4 +1,5 @@
 import source from "@/content/plugins-index.json";
+import curated from "@/content/curated-plugins.json";
 export const categories = [
   "All plugins",
   "Writing & thinking",
@@ -81,6 +82,10 @@ const descriptions: Record<string, [Category, string]> = {
     "Navigation",
     "Move between pages and blocks with a focused, keyboard-friendly switcher.",
   ],
+  "find-in-page": [
+    "Navigation",
+    "Find any phrase. Even in folded blocks. Jump straight to editing.",
+  ],
   "attribute-select": [
     "Productivity",
     "Turn attributes into dropdowns and sliders for more consistent, structured notes.",
@@ -110,8 +115,12 @@ const descriptions: Record<string, [Category, string]> = {
     "Build and run your own extensions from inside Roam.",
   ],
 };
-export const plugins = source.plugins.map((p) => ({
+export const plugins = [...source.plugins, ...curated.plugins].map((p) => ({
   ...p,
+  added: "added" in p ? p.added : p.created,
+  depotInstallation:
+    Boolean(p.depotId) ||
+    ("depotInstallation" in p && p.depotInstallation === true),
   category: descriptions[p.slug]?.[0] ?? "Productivity",
   description: descriptions[p.slug]?.[1] ?? p.name,
 }));
@@ -143,8 +152,7 @@ export const filterPlugins = ({
       if (sort === "name") return a.name.localeCompare(b.name);
       if (sort === "newest") {
         const newestFirst =
-          (Date.parse(b.created ?? "") || 0) -
-          (Date.parse(a.created ?? "") || 0);
+          (Date.parse(b.added ?? "") || 0) - (Date.parse(a.added ?? "") || 0);
         return newestFirst || a.name.localeCompare(b.name);
       }
       return (b.downloads ?? -1) - (a.downloads ?? -1);

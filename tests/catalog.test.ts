@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { filterPlugins, getPlugin, plugins } from "@/lib/catalog";
 import docs from "@/content/plugins-source.json";
+import curatedDocs from "@/content/curated-guides.json";
 import { resolveReadmeUrl, prepareReadme } from "@/lib/markdown";
 describe("plugin discovery", () => {
   it("combines search terms and categories without changing the source order", () => {
@@ -37,29 +38,25 @@ describe("plugin discovery", () => {
       sort: "newest",
     });
     expect(result.slice(0, 3).map((p) => p.slug)).toEqual([
-      "quick-switcher",
-      "custom-dark-mode",
-      "tldraw",
-    ]);
-    expect(result.slice(-2).map((p) => p.slug)).toEqual([
-      "developer",
+      "find-in-page",
       "pinned-blocks",
+      "quick-switcher",
     ]);
-    const dated = result.filter((p) => p.created);
+    expect(result.slice(-1).map((p) => p.slug)).toEqual(["developer"]);
+    const dated = result.filter((p) => p.added);
     expect(
       dated.every(
         (p, i) =>
-          i === 0 ||
-          Date.parse(dated[i - 1].created!) >= Date.parse(p.created!),
+          i === 0 || Date.parse(dated[i - 1].added!) >= Date.parse(p.added!),
       ),
     ).toBe(true);
     expect(
       filterPlugins({ query: "", category: "Navigation", sort: "newest" }).map(
         (p) => p.slug,
       ),
-    ).toEqual(["quick-switcher", "breadcrumbs"]);
+    ).toEqual(["find-in-page", "quick-switcher", "breadcrumbs"]);
   });
-  it("excludes private repositories from the public library", () => {
+  it("excludes unannounced private repositories from the public library", () => {
     for (const slug of [
       "attribute-select",
       "media-gallery",
@@ -81,12 +78,39 @@ describe("plugin discovery", () => {
   it("has unique routes and source documentation for every catalog item", () => {
     expect(new Set(plugins.map((p) => p.slug)).size).toBe(plugins.length);
     for (const p of plugins) {
+      if (curatedDocs.plugins.some((d) => d.slug === p.slug)) {
+        expect(
+          curatedDocs.plugins.find((d) => d.slug === p.slug)?.readme,
+        ).toBeTruthy();
+        expect(p.depotId).toBeNull();
+        expect(p.downloads).toBeNull();
+        continue;
+      }
       expect(docs.plugins.find((d) => d.slug === p.slug)?.readmeSha).toMatch(
         /^[a-f0-9]{40}$/,
       );
       expect(p.repository).toMatch(/^https:\/\/github.com\/RoamJS\//);
     }
     expect(getPlugin("missing")).toBeUndefined();
+  });
+  it("discovers Find In Page with Depot installation copy and no invented metrics", () => {
+    expect(
+      filterPlugins({
+        query: "folded",
+        category: "Navigation",
+        sort: "name",
+      }).map((p) => p.slug),
+    ).toEqual(["find-in-page"]);
+    expect(getPlugin("find-in-page")).toMatchObject({
+      name: "Find In Page",
+      depotInstallation: true,
+      repository: "https://github.com/RoamJS/find-in-page",
+      depotId: null,
+      downloads: null,
+      version: null,
+      created: null,
+    });
+    expect(docs.plugins.find((p) => p.slug === "find-in-page")).toBeUndefined();
   });
 });
 describe("README rendering", () => {
