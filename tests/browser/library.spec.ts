@@ -46,6 +46,7 @@ test("catalog search, filtering, sorting, guide and suggestion states", async ({
   await expect(titles).toHaveText([
     "Breadcrumbs",
     "Find In Page",
+    "Media Gallery",
     "Quick Switcher",
   ]);
   await page.getByRole("button", { name: /All plugins/ }).click();
@@ -61,10 +62,11 @@ test("catalog search, filtering, sorting, guide and suggestion states", async ({
   );
   await page.getByRole("combobox", { name: "Sort plugins" }).click();
   await page.getByRole("option", { name: "Newest", exact: true }).click();
-  await expect(titles.first()).toHaveText("Find In Page");
-  await expect(titles.nth(1)).toHaveText("Pinned Blocks");
+  await expect(titles.first()).toHaveText("Media Gallery");
+  await expect(titles.nth(1)).toHaveText("Find In Page");
   await page.getByRole("button", { name: /Navigation/ }).click();
   await expect(titles).toHaveText([
+    "Media Gallery",
     "Find In Page",
     "Quick Switcher",
     "Breadcrumbs",

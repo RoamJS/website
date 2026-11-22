@@ -12,6 +12,19 @@
       "slug": "find-in-page",
       "depotInstallation": true,
       "added": "2026-11-04"
+    },
+    {
+      "name": "Media Gallery",
+      "creator": "RoamJS",
+      "downloads": null,
+      "depotId": null,
+      "created": null,
+      "updated": null,
+      "version": null,
+      "repository": "https://github.com/RoamJS/media-gallery",
+      "slug": "media-gallery",
+      "depotInstallation": false,
+      "added": "2026-11-22"
     }
   ]
 }
