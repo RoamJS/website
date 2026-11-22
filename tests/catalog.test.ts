@@ -37,7 +37,8 @@ describe("plugin discovery", () => {
       category: "All plugins",
       sort: "newest",
     });
-    expect(result.slice(0, 3).map((p) => p.slug)).toEqual([
+    expect(result.slice(0, 4).map((p) => p.slug)).toEqual([
+      "media-gallery",
       "find-in-page",
       "pinned-blocks",
       "quick-switcher",
@@ -54,15 +55,15 @@ describe("plugin discovery", () => {
       filterPlugins({ query: "", category: "Navigation", sort: "newest" }).map(
         (p) => p.slug,
       ),
-    ).toEqual(["find-in-page", "quick-switcher", "breadcrumbs"]);
+    ).toEqual([
+      "media-gallery",
+      "find-in-page",
+      "quick-switcher",
+      "breadcrumbs",
+    ]);
   });
   it("excludes unannounced private repositories from the public library", () => {
-    for (const slug of [
-      "attribute-select",
-      "media-gallery",
-      "recent-changes",
-      "ranked-search",
-    ])
+    for (const slug of ["attribute-select", "recent-changes", "ranked-search"])
       expect(getPlugin(slug)).toBeUndefined();
   });
   it("excludes the deprecated Static Site extension", () => {

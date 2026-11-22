@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add Media Gallery to the plugin library with a demo, usage guide, and Roam Depot review link.
+
 - Simplify plugin catalog cards to an arrow-only navigation cue while keeping the whole card clickable.
 
 - Add Find In Page with Roam Depot installation instructions and plugin suggestions; sort Find In Page and Pinned Blocks using their website-added dates.
