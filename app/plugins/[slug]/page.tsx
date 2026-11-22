@@ -157,7 +157,7 @@ const PluginPage = async ({
               {p.depotInstallation
                 ? `In Roam, open Settings → Roam Depot and search for “${p.name}”.`
                 : p.repository
-                  ? "Check the repository for availability, installation details, and development status."
+                  ? "Browse the source code and documentation on GitHub."
                   : "Find In Page isn’t available in Roam Depot yet. Installation details will be added here when it’s available."}
             </p>
             {p.repository && (

@@ -17,15 +17,15 @@ const renderPlugin = async (slug: string): Promise<string> =>
   renderToStaticMarkup(await PluginPage({ params: Promise.resolve({ slug }) }));
 
 describe("plugin availability and instructions", () => {
-  it("shows the Media Gallery guide and review link before Depot approval", async () => {
+  it("shows the Media Gallery guide, demo, and source repository", async () => {
     const html = await renderPlugin("media-gallery");
     expect(generateStaticParams()).toContainEqual({ slug: "media-gallery" });
     expect(html).toContain("Open Media Gallery");
     expect(html).toContain("Build image index");
     expect(html).toContain(
-      "https://github.com/Roam-Research/roam-depot/pull/1559",
+      "https://github.com/user-attachments/assets/231fe2f3-0dd3-490e-82d4-39cbf358c68d",
     );
-    expect(html).not.toContain("Find it in Roam Depot");
+    expect(html).toContain("https://github.com/RoamJS/media-gallery");
     expect(html).not.toContain("Depot downloads");
   });
 

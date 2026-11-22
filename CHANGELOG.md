@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Add Media Gallery to the plugin library with a demo, usage guide, and Roam Depot review link.
+- Add Media Gallery to the plugin library with a demo and usage guide.
 
 - Simplify plugin catalog cards to an arrow-only navigation cue while keeping the whole card clickable.
 
